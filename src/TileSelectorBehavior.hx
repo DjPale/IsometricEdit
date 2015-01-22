@@ -2,6 +2,7 @@ import luxe.Component;
 import luxe.Sprite;
 import luxe.Vector;
 import luxe.Input;
+import phoenix.Camera;
 
 import Main;
 
@@ -9,12 +10,14 @@ class TileSelectorBehavior extends Component
 {
 	var sheet : TileSheetAtlased;
 	var sprite : Sprite;
+	var camera : Camera;
 
-	public function new(_sheet:TileSheetAtlased, ?_options:luxe.options.ComponentOptions = null)
+	public function new(_sheet:TileSheetAtlased, _camera:Camera, ?_options:luxe.options.ComponentOptions = null)
 	{
 		super(_options);
 
 		sheet = _sheet;
+		camera = _camera;
 	}
 
 	function find_tile(pos:Vector) : Int
@@ -55,11 +58,15 @@ class TileSelectorBehavior extends Component
 
 	override function onmouseup(e:luxe.MouseEvent)
 	{
-		var new_tile = find_tile(e.pos);
+		if (e.button == MouseButton.left)
+		{
+			var wpos = camera.screen_point_to_world(e.pos);
 
-		trace("I think I found pos " + new_tile);
+			var new_tile = find_tile(wpos);
 
-		Luxe.events.fire('select', { index: new_tile });
+			trace("I think I found pos " + new_tile);
 
+			Luxe.events.fire('select', { index: new_tile });
+		}
 	}		
 }

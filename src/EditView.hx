@@ -9,6 +9,16 @@ import luxe.Vector;
 
 import Main;
 
+typedef TileDef =
+{
+	map_pos : Vector,
+	pos : Vector,
+	size : Vector,
+	origin: Vector,
+	centered : Bool,
+	uv : Rectangle
+}
+
 class EditView extends State
 {
 	var global : GlobalData;
@@ -16,17 +26,33 @@ class EditView extends State
     var spr : Sprite;
     var map : IsometricMap;
 
-    var boundaries : Rectangle;
+    var MOD_STICKY_TIME : Float = 0.2;
+    var mod_key_timer : Float;
 
-	public function new(_global:GlobalData)
+    var UNDO_MAX : Int = 10;
+    var undo_buffer : Array<TileDef>;
+
+    var dragging : Bool;
+    var zoom_mod : Bool;
+
+    var batcher : phoenix.Batcher;
+
+	public function new(_global:GlobalData, _batcher:phoenix.Batcher)
 	{
 		super({ name: 'EditView' });
 
 		map = new IsometricMap();
 
+		undo_buffer = new Array<TileDef>();
+
 		global = _global;
 
-		boundaries = new Rectangle(250, 0, Luxe.screen.w - 250, Luxe.screen.h);
+		batcher = _batcher;
+		/* = new Camera({
+			camera_name: 'edit',
+			viewport: new Rectangle(0, 0, Luxe.screen.w, Luxe.screen.h)
+			});
+		*/
 	}
 
 	override function init()
@@ -49,10 +75,10 @@ class EditView extends State
                     global.sheet.set_index(e.index); 
                     update_sprite(); 
                 }
+
+                Luxe.timer.schedule(0.1, function() { toggle_selector(); });
             }
             );
-
-        map.show_grid();
 	}
 
     function place_tile(template:Sprite)
@@ -61,11 +87,13 @@ class EditView extends State
 
     	var mpos = map.screen_to_iso(template.pos);
 
+    	remove_tile(mpos);
+
         var new_tile = new Sprite({name_unique: true});
         new_tile.centered = template.centered;
         new_tile.pos = template.pos.clone();
         new_tile.size = template.size.clone();
-        new_tile.texture = template.texture;
+        new_tile.texture = global.sheet.image;
         new_tile.uv = template.uv.clone();
         new_tile.origin = template.origin.clone();
 
@@ -74,37 +102,52 @@ class EditView extends State
 
     function remove_tile(pos:Vector)
     {
+    	var old = map.get_tile(pos);
+
+    	var prev_tile : TileDef = null;
+
+    	if (old != null)
+    	{
+    		prev_tile = { map_pos: pos, pos: old.pos, size: old.size, origin: old.origin, uv: old.uv, centered: old.centered };
+    	}
+    	else
+    	{
+    		prev_tile = { map_pos: pos, pos: null, size: null, origin: null, uv: null, centered: false };
+    	}
+
+    	undo_buffer.push(prev_tile);
+
+    	if (undo_buffer.length > UNDO_MAX)
+    	{
+    		undo_buffer.shift();
+    	}
+
     	map.remove_tile(pos);
     }
 
-    override function onmousemove(e:luxe.MouseEvent)
+    function restore_tile()
     {
-        if (spr == null) return;
+    	if (undo_buffer.length == 0) return;
 
-        var p = e.pos;
-        p.add(new Vector(-map.base_width, map.base_height));
+    	trace('restore_tile');
 
-        if (!boundaries.point_inside(p)) return;
+    	var def = undo_buffer.pop();
 
-        var mp = map.screen_to_iso(p);
+    	if (def.map_pos != null && def.pos == null)
+    	{
+    		map.remove_tile(def.map_pos);
+    		return;
+    	}
 
-        spr.pos = map.iso_to_screen(mp);
-    }
+    	var new_tile = new Sprite({ name_unique: true });
+    	new_tile.centered = def.centered;
+    	new_tile.pos = def.pos;
+    	new_tile.size = def.size;
+    	new_tile.texture = global.sheet.image;
+    	new_tile.uv = def.uv;
+    	new_tile.origin = def.origin;
 
-    override function onmousewheel(e:luxe.MouseEvent)
-    {
-        var dir = 0;
-        if (e.y > 0)
-        {
-            dir = 1;
-        }
-        else if (e.y < 0)
-        {
-            dir = -1;
-        }
-
-        global.sheet.set_index_ofs(dir);
-        update_sprite();
+    	map.set_tile(new_tile, def.map_pos);
     }
 
     function update_sprite()
@@ -126,17 +169,27 @@ class EditView extends State
     	if (global.views.enabled('SelectorView'))
     	{
     		global.views.disable('SelectorView');
+    		enable();
     	}
     	else
     	{
+    		disable();
     		global.views.enable('SelectorView');
+    	}
+    }
+
+    override function onmousedown(e:luxe.MouseEvent)
+    {
+    	if (!MyUtils.inside_me(batcher.view, e.pos)) return;
+
+    	if (e.button == luxe.MouseButton.middle)
+    	{
+    		dragging = true;
     	}
     }
 
     override function onmouseup(e:luxe.MouseEvent)
     {
-        if (!boundaries.point_inside(e.pos)) return;
-
         if (e.button == luxe.MouseButton.left)
         {
             place_tile(spr);
@@ -147,23 +200,85 @@ class EditView extends State
         }
         else if (e.button == luxe.MouseButton.middle)
         {
-        	toggle_selector();
+        	dragging = false;
         }
+    }
+
+    override function onmousemove(e:luxe.MouseEvent)
+    {
+    	if (dragging)
+    	{
+    		batcher.view.pos.add(new Vector(-e.xrel, -e.yrel));
+    	}
+
+        if (spr == null) return;
+
+        var p = batcher.view.screen_point_to_world(e.pos);
+        p.add(new Vector(-map.base_width, map.base_height));
+
+        var mp = map.screen_to_iso(p);
+
+        spr.pos = map.iso_to_screen(mp);
+    }
+
+    override function onmousewheel(e:luxe.MouseEvent)
+    {
+    	var dir = MyUtils.sgn(e.y);
+
+    	if (zoom_mod)
+    	{
+    		batcher.view.zoom += 0.15 * -dir;
+
+    		return;
+    	}
+
+        global.sheet.set_index_ofs(dir);
+        update_sprite();
+    }
+
+    override function onkeydown(e:luxe.KeyEvent)
+    {
+    	if (e.keycode == Key.lctrl || e.keycode == Key.rctrl)
+    	{
+    		zoom_mod = true;
+    	}
     }
 
     override function onkeyup(e:luxe.KeyEvent)
     {
+    	if (e.keycode == Key.lctrl || e.keycode == Key.rctrl || e.mod.lctrl || e.mod.rctrl)
+    	{
+    		mod_key_timer = e.timestamp;
+    		zoom_mod = false;
+    	}
+
+    	var mod_key_delta = (e.timestamp - mod_key_timer);
+
+    	#if luxe_web
+    	mod_key_delta /= 1000.0;
+    	#end
+
+    	//trace('$mod_key_delta');
+
     	if (e.keycode == Key.key_1)
     	{
-    		map.set_zoom(1);
+    		map.set_snap(1);
     	} 
     	else if (e.keycode == Key.key_2)
     	{
-    		map.set_zoom(2);
+    		map.set_snap(2);
     	}
     	else if (e.keycode == Key.key_3)
     	{
-    		map.set_zoom(3);
+    		map.set_snap(3);
+    	}
+    	else if (mod_key_delta < MOD_STICKY_TIME && e.keycode == Key.key_z)
+    	{
+    		restore_tile();
+    	}
+    	else if (e.keycode == Key.space)
+    	{
+    		toggle_selector();
     	}
     }
 

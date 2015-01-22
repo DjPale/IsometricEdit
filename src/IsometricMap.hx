@@ -10,7 +10,8 @@ class IsometricMap
 	public var base_width(default, null) : Int;
 	public var base_height(default, null) : Int;
 
-	var grid_zoom : Int = 1;
+	var grid_snap : Int = 1;
+	var grid_mult : Int = 1;
 
 	public var width(default, null) : Int;
 	public var height(default, null) : Int;
@@ -18,28 +19,36 @@ class IsometricMap
 	public var width_half(default, null) : Int;
 	public var height_half(default, null) : Int;
 
-    public function new(?_base_width:Int = 64, ?_base_height:Int = 32, ?_grid_zoom:Int = 2)
+    public function new(?_base_width:Int = 64, ?_base_height:Int = 32, ?_grid_snap:Int = 2)
     {
     	base_width = _base_width;
     	base_height = _base_height;
 
-		set_zoom(_grid_zoom);
+		set_snap(_grid_snap);
     }
 
-    public function set_zoom(zoom:Int)
+    public function set_snap(snap:Int)
     {
-    	if (zoom >= 1 && zoom <= 4)
+    	if (snap >= 1 && snap <= 4)
     	{
-    		width = base_width * (1 << (zoom - 1));
-    		height = base_height * (1 << (zoom - 1));
+    		grid_mult = (1 << (snap - 1));
+
+    		width = base_width * grid_mult;
+    		height = base_height * grid_mult;
 
     		width_half = Std.int(width / 2);
     		height_half = Std.int(height / 2);
 
-    		trace('grid ' + width + 'x' + height + ' - ' + zoom);
-
-    		show_grid();
+    		trace('grid ' + width + 'x' + height + ' - ' + snap);
     	}
+    }
+
+    public function get_tile(pos:Vector) : Sprite
+    {
+    	var k = _key(pos);
+        var v = grid.get(k);
+
+        return v;
     }
 
     public function set_tile(tile:Sprite, pos:Vector)
@@ -63,7 +72,7 @@ class IsometricMap
 
     inline function _key(p:Vector)
     {
-        return Std.int(p.x) + '-' + Std.int(p.y);
+        return Std.int(p.x * grid_mult) + '-' + Std.int(p.y * grid_mult);
     }
 
     public inline function screen_to_iso(p:Vector) : Vector
@@ -80,46 +89,5 @@ class IsometricMap
         var sy = (p.x + p.y) * height_half;
 
         return new Vector(sx, sy);
-    }
-
-    var geom : Array<Geometry> = new Array<Geometry>();
-
-    public function hide_grid()
-    {
-    	while (geom.length > 0)
-    	{
-    		Luxe.renderer.batcher.remove(geom.shift());
-    	}
-    }
-
-    public function show_grid()
-    {
-    	hide_grid();
-
-    	var xw = Std.int(Luxe.screen.w / width * 2);
-    	var yw = Std.int(Luxe.screen.h / height * 2);
-
-    	for (x in 0...xw)
-    	{
-    		for (y in 0...yw)
-    		{
-    			var i = iso_to_screen(new Vector(x, y));
-    			i.x += Luxe.screen.w / 2 + base_width / 2;
-    			i.y += -Luxe.screen.h / 2 + base_height;
-    			var i2 = i.clone();
-    			i2.y -= height_half;
-
-    			geom.push(Luxe.draw.circle({
-    				x: i.x,
-    				y: i.y,
-    				r: 4,
-    				}));
-
-    			geom.push(Luxe.draw.line({
-    				p0: i,
-    				p1: i2,
-    				}));
-    		}
-    	}
     }
 }

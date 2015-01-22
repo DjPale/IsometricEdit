@@ -1,8 +1,14 @@
 ==== TODO ====
 
 - Grid view
-	- Draw grid dots / lines
-	- Switch between 2 resolutions
+	- Draw grid dots / lines - not found a good solution yet :/
+	- Change snap level - OK
+
+- Undo stack - OK
+
+- Camera - OK
+	- Moveable tile selector - OK, but not 100% happy
+	- Moveable map - OK
 
 - Group editing
 	- Main group (road, grass, bridge etc.)
@@ -13,8 +19,10 @@
 		- Multiple vectors per tile
 		- Snap?
 
-- Camera panning
+- Consider using luxe standard isometric map instead of custom (bad) implementation
 
 - Save / Load
+
+- Redo support
 
 - Object editor (pre-define buildings etc.)

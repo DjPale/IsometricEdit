@@ -61,11 +61,15 @@ class Main extends luxe.Game
 
     function setup()
     {
-        views.add(new EditView(global_data));
-        views.add(new SelectorView(global_data));
+        var c = new luxe.Camera({camera_name: 'selector_cam'});
+        var b = Luxe.renderer.create_batcher({
+            camera: c.view
+            });
+
+        views.add(new EditView(global_data, Luxe.renderer.batcher));
+        views.add(new SelectorView(global_data, b));
 
         views.set('EditView');
-        views.enable('SelectorView');
     }
 
     override function update(dt:Float) 
