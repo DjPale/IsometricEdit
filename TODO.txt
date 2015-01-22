@@ -1,0 +1,20 @@
+==== TODO ====
+
+- Grid view
+	- Draw grid dots / lines
+	- Switch between 2 resolutions
+
+- Group editing
+	- Main group (road, grass, bridge etc.)
+	- Sub group (direction / variant)
+
+- Tile path editor
+	- Start with simple vectors first
+		- Multiple vectors per tile
+		- Snap?
+
+- Camera panning
+
+- Save / Load
+
+- Object editor (pre-define buildings etc.)

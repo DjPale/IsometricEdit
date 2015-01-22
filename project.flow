@@ -1,0 +1,25 @@
+{
+
+  project : {
+    name : 'Isometric Edit Test',
+    version : '0.0.1',
+    author : 'dj_pale',
+
+    app : {
+      name : 'IsometricEdit',
+      package : 'com.djpale.isometricedit',
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}

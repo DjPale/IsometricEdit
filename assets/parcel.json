@@ -1,0 +1,14 @@
+{
+	"textures" : [
+		{ "id" : "assets/tiles.png" }
+	],
+	"shaders" : [
+	],
+	"fonts" : [
+	],
+	"sounds" : [
+	],
+	"text" : [
+		{ "id" : "assets/tiles.xml" }
+	]
+}
