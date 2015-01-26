@@ -7,12 +7,16 @@
 - Undo stack - OK
 
 - Camera - OK
-	- Moveable tile selector - OK, but not 100% happy
+	- Moveable tile selector - OK, but not 100% happy. should probably not be modal.
 	- Moveable map - OK
 
-- Group editing
+- Group editing - Some progress
 	- Main group (road, grass, bridge etc.)
 	- Sub group (direction / variant)
+	- Clear selection
+	- Tooltip with group info and zoomed current tile when hovering the view
+
+- Label / info message with implicit trace
 
 - Tile path editor
 	- Start with simple vectors first

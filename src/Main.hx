@@ -14,7 +14,8 @@ typedef GlobalData = {
 }
 
 typedef SelectEvent = {
-    index: Int
+    index: Int,
+    code: Int
 }
 
 class Main extends luxe.Game 

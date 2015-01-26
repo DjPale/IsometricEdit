@@ -55,7 +55,7 @@ class IsometricMap
     {
         remove_tile(pos);
 
-        tile.depth = pos.y + pos.x;
+        tile.depth = Std.parseFloat(pos.y + '.' + pos.x);
 
         grid.set(_key(pos), tile);
     }

@@ -232,7 +232,16 @@ class EditView extends State
     		return;
     	}
 
-        global.sheet.set_index_ofs(dir);
+        if (global.sheet.current_group_empty())
+        {
+            global.sheet.set_index_ofs(dir);
+        }
+        else
+        {
+            global.sheet.set_group_index_ofs(dir);
+        }
+
+
         update_sprite();
     }
 
@@ -280,6 +289,11 @@ class EditView extends State
     	{
     		toggle_selector();
     	}
+        else
+        {
+            global.sheet.select_group(e.keycode);
+            trace('selected group ' + e.keycode);
+        }
     }
 
     override function update(dt:Float) 
