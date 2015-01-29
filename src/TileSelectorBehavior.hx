@@ -82,7 +82,7 @@ class TileSelectorBehavior extends Component
 		var sel_event : SelectEvent = { index: new_tile, code: e.keycode };
 
 		sheet.select_group(e.keycode);
-		trace('select group ' + e.keycode);
+		trace('select group ' + e.keycode);		
 
 		var ret = sheet.add_idx_to_group(new_tile);
 		trace('add to group = $ret');

@@ -19,7 +19,7 @@ class IsometricMap
 	public var width_half(default, null) : Int;
 	public var height_half(default, null) : Int;
 
-    public function new(?_base_width:Int = 64, ?_base_height:Int = 32, ?_grid_snap:Int = 2)
+    public function new(?_base_width:Int = 64, ?_base_height:Int = 32, ?_grid_snap:Int = 1)
     {
     	base_width = _base_width;
     	base_height = _base_height;
@@ -39,6 +39,8 @@ class IsometricMap
     		width_half = Std.int(width / 2);
     		height_half = Std.int(height / 2);
 
+            Luxe.events.queue('IsometricMap.Snap', '$width x $height ($snap)');
+
     		trace('grid ' + width + 'x' + height + ' - ' + snap);
     	}
     }
@@ -55,9 +57,12 @@ class IsometricMap
     {
         remove_tile(pos);
 
-        tile.depth = Std.parseFloat(pos.y + '.' + pos.x);
+        //tile.depth = Std.parseFloat(pos.y + '.' + pos.x);
+        tile.depth = pos.y * grid_mult + pos.x * grid_mult;
 
         grid.set(_key(pos), tile);
+
+        trace('Place tile at ' + _key(pos) + ' depth = ' + tile.depth);
     }
 
     public function remove_tile(pos:Vector, ?_destroy:Bool = true) : Bool
@@ -73,6 +78,18 @@ class IsometricMap
     inline function _key(p:Vector)
     {
         return Std.int(p.x * grid_mult) + '-' + Std.int(p.y * grid_mult);
+    }
+
+    public function change_depth_ofs(pos:Vector, depth:Int) : Bool
+    {
+        var s = get_tile(pos);
+        if (s != null)
+        {
+            s.depth += depth;
+            return true;
+        }
+
+        return false;
     }
 
     public inline function screen_to_iso(p:Vector) : Vector

@@ -11,21 +11,29 @@
 	- Moveable map - OK
 
 - Group editing - Some progress
-	- Main group (road, grass, bridge etc.)
+	- Main group (road, grass, bridge etc.) - OK
 	- Sub group (direction / variant)
 	- Clear selection
-	- Tooltip with group info and zoomed current tile when hovering the view
+	
+- Tooltip with group info and zoomed current tile when hovering the view
+	- Applicable for both views
 
-- Label / info message with implicit trace
+- Label / info message with implicit trace - Partly OK
+	- Status bar - OK, but not good enough. Probably needs more labels to avoid 'jitter'
+	- Messages instead of trace
 
 - Tile path editor
 	- Start with simple vectors first
 		- Multiple vectors per tile
 		- Snap?
 
+- Save / Load <- at this point we only develop native
+	- Map data
+	- Tilesheet
+
 - Consider using luxe standard isometric map instead of custom (bad) implementation
 
-- Save / Load
+- Change grid size
 
 - Redo support
 

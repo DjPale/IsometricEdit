@@ -69,33 +69,19 @@ class TileSheetAtlased
         return a;
     }
 
-    public function current_group_empty() : Bool
+    public function set_group_index_ofs(offset:Int) : Int
     {
         if (group_path.length == 0)
         {
-            return true;
-        }
-        else
-        {
-            var a = get_current_group();
-
-            if (a == null || a.length == 0)
-            {
-                return true;
-            }
+            return set_index_ofs(offset);
         }
 
-        return false;
-    }
-
-    public function set_group_index_ofs(offset:Int) : Int
-    {
         var a = get_current_group();
         trace('current group = $a, try to go $offset');
 
-        if (a == null || a.length == 0)
+        if (a == null)
         {
-            return -1;
+            return set_index_ofs(offset);
         }
 
         group_cycle_idx += offset;
@@ -111,6 +97,8 @@ class TileSheetAtlased
 
         atlas_pos = a[group_cycle_idx];
 
+        Luxe.events.queue('TileSheetAtlased.TileId', atlas_pos);
+
         return atlas_pos;
     }
 
@@ -118,8 +106,20 @@ class TileSheetAtlased
     {
         group_path[group_cur_idx] = grp;
         group_cycle_idx = 0;
+
+        set_group_index_ofs(0);
+
+        Luxe.events.queue('TileSheetAtlased.GroupId', get_current_path());
     }
 
+    public function no_group()
+    {
+        group_path = [];
+
+        Luxe.events.queue('TileSheetAtlased.GroupId', '-');
+    }
+
+/*
     public function inc_group_level()
     {
         if (group_cur_idx <= group_path.length)
@@ -139,8 +139,7 @@ class TileSheetAtlased
         }
     }
 
-/*
-    public function select_groups(grp:Array<Int>)
+   public function select_groups(grp:Array<Int>)
     {
         if (grp != null && grp.length > 0)
         {
@@ -151,19 +150,37 @@ class TileSheetAtlased
     }
 */
 
+    public function get_tile_from_rect(rect:Rectangle)
+    {
+        for (i in 0...atlas.length)
+        {
+            if (atlas[i].equal(rect))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     public function set_index_ofs(idx:Int)
     {
-        if (idx == 0) return;
+        if (idx == 0) return atlas_pos;
 
         var len =  atlas.length;
 
-        if (len == 0) return;
+        if (len == 0) return atlas_pos;
 
         atlas_pos += idx;
 
         if (atlas_pos >= len) atlas_pos = 0;
         if (atlas_pos < 0) atlas_pos = len - 1;
 
+        Luxe.events.queue('TileSheetAtlased.TileId', atlas_pos);
+
+        no_group();
+
+        return atlas_pos;
     }
 
     public function set_index(idx:Int)
@@ -171,6 +188,10 @@ class TileSheetAtlased
     	if (idx >= 0 && idx < atlas.length)
     	{
     		atlas_pos = idx;
+
+            no_group();
+
+            Luxe.events.queue('TileSheetAtlased.TileId', atlas_pos);
     	}
     }
 

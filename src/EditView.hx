@@ -4,7 +4,7 @@ import luxe.options.SpriteOptions;
 import luxe.Input;
 import luxe.Vector;
 import luxe.Rectangle;
-
+import luxe.Entity;
 import luxe.Vector;
 
 import Main;
@@ -25,6 +25,7 @@ class EditView extends State
 
     var spr : Sprite;
     var map : IsometricMap;
+    var tooltip : TileTooltipBehavior;
 
     var MOD_STICKY_TIME : Float = 0.2;
     var mod_key_timer : Float;
@@ -66,6 +67,13 @@ class EditView extends State
         spr.depth = 1000;
 
         update_sprite();
+
+        var tooltip_spr = new Entity({
+            name: 'edit_tt',
+            pos: new Vector(Luxe.screen.w / 2 - 128, 64),
+            });
+
+        tooltip = tooltip_spr.add(new TileTooltipBehavior(global.ui));
 
         Luxe.events.listen('select', 
             function(e:SelectEvent) 
@@ -178,6 +186,43 @@ class EditView extends State
     	}
     }
 
+    function tile_picker()
+    {
+        var p = mouse_coords(Luxe.screen.cursor.pos);
+
+        var mp = map.screen_to_iso(p);
+
+        var s = map.get_tile(mp);
+
+        if (s != null)
+        {
+            trace('Lookup tile with uv = ' + s.uv);
+
+            var idx = global.sheet.get_tile_from_rect(s.uv);
+            if (idx != -1)
+            {
+                global.sheet.set_index(idx );
+
+                update_sprite();
+            }
+        }
+    }
+
+    function reset_camera()
+    {
+        batcher.view.zoom = 1.0;
+        batcher.view.pos = new Vector();
+    }
+
+    function change_depth(dir:Int)
+    {
+        var p = mouse_coords(Luxe.screen.cursor.pos);
+
+        var mp = map.screen_to_iso(p);
+
+        trace('try to change depth on ' + mp + ' = ' + map.change_depth_ofs(mp, dir));
+    }
+
     override function onmousedown(e:luxe.MouseEvent)
     {
     	if (!MyUtils.inside_me(batcher.view, e.pos)) return;
@@ -204,6 +249,20 @@ class EditView extends State
         }
     }
 
+    inline function mouse_coords(pos:Vector, ?offset:Bool = true)
+    {
+        var p = batcher.view.screen_point_to_world(pos);
+
+        if (offset)
+        {
+            p.add(new Vector(-map.base_width, map.base_height));
+        }
+
+        return p;
+    }
+
+    var prev_pos : Vector;
+
     override function onmousemove(e:luxe.MouseEvent)
     {
     	if (dragging)
@@ -213,12 +272,21 @@ class EditView extends State
 
         if (spr == null) return;
 
-        var p = batcher.view.screen_point_to_world(e.pos);
-        p.add(new Vector(-map.base_width, map.base_height));
+        var p = mouse_coords(e.pos);
 
         var mp = map.screen_to_iso(p);
 
         spr.pos = map.iso_to_screen(mp);
+
+        if (spr.pos != prev_pos)
+        {
+            global.status.set_postxt('World:(' + Math.round(spr.pos.x) + ',' + Math.round(spr.pos.y) + ') - Map: (' + mp.x + ',' + mp.y + ')');
+
+            var hover = map.get_tile(mp);
+            tooltip.set_tile(hover);
+        }
+
+        prev_pos = spr.pos;
     }
 
     override function onmousewheel(e:luxe.MouseEvent)
@@ -232,15 +300,7 @@ class EditView extends State
     		return;
     	}
 
-        if (global.sheet.current_group_empty())
-        {
-            global.sheet.set_index_ofs(dir);
-        }
-        else
-        {
-            global.sheet.set_group_index_ofs(dir);
-        }
-
+        global.sheet.set_group_index_ofs(dir);
 
         update_sprite();
     }
@@ -269,30 +329,57 @@ class EditView extends State
 
     	//trace('$mod_key_delta');
 
-    	if (e.keycode == Key.key_1)
-    	{
-    		map.set_snap(1);
-    	} 
-    	else if (e.keycode == Key.key_2)
-    	{
-    		map.set_snap(2);
-    	}
-    	else if (e.keycode == Key.key_3)
-    	{
-    		map.set_snap(3);
-    	}
-    	else if (mod_key_delta < MOD_STICKY_TIME && e.keycode == Key.key_z)
-    	{
-    		restore_tile();
-    	}
-    	else if (e.keycode == Key.space)
-    	{
-    		toggle_selector();
-    	}
-        else
+        if (mod_key_delta < MOD_STICKY_TIME)
         {
-            global.sheet.select_group(e.keycode);
-            trace('selected group ' + e.keycode);
+            if (e.keycode == Key.key_1)
+            {
+                map.set_snap(1);
+            } 
+            else if (e.keycode == Key.key_2)
+            {
+                map.set_snap(2);
+            }
+            else if (e.keycode == Key.key_3)
+            {
+                map.set_snap(3);
+            }
+            else if (e.keycode == Key.key_z)
+            {
+                restore_tile();
+            }
+            else if (e.keycode == Key.key_q)
+            {
+                change_depth(1);
+            }
+            else if (e.keycode == Key.key_a)
+            {
+                change_depth(-1);
+            }
+            else if (e.keycode == Key.key_x)
+            {
+                reset_camera();
+            }
+            else if (e.keycode == Key.key_c)
+            {
+                tile_picker();
+            }
+        }
+    	else 
+        {
+            if (e.keycode == Key.space)
+        	{
+        		toggle_selector();
+        	}
+            else if (
+                (e.keycode >= Key.key_0 && e.keycode <= Key.key_9) || 
+                (e.keycode >= Key.key_a && e.keycode <= Key.key_z))
+            {
+                global.sheet.select_group(e.keycode);
+
+                trace('selected group ' + e.keycode);
+
+                update_sprite();
+            }
         }
     }
 

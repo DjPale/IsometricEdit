@@ -2,15 +2,19 @@ import luxe.Parcel;
 import luxe.ParcelProgress;
 import luxe.States;
 import luxe.Rectangle;
+import luxe.Text;
 
 import luxe.Log.log;
 import luxe.Log._debug;
 
 import phoenix.Texture;
+import phoenix.Batcher;
 
 typedef GlobalData = {
     sheet: TileSheetAtlased,
-    views : States
+    views : States,
+    status: StatusTextBehavior,
+    ui : Batcher
 }
 
 typedef SelectEvent = {
@@ -20,7 +24,7 @@ typedef SelectEvent = {
 
 class Main extends luxe.Game 
 {
-    var global_data : GlobalData = { sheet: new TileSheetAtlased(), views: null };
+    var global_data : GlobalData = { sheet: new TileSheetAtlased(), views: null, status: null, ui: null };
     var views : States;
 
     override function ready()
@@ -46,6 +50,7 @@ class Main extends luxe.Game
     function stage2(_)
     {
         global_data.sheet.image = Luxe.loadTexture('assets/tiles.png');
+        //global_data.sheet.image.filter = FilterType.nearest;
         global_data.sheet.atlas = new Array<Rectangle>();
 
         var xml = Xml.parse(Luxe.loadText('assets/tiles.xml').text);
@@ -64,8 +69,30 @@ class Main extends luxe.Game
     {
         var c = new luxe.Camera({camera_name: 'selector_cam'});
         var b = Luxe.renderer.create_batcher({
-            camera: c.view
+            name: 'selector',
+            camera: c.view,
+            layer: 1
             });
+
+        var ui = Luxe.renderer.create_batcher({ 
+            name: 'ui',
+            layer: 2
+            });
+
+        global_data.ui = ui;
+
+        var status = new Text({
+            name: 'status',
+            batcher: ui,
+            text: 'IsometricEdit',
+            point_size: 16,
+            pos: new luxe.Vector(10, 10),
+            outline: 0.7,
+            outline_color: new luxe.Color(0, 0, 0, 1),
+            sdf: true
+            });
+
+        global_data.status = status.add(new StatusTextBehavior());
 
         views.add(new EditView(global_data, Luxe.renderer.batcher));
         views.add(new SelectorView(global_data, b));
