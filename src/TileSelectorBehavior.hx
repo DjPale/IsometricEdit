@@ -20,30 +20,6 @@ class TileSelectorBehavior extends Component
 		camera = _camera;
 	}
 
-	function find_tile(pos:Vector) : Int
-	{
-		if (sprite == null) return -1;
-
-		var atlas_pos = -1;
-
-		for (i in 0...sheet.atlas.length)
-		{
-			var rect = sheet.atlas[i].clone();
-
-			rect.x *= sprite.scale.x;
-			rect.y *= sprite.scale.y;
-			rect.w *= sprite.scale.x;
-			rect.h *= sprite.scale.y;
-
-			if (rect.point_inside(pos))
-			{
-				atlas_pos = i;
-				break;
-			}
-		}
-
-		return atlas_pos;
-	}
 
 	override public function init()
 	{
@@ -58,11 +34,17 @@ class TileSelectorBehavior extends Component
 	override function onmouseup(e:luxe.MouseEvent)
 	{
 		var wpos = camera.screen_point_to_world(e.pos);
-		var new_tile = find_tile(wpos);
+
+		var new_tile = - 1;
+
+		if (sprite != null)
+		{
+			sheet.get_tile_idx(wpos, sprite.size);
+		}
 
 		trace("I think I found pos " + new_tile);
 
-		var sel_event : SelectEvent = { index: new_tile, code: -1 };
+		var sel_event : SelectEvent = { index: new_tile, group: null };
 
 		if (e.button == MouseButton.left)
 		{
@@ -76,16 +58,17 @@ class TileSelectorBehavior extends Component
 
 	override function onkeyup(e:luxe.KeyEvent)
 	{
+        if (!MyUtils.valid_group_key(e.keycode))
+        {
+        	return;
+        }
+
 		var wpos = camera.screen_point_to_world(Luxe.screen.cursor.pos);
-		var new_tile = find_tile(wpos);
+		var new_tile = sheet.get_tile_idx(wpos);
 
-		var sel_event : SelectEvent = { index: new_tile, code: e.keycode };
+		var group_name = snow.input.Keycodes.Keycodes.name(e.keycode);
 
-		sheet.select_group(e.keycode);
-		trace('select group ' + e.keycode);		
-
-		var ret = sheet.add_idx_to_group(new_tile);
-		trace('add to group = $ret');
+		var sel_event : SelectEvent = { index: new_tile, group: group_name };
 
 		Luxe.events.fire('assign', sel_event);
 	}		

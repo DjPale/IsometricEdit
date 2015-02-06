@@ -19,7 +19,7 @@ typedef GlobalData = {
 
 typedef SelectEvent = {
     index: Int,
-    code: Int
+    group: String
 }
 
 class Main extends luxe.Game 
@@ -87,9 +87,9 @@ class Main extends luxe.Game
             text: 'IsometricEdit',
             point_size: 16,
             pos: new luxe.Vector(10, 10),
-            outline: 0.7,
+            outline: 1.0,
             outline_color: new luxe.Color(0, 0, 0, 1),
-            sdf: true
+            shader: Luxe.renderer.shaders.bitmapfont.shader.clone(),
             });
 
         global_data.status = status.add(new StatusTextBehavior());

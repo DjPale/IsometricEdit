@@ -53,12 +53,49 @@ class IsometricMap
         return v;
     }
 
+    public function get_tile_world(pos:Vector) : Sprite
+    {
+        for (spr in grid)
+        {
+            if (spr.point_inside_AABB(pos))
+            {
+                return spr;
+            }
+        }
+
+        return null;
+    }
+
+    public inline function get_depth_str(pos:Vector, actual:Float) : String
+    {
+        var cur = depth(pos);
+        var d = actual - cur;
+
+        if (d == 0)
+        {
+            return '$cur';
+        }
+        else if (d > 0)
+        {
+            return '$cur+$d';
+        }
+        else
+        {
+            return '$cur$d';
+        }
+    } 
+
+    inline function depth(pos:Vector) : Float
+    {
+        return pos.y * grid_mult + pos.x * grid_mult;
+    }
+
     public function set_tile(tile:Sprite, pos:Vector)
     {
         remove_tile(pos);
 
         //tile.depth = Std.parseFloat(pos.y + '.' + pos.x);
-        tile.depth = pos.y * grid_mult + pos.x * grid_mult;
+        tile.depth = depth(pos);
 
         grid.set(_key(pos), tile);
 
@@ -94,8 +131,15 @@ class IsometricMap
 
     public inline function screen_to_iso(p:Vector) : Vector
     {
+        /*
         var mx = Std.int(((p.x / width_half) + (p.y / height_half)) / 2);
         var my = Std.int(((p.y / height_half) - (p.x / width_half)) / 2);
+        */
+        var px = Std.int(p.x / width_half);
+        var py = Std.int(p.y / height_half); 
+
+        var mx = Std.int((px + py) / 2);
+        var my = Std.int((py - px) / 2);
 
         return new Vector(mx, my);
     }

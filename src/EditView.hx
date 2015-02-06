@@ -70,7 +70,7 @@ class EditView extends State
 
         var tooltip_spr = new Entity({
             name: 'edit_tt',
-            pos: new Vector(Luxe.screen.w / 2 - 128, 64),
+            pos: new Vector(70, Luxe.screen.h - 70),
             });
 
         tooltip = tooltip_spr.add(new TileTooltipBehavior(global.ui));
@@ -81,7 +81,7 @@ class EditView extends State
                 if (e.index != -1)
                 {
                     global.sheet.set_index(e.index); 
-                    update_sprite(); 
+                    update_sprite();
                 }
 
                 Luxe.timer.schedule(0.1, function() { toggle_selector(); });
@@ -255,10 +255,34 @@ class EditView extends State
 
         if (offset)
         {
-            p.add(new Vector(-map.base_width, map.base_height));
+            //p.add(new Vector(-map.base_width, map.base_height));
+            p.add(new Vector(-map.base_width, map.base_height * 2));
         }
 
         return p;
+    }
+
+    function update_tooltip(?_pos:Vector = null)
+    {
+        var mp = _pos;
+
+        if (mp == null)
+        {
+            var p = mouse_coords(Luxe.screen.cursor.pos);
+            mp = map.screen_to_iso(p);
+        }
+
+        var hover = map.get_tile(mp);
+
+        if (hover != null)
+        {
+            var depth = map.get_depth_str(mp, hover.depth);
+            tooltip.set_tile(hover, 'map: (${mp.x},${mp.y})', 'depth: $depth');
+        }
+        else
+        {
+            tooltip.show(false);
+        }
     }
 
     var prev_pos : Vector;
@@ -282,8 +306,7 @@ class EditView extends State
         {
             global.status.set_postxt('World:(' + Math.round(spr.pos.x) + ',' + Math.round(spr.pos.y) + ') - Map: (' + mp.x + ',' + mp.y + ')');
 
-            var hover = map.get_tile(mp);
-            tooltip.set_tile(hover);
+            update_tooltip(mp);
         }
 
         prev_pos = spr.pos;
@@ -363,6 +386,8 @@ class EditView extends State
             {
                 tile_picker();
             }
+
+            update_tooltip();
         }
     	else 
         {
@@ -370,13 +395,13 @@ class EditView extends State
         	{
         		toggle_selector();
         	}
-            else if (
-                (e.keycode >= Key.key_0 && e.keycode <= Key.key_9) || 
-                (e.keycode >= Key.key_a && e.keycode <= Key.key_z))
+            else if (MyUtils.valid_group_key(e.keycode))
             {
-                global.sheet.select_group(e.keycode);
+                var group_name = snow.input.Keycodes.Keycodes.name(e.keycode);
 
-                trace('selected group ' + e.keycode);
+                global.sheet.select_group(group_name);
+
+                trace('selected group ' + group_name);
 
                 update_sprite();
             }

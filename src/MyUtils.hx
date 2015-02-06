@@ -1,3 +1,5 @@
+import luxe.Input;
+
 class MyUtils
 {
 	public static inline function sgn(num:Int) : Int
@@ -19,4 +21,10 @@ class MyUtils
 	{
 		return (camera.viewport.point_inside(pos));
 	}
+
+    public static inline function valid_group_key(keycode:Int) : Bool
+    {
+        return ((keycode >= Key.key_0 && keycode <= Key.key_9) || 
+            (keycode >= Key.key_a && keycode <= Key.key_z));
+    }
 }

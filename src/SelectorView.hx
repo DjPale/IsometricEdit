@@ -1,5 +1,6 @@
 import luxe.States;
 import luxe.Sprite;
+import luxe.Entity;
 import luxe.Vector;
 import luxe.Camera;
 import luxe.Input;
@@ -13,6 +14,8 @@ class SelectorView extends State
 	var glob : GlobalData;
 
 	var selector : Sprite;
+
+	var tooltip : TileTooltipBehavior;
 
 	var batcher : Batcher;
 
@@ -46,6 +49,26 @@ class SelectorView extends State
 
 		var selector_comp = new TileSelectorBehavior(glob.sheet, batcher.view);
 		selector.add(selector_comp);
+
+		var tooltip_spr = new Entity({
+			name: 'selector_tt'
+			});
+
+		tooltip = tooltip_spr.add(new TileTooltipBehavior(glob.ui));
+
+		Luxe.events.listen('assign', group_assign);
+	}
+
+	function group_assign(e:SelectEvent)
+	{
+		if (e != null && e.group != null && e.index >= 0)
+		{
+			glob.sheet.select_group(e.group);
+			trace('select group ' + e.group);		
+
+			var ret = glob.sheet.add_idx_to_group(e.index, true);
+			trace('add to group = $ret');
+		}
 	}
 
 	function hide()
@@ -54,6 +77,12 @@ class SelectorView extends State
 		{
 			selector.destroy();
 			selector = null;			
+		}
+
+		if (tooltip != null)
+		{
+			tooltip.entity.destroy();
+			tooltip = null;
 		}
 	}
 
@@ -113,6 +142,34 @@ class SelectorView extends State
     		}
 
     		batcher.view.pos.add(new Vector(-e.xrel * z, -e.yrel * z));
+    	}
+    	else if (tooltip != null)
+    	{
+    		var mouse = Luxe.screen.cursor.pos;
+    		var pos = batcher.view.screen_point_to_world(mouse);
+    		var idx = glob.sheet.get_tile_idx(pos);
+
+    		if (idx >= 0)
+    		{
+    			var r = glob.sheet.atlas[idx];
+    			tooltip.set_new_tile(glob.sheet.image, r);
+    			tooltip.entity.pos = new Vector(mouse.x - r.w / 2, mouse.y);
+
+				var a = glob.sheet.get_groups_for_idx(idx);
+
+				if (a != null)
+				{
+					tooltip.set_text('groups', a.join(','));
+				}
+				else
+				{
+					tooltip.set_text(null, null);
+				}
+    		}
+    		else
+    		{
+    			tooltip.show(false);
+    		}
     	}
     }
 }

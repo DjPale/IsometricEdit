@@ -1,3 +1,4 @@
+import luxe.Vector;
 import luxe.Rectangle;
 
 import phoenix.Texture;
@@ -8,7 +9,7 @@ class TileSheetAtlased
     public var atlas : Array<Rectangle>;
 
     var groups : Map<String,Array<Int>>;
-    var group_path : Array<Int>;
+    var group_path : Array<String>;
     var group_cur_idx : Int = 0;
     var group_cycle_idx : Int = 0;
 
@@ -18,7 +19,7 @@ class TileSheetAtlased
     {
     	atlas = new Array<Rectangle>();
         groups = new Map<String,Array<Int>>();
-        group_path = new Array<Int>();
+        group_path = new Array<String>();
     }
 
     public inline function get_current_path() : String
@@ -26,7 +27,7 @@ class TileSheetAtlased
         return group_path.join('.');
     }
 
-    public function add_idx_to_group(idx:Int) : Bool
+    public function add_idx_to_group(idx:Int, ?toggle:Bool = false) : Bool
     {
         if (group_path.length == 0 || idx < 0 || idx >= atlas.length)
         {
@@ -44,6 +45,11 @@ class TileSheetAtlased
             }
             else
             {
+                if (toggle)
+                {
+                    a.remove(idx);
+                }
+                
                 return false;
             }
         }
@@ -67,6 +73,26 @@ class TileSheetAtlased
         var a = groups.get(k);
 
         return a;
+    }
+
+    public function get_groups_for_idx(idx:Int) : Array<String>
+    {
+        var ret : Array<String> = null;
+
+        for (k in groups.keys())
+        {
+            if (groups.get(k).indexOf(idx) != -1)
+            {
+                if (ret == null)
+                {
+                    ret = new Array<String>();
+                }
+
+                ret.push(k);
+            }
+        }
+
+        return ret;
     }
 
     public function set_group_index_ofs(offset:Int) : Int
@@ -102,7 +128,7 @@ class TileSheetAtlased
         return atlas_pos;
     }
 
-    public function select_group(grp:Int)
+    public function select_group(grp:String)
     {
         group_path[group_cur_idx] = grp;
         group_cycle_idx = 0;
@@ -149,6 +175,34 @@ class TileSheetAtlased
         }
     }
 */
+
+    public inline function get_tile_idx(pos:Vector, ?scale:Vector = null) : Int
+    {
+        var atlas_pos = -1;
+
+        for (i in 0...atlas.length)
+        {
+            var rect = atlas[i];
+
+            if (scale != null)
+            {
+                rect = rect.clone();
+
+                rect.x *= scale.x;
+                rect.y *= scale.y;
+                rect.w *= scale.x;
+                rect.h *= scale.y;
+            }
+
+            if (rect.point_inside(pos))
+            {
+                atlas_pos = i;
+                break;
+            }
+        }
+
+        return atlas_pos;
+    }
 
     public function get_tile_from_rect(rect:Rectangle)
     {
