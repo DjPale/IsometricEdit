@@ -30,7 +30,7 @@ class StatusTextBehavior extends Component
 	{
 		if (status != null)
 		{
-			status.text = 'IsometricEdit - Grid Snap: $grid - Tile: $tile - Current Group: $group - $postxt';
+			status.text = 'Grid: $grid - Tile: $tile - Group: $group\n$postxt';
 		}
 	}
 
@@ -56,5 +56,13 @@ class StatusTextBehavior extends Component
 	{
 		postxt = _postxt;
 		update_text();
+	}
+
+	public function show(show:Bool)
+	{
+		if (status != null)
+		{
+			status.visible = show;
+		}
 	}
 }

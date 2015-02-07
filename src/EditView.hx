@@ -38,6 +38,10 @@ class EditView extends State
 
     var batcher : phoenix.Batcher;
 
+    var prev_pos : Vector;
+
+    var ui_on : Bool = true;
+
 	public function new(_global:GlobalData, _batcher:phoenix.Batcher)
 	{
 		super({ name: 'EditView' });
@@ -70,10 +74,10 @@ class EditView extends State
 
         var tooltip_spr = new Entity({
             name: 'edit_tt',
-            pos: new Vector(70, Luxe.screen.h - 70),
+            pos: new Vector(96, Luxe.screen.h - 70),
             });
 
-        tooltip = tooltip_spr.add(new TileTooltipBehavior(global.ui));
+        tooltip = tooltip_spr.add(new TileTooltipBehavior(global.ui, global.font));
 
         Luxe.events.listen('select', 
             function(e:SelectEvent) 
@@ -262,8 +266,29 @@ class EditView extends State
         return p;
     }
 
+    function toggle_ui()
+    {
+        if (ui_on)
+        {
+            ui_on = false;
+            tooltip.show(false);
+            global.status.show(false);
+        }
+        else
+        {
+            ui_on = true;
+            global.status.show(true);
+            update_tooltip();
+        }
+    }
+
     function update_tooltip(?_pos:Vector = null)
     {
+        if (!ui_on)
+        {
+            return;
+        }
+
         var mp = _pos;
 
         if (mp == null)
@@ -284,8 +309,6 @@ class EditView extends State
             tooltip.show(false);
         }
     }
-
-    var prev_pos : Vector;
 
     override function onmousemove(e:luxe.MouseEvent)
     {
@@ -385,6 +408,10 @@ class EditView extends State
             else if (e.keycode == Key.key_c)
             {
                 tile_picker();
+            }
+            else if (e.keycode == Key.key_t)
+            {
+                toggle_ui();
             }
 
             update_tooltip();

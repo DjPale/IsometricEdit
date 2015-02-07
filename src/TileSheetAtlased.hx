@@ -9,7 +9,7 @@ class TileSheetAtlased
     public var atlas : Array<Rectangle>;
 
     var groups : Map<String,Array<Int>>;
-    var group_path : Array<String>;
+    var group_path : String;
     var group_cur_idx : Int = 0;
     var group_cycle_idx : Int = 0;
 
@@ -19,23 +19,21 @@ class TileSheetAtlased
     {
     	atlas = new Array<Rectangle>();
         groups = new Map<String,Array<Int>>();
-        group_path = new Array<String>();
     }
 
     public inline function get_current_path() : String
     {
-        return group_path.join('.');
+        return group_path;
     }
 
-    public function add_idx_to_group(idx:Int, ?toggle:Bool = false) : Bool
+    public function add_idx_to_group(grp:String, idx:Int, ?toggle:Bool = false) : Bool
     {
-        if (group_path.length == 0 || idx < 0 || idx >= atlas.length)
+        if (idx < 0 || idx >= atlas.length)
         {
             return false;
         }
 
-        var k = get_current_path();
-        var a = groups.get(k);
+        var a = groups.get(grp);
         if (a != null)
         {
             if (a.indexOf(idx) == -1)
@@ -49,7 +47,7 @@ class TileSheetAtlased
                 {
                     a.remove(idx);
                 }
-                
+
                 return false;
             }
         }
@@ -57,14 +55,15 @@ class TileSheetAtlased
         {
             a = new Array<Int>();
             a.push(idx);
-            groups.set(k, a);
+            groups.set(grp, a);
+
             return true; 
         }
     }
 
     function get_current_group() : Array<Int>
     {
-        if (group_path.length == 0)
+        if (group_path == null)
         {
             return null;
         }
@@ -95,18 +94,25 @@ class TileSheetAtlased
         return ret;
     }
 
+    public function get_group(grp:String) : Array<Int>
+    {
+        return groups.get(grp);
+    }
+
     public function set_group_index_ofs(offset:Int) : Int
     {
-        if (group_path.length == 0)
+        if (group_path == null)
         {
+            no_group();
             return set_index_ofs(offset);
         }
 
         var a = get_current_group();
-        trace('current group = $a, try to go $offset');
+        trace('current group array = $a, try to go $offset');
 
         if (a == null)
         {
+            no_group();
             return set_index_ofs(offset);
         }
 
@@ -130,8 +136,16 @@ class TileSheetAtlased
 
     public function select_group(grp:String)
     {
-        group_path[group_cur_idx] = grp;
+        if (grp == null || !groups.exists(grp))
+        {
+            no_group();
+            return;
+        }
+
+        group_path = grp;
         group_cycle_idx = 0;
+
+        trace('try select group path = $group_path');
 
         set_group_index_ofs(0);
 
@@ -140,41 +154,10 @@ class TileSheetAtlased
 
     public function no_group()
     {
-        group_path = [];
+        group_path = null;
 
         Luxe.events.queue('TileSheetAtlased.GroupId', '-');
     }
-
-/*
-    public function inc_group_level()
-    {
-        if (group_cur_idx <= group_path.length)
-        {
-            group_cur_idx++;
-            group_cycle_idx = 0;
-        }
-    }
-
-    public function dec_group_level()
-    {
-        if (group_path.length > 0 && group_cur_idx >= group_path.length)
-        {
-            group_path.pop();
-            group_cur_idx--;
-            group_cycle_idx = 0;
-        }
-    }
-
-   public function select_groups(grp:Array<Int>)
-    {
-        if (grp != null && grp.length > 0)
-        {
-            group_path = grp;
-            group_cur_idx = grp.length - 1;
-            group_cycle_idx = 0;
-        }
-    }
-*/
 
     public inline function get_tile_idx(pos:Vector, ?scale:Vector = null) : Int
     {
@@ -232,8 +215,6 @@ class TileSheetAtlased
 
         Luxe.events.queue('TileSheetAtlased.TileId', atlas_pos);
 
-        no_group();
-
         return atlas_pos;
     }
 
@@ -241,9 +222,9 @@ class TileSheetAtlased
     {
     	if (idx >= 0 && idx < atlas.length)
     	{
-    		atlas_pos = idx;
+            no_group(); 
 
-            no_group();
+    		atlas_pos = idx;
 
             Luxe.events.queue('TileSheetAtlased.TileId', atlas_pos);
     	}

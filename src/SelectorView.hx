@@ -14,12 +14,15 @@ class SelectorView extends State
 	var glob : GlobalData;
 
 	var selector : Sprite;
+	var selector_comp : TileSelectorBehavior;
 
 	var tooltip : TileTooltipBehavior;
 
 	var batcher : Batcher;
 
 	var dragging : Bool;
+
+	var event_id : String = '';
 
 	public function new(global_data:GlobalData, _batcher:Batcher)
 	{
@@ -47,27 +50,34 @@ class SelectorView extends State
 
 		//selector.pos = new Vector(Luxe.screen.w - selector.size.x, Luxe.screen.h / 2 - selector.size.y / 2);
 
-		var selector_comp = new TileSelectorBehavior(glob.sheet, batcher.view);
+		selector_comp = new TileSelectorBehavior(glob.sheet, batcher);
 		selector.add(selector_comp);
 
 		var tooltip_spr = new Entity({
 			name: 'selector_tt'
 			});
 
-		tooltip = tooltip_spr.add(new TileTooltipBehavior(glob.ui));
+		tooltip = tooltip_spr.add(new TileTooltipBehavior(glob.ui, glob.font));
 
-		Luxe.events.listen('assign', group_assign);
+		event_id = Luxe.events.listen('assign', group_assign);
 	}
 
 	function group_assign(e:SelectEvent)
 	{
 		if (e != null && e.group != null && e.index >= 0)
 		{
+			/*
 			glob.sheet.select_group(e.group);
 			trace('select group ' + e.group);		
+			*/
 
-			var ret = glob.sheet.add_idx_to_group(e.index, true);
+			var ret = glob.sheet.add_idx_to_group(e.group, e.index, true);
 			trace('add to group = $ret');
+
+			selector_comp.hide_indicators();
+			selector_comp.show_indicators(glob.sheet.get_group(e.group));
+
+			update_tooltip();
 		}
 	}
 
@@ -84,6 +94,58 @@ class SelectorView extends State
 			tooltip.entity.destroy();
 			tooltip = null;
 		}
+
+		Luxe.events.disconnect(event_id);
+	}
+
+	function update_tooltip()
+	{
+	    var mouse = Luxe.screen.cursor.pos;
+		var pos = batcher.view.screen_point_to_world(mouse);
+		var idx = glob.sheet.get_tile_idx(pos);
+
+		if (idx >= 0)
+		{
+			var r = glob.sheet.atlas[idx];
+
+			var ofsX = 0.0;
+			var ofsY = 0.0;
+			if (mouse.x > Luxe.screen.w / 2)
+			{
+				ofsX = -r.w;
+			}
+			else
+			{
+				ofsX = r.w;
+			}
+
+			if (mouse.y > Luxe.screen.h / 2)
+			{
+				ofsY = -r.w / 4;
+			}
+			else
+			{
+				ofsY = r.w / 4;
+			}
+
+			tooltip.set_new_tile(glob.sheet.image, r);
+			tooltip.entity.pos = new Vector(mouse.x + ofsX, mouse.y + ofsY);
+
+			var a = glob.sheet.get_groups_for_idx(idx);
+
+			if (a != null)
+			{
+				tooltip.set_text('groups', a.join(','));
+			}
+			else
+			{
+				tooltip.set_text(null, null);
+			}
+		}
+		else
+		{
+			tooltip.show(false);
+		}
 	}
 
 	override function onkeyup(e:luxe.KeyEvent)
@@ -92,6 +154,13 @@ class SelectorView extends State
 		{
 			disable();
 			glob.views.enable('EditView');
+		}
+		else if (MyUtils.valid_group_key(e.keycode))
+		{
+			var grp = snow.input.Keycodes.Keycodes.name(e.keycode);
+			glob.sheet.select_group(grp);
+			selector_comp.hide_indicators();
+			selector_comp.show_indicators(glob.sheet.get_group(grp));
 		}
 	}
 
@@ -105,7 +174,7 @@ class SelectorView extends State
     {
     	trace('disable selector');
     	hide();
-    } //ondisabled
+    } //ondisabled  
 
     override function onmouseup(e:luxe.MouseEvent)
     {
@@ -145,31 +214,7 @@ class SelectorView extends State
     	}
     	else if (tooltip != null)
     	{
-    		var mouse = Luxe.screen.cursor.pos;
-    		var pos = batcher.view.screen_point_to_world(mouse);
-    		var idx = glob.sheet.get_tile_idx(pos);
-
-    		if (idx >= 0)
-    		{
-    			var r = glob.sheet.atlas[idx];
-    			tooltip.set_new_tile(glob.sheet.image, r);
-    			tooltip.entity.pos = new Vector(mouse.x - r.w / 2, mouse.y);
-
-				var a = glob.sheet.get_groups_for_idx(idx);
-
-				if (a != null)
-				{
-					tooltip.set_text('groups', a.join(','));
-				}
-				else
-				{
-					tooltip.set_text(null, null);
-				}
-    		}
-    		else
-    		{
-    			tooltip.show(false);
-    		}
+    		update_tooltip();
     	}
     }
 }

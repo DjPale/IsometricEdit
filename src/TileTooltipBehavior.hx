@@ -6,6 +6,7 @@ import luxe.Vector;
 import luxe.Color;
 
 import phoenix.Batcher;
+import phoenix.BitmapFont;
 
 class TileTooltipBehavior extends Component
 {
@@ -13,11 +14,13 @@ class TileTooltipBehavior extends Component
 	var txt_top : Text;
 	var txt_bottom : Text;
 	var batcher : Batcher;
+	var font: BitmapFont;
 
-	public function new(_batcher:Batcher)
+	public function new(_batcher:Batcher, _font:BitmapFont)
 	{
 		super();
 		batcher = _batcher;
+		font = _font;
 	}
 
 	public override function init()
@@ -31,25 +34,29 @@ class TileTooltipBehavior extends Component
 
 		txt_top = new Text({
 			text: '-- TOP TEXT --',
-			point_size: 16,
+			point_size: 24,
 			parent: entity,
 			batcher: batcher,
-			pos: new Vector(-20, -20),
-            outline: 1.0,
+			pos: new Vector(0, -20),
+            sdf: true,
+            outline: 0.8,
             outline_color: new luxe.Color(0, 0, 0, 1),
+            font: font,
             shader: Luxe.renderer.shaders.bitmapfont.shader.clone(),
 			visible: false,
-            align: TextAlign.center
+            align: TextAlign.center,
 			});
 
 		txt_bottom = new Text({
 			text: '-- BOTTOM TEXT -- ',
-			point_size: 16,
+			point_size: 24,
 			parent: entity,
 			batcher: batcher,
-			pos: new Vector(-20, 20),
-            outline: 1.0,
+			pos: new Vector(0, 20),
+            sdf: true,
+            outline: 0.8,
             outline_color: new luxe.Color(0, 0, 0, 1),
+            font: font,
             shader: Luxe.renderer.shaders.bitmapfont.shader.clone(),
             visible: false,
             align: TextAlign.center
@@ -59,9 +66,9 @@ class TileTooltipBehavior extends Component
 
 	public inline function show(visible:Bool)
 	{
-		tile.visible = visible;
-		txt_bottom.visible = visible;
-		txt_top.visible = visible;		
+		if (tile != null) tile.visible = visible;
+		if (txt_bottom != null) txt_bottom.visible = visible;
+		if (txt_top != null) txt_top.visible = visible;		
 	}
 
 	public function set_tile(actual:Sprite, ?top:String = null, ?bottom:String = null)
@@ -91,19 +98,25 @@ class TileTooltipBehavior extends Component
 
 	public function set_text(top:String, bottom:String)
 	{
-		if (top != null)
+		if (txt_top != null)
 		{
-			txt_top.text = top;
+			if (top != null)
+			{
+				txt_top.text = top;
+			}
+
+			txt_top.visible = (top != null);
 		}
 
-		txt_top.visible = (top != null);
-
-		if (bottom != null)
+		if (txt_bottom != null)
 		{
-			txt_bottom.text = bottom;
-		}
+			if (bottom != null)
+			{
+				txt_bottom.text = bottom;
+			}
 
-		txt_bottom.visible = (bottom != null);
+			txt_bottom.visible = (bottom != null);
+		}
 	}
 
 	public function set_new_tile(img:phoenix.Texture, rect:Rectangle)

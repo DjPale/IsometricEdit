@@ -1,26 +1,27 @@
 ==== TODO ====
 
-- Grid view
-	- Draw grid dots / lines - not found a good solution yet :/
+- Grid view - OK
+	- Draw grid dots / lines - not found a good solution yet :/ - but let's not do it
 	- Change snap level - OK
 
 - Undo stack - OK
 
 - Camera - OK
-	- Moveable tile selector - OK, but not 100% happy. should probably not be modal.
+	- Moveable tile selector - OK, but not 100% happy. should probably not be modal - bleh, don't care
 	- Moveable map - OK
 
 - Group editing - Some progress
 	- Main group (road, grass, bridge etc.) - OK
-	- Sub group (direction / variant)
-	- Clear selection
+	- Sub group (direction / variant) - Cancelled
+	- Clear selection - No, toggle is fine
+	- Group indication
 	
-- Tooltip with group info and zoomed current tile when hovering the view
-	- Applicable for both views
+- Tooltip with group info and zoomed current tile when hovering the view - OK
+	- Applicable for both views - OK
 
 - Label / info message with implicit trace - Partly OK
 	- Status bar - OK, but not good enough. Probably needs more labels to avoid 'jitter'
-	- Messages instead of trace
+	- Messages instead of trace - later
 
 - Tile path editor
 	- Start with simple vectors first
@@ -31,10 +32,13 @@
 	- Map data
 	- Tilesheet
 
-- Consider using luxe standard isometric map instead of custom (bad) implementation
-
-- Change grid size
-
-- Redo support
-
 - Object editor (pre-define buildings etc.)
+
+=== Later ===
+
+- Consider using luxe standard isometric map instead of custom (bad) implementation - later
+
+- Change grid size - later
+
+- Redo support - later
+

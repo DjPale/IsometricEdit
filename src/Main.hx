@@ -9,12 +9,14 @@ import luxe.Log._debug;
 
 import phoenix.Texture;
 import phoenix.Batcher;
+import phoenix.BitmapFont;
 
 typedef GlobalData = {
     sheet: TileSheetAtlased,
     views : States,
     status: StatusTextBehavior,
-    ui : Batcher
+    ui : Batcher,
+    font: BitmapFont
 }
 
 typedef SelectEvent = {
@@ -24,7 +26,7 @@ typedef SelectEvent = {
 
 class Main extends luxe.Game 
 {
-    var global_data : GlobalData = { sheet: new TileSheetAtlased(), views: null, status: null, ui: null };
+    var global_data : GlobalData = { sheet: new TileSheetAtlased(), views: null, status: null, ui: null, font: null };
     var views : States;
 
     override function ready()
@@ -52,6 +54,9 @@ class Main extends luxe.Game
         global_data.sheet.image = Luxe.loadTexture('assets/tiles.png');
         //global_data.sheet.image.filter = FilterType.nearest;
         global_data.sheet.atlas = new Array<Rectangle>();
+
+        global_data.font = Luxe.resources.find_font('ubuntu-mono');
+        trace(global_data.font);
 
         var xml = Xml.parse(Luxe.loadText('assets/tiles.xml').text);
         var fast = new haxe.xml.Fast(xml.firstElement());
@@ -85,10 +90,12 @@ class Main extends luxe.Game
             name: 'status',
             batcher: ui,
             text: 'IsometricEdit',
-            point_size: 16,
+            point_size: 24,
             pos: new luxe.Vector(10, 10),
-            outline: 1.0,
+            sdf: true,
+            outline: 0.8,
             outline_color: new luxe.Color(0, 0, 0, 1),
+            font: global_data.font,
             shader: Luxe.renderer.shaders.bitmapfont.shader.clone(),
             });
 

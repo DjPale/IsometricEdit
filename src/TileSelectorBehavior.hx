@@ -2,7 +2,8 @@ import luxe.Component;
 import luxe.Sprite;
 import luxe.Vector;
 import luxe.Input;
-import phoenix.Camera;
+import phoenix.Batcher;
+import phoenix.geometry.Geometry;
 
 import Main;
 
@@ -10,20 +11,76 @@ class TileSelectorBehavior extends Component
 {
 	var sheet : TileSheetAtlased;
 	var sprite : Sprite;
-	var camera : Camera;
+	var batcher : Batcher;
+	var indicator : Array<Geometry>;
 
-	public function new(_sheet:TileSheetAtlased, _camera:Camera, ?_options:luxe.options.ComponentOptions = null)
+	public function new(_sheet:TileSheetAtlased, _batcher:Batcher, ?_options:luxe.options.ComponentOptions = null)
 	{
 		super(_options);
 
+		indicator = new Array<Geometry>();
+
 		sheet = _sheet;
-		camera = _camera;
+		batcher = _batcher;
 	}
 
 
 	override public function init()
 	{
 		sprite = cast entity;
+
+		create_indicators();
+	}
+
+	override function onremoved()
+	{
+		destroy_indicators();
+	}
+
+	function create_indicators()
+	{
+		for (r in sheet.atlas)
+		{
+			var g = Luxe.draw.box({
+				x: r.x,
+				y: r.y,
+				w: r.w,
+				h: r.h,
+				color : new luxe.Color(1, 1, 1, 0.5),
+				visible: false,
+				batcher: batcher,
+				depth: sprite.depth + 1
+				});
+
+			indicator.push(g);
+		}
+	}
+
+	function destroy_indicators()
+	{
+		while (indicator != null && indicator.length > 0)
+		{
+			batcher.remove(indicator.pop());
+		}
+	}
+
+	public function show_indicators(a:Array<Int>)
+	{
+		for (idx in a)
+		{
+			if (idx >= 0 && idx < indicator.length)
+			{
+				indicator[idx].visible = true;
+			}
+		}
+	}
+
+	public function hide_indicators()
+	{
+		for (g in indicator)
+		{
+			g.visible = false;
+		}
 	}
 
 	override function onmousemove(e:luxe.MouseEvent)
@@ -33,13 +90,13 @@ class TileSelectorBehavior extends Component
 
 	override function onmouseup(e:luxe.MouseEvent)
 	{
-		var wpos = camera.screen_point_to_world(e.pos);
+		var wpos = batcher.view.screen_point_to_world(e.pos);
 
-		var new_tile = - 1;
+		var new_tile = -1;
 
 		if (sprite != null)
 		{
-			sheet.get_tile_idx(wpos, sprite.size);
+			new_tile = sheet.get_tile_idx(wpos, sprite.transform.scale);
 		}
 
 		trace("I think I found pos " + new_tile);
@@ -63,7 +120,7 @@ class TileSelectorBehavior extends Component
         	return;
         }
 
-		var wpos = camera.screen_point_to_world(Luxe.screen.cursor.pos);
+		var wpos = batcher.view.screen_point_to_world(Luxe.screen.cursor.pos);
 		var new_tile = sheet.get_tile_idx(wpos);
 
 		var group_name = snow.input.Keycodes.Keycodes.name(e.keycode);
