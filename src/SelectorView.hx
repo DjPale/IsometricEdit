@@ -66,11 +66,6 @@ class SelectorView extends State
 	{
 		if (e != null && e.group != null && e.index >= 0)
 		{
-			/*
-			glob.sheet.select_group(e.group);
-			trace('select group ' + e.group);		
-			*/
-
 			var ret = glob.sheet.add_idx_to_group(e.group, e.index, true);
 			trace('add to group = $ret');
 

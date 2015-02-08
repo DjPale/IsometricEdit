@@ -87,7 +87,7 @@ class IsometricMap
 
     inline function depth(pos:Vector) : Float
     {
-        return pos.y * grid_mult + pos.x * grid_mult;
+        return Math.abs(pos.y) * grid_mult + Math.abs(pos.x) * grid_mult;
     }
 
     public function set_tile(tile:Sprite, pos:Vector)

@@ -103,8 +103,10 @@ class Main extends luxe.Game
 
         views.add(new EditView(global_data, Luxe.renderer.batcher));
         views.add(new SelectorView(global_data, b));
+        views.add(new PathEditView(global_data, ui));
 
-        views.set('EditView');
+        //views.set('EditView');
+        views.enable('PathEditView', 96);
     }
 
     override function update(dt:Float) 
