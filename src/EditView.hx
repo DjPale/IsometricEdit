@@ -282,6 +282,11 @@ class EditView extends State
         }
     }
 
+    function save_map()
+    {
+        trace(global.sheet.to_json());
+    }
+
     function update_tooltip(?_pos:Vector = null)
     {
         if (!ui_on)
@@ -412,6 +417,10 @@ class EditView extends State
             else if (e.keycode == Key.key_t)
             {
                 toggle_ui();
+            }
+            else if (e.keycode == Key.key_v)
+            {
+                save_map();
             }
 
             update_tooltip();

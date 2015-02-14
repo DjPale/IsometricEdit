@@ -39,8 +39,10 @@ class TileSelectorBehavior extends Component
 
 	function create_indicators()
 	{
-		for (r in sheet.atlas)
+		for (tile in sheet.atlas)
 		{
+			var r = tile.rect;
+
 			var g = Luxe.draw.box({
 				x: r.x,
 				y: r.y,
@@ -99,7 +101,7 @@ class TileSelectorBehavior extends Component
 			new_tile = sheet.get_tile_idx(wpos, sprite.transform.scale);
 		}
 
-		trace("I think I found pos " + new_tile);
+		//trace("I think I found pos " + new_tile);
 
 		var sel_event : SelectEvent = { index: new_tile, group: null };
 
@@ -109,7 +111,7 @@ class TileSelectorBehavior extends Component
 		}
 		else if (e.button == MouseButton.right)
 		{
-			Luxe.events.fire('deselect', sel_event);
+			Luxe.events.fire('detail', sel_event);
 		}
 	}
 

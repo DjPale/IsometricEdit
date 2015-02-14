@@ -2,27 +2,28 @@ import luxe.States;
 import luxe.Vector;
 import luxe.Sprite;
 import luxe.Input;
-import luxe.Rectangle;
 
 import phoenix.Batcher;
-import phoenix.geometry.LineGeometry;
-import phoenix.geometry.RectangleGeometry;
 
 import Main;
-
-typedef Vertex = {
-	g: RectangleGeometry,
-	rect: Rectangle,
-	size: Float
-};
+import Graph;
+import TileSheetAtlased;
 
 class PathEditView extends State
 {
 	var global : GlobalData;
 	var batcher : Batcher;
 
+	var tiledata : TileData;
 	var tile : Sprite;
-	var vertices : Array<Vertex>;
+	var graph : Graph;
+
+	var cur:GraphEdge = null;
+    var drag : GraphNode = null;
+
+	var MINSIZE:Float = 10;
+	var SIZE:Float = 20;
+	var MAXSIZE:Float = 30;
 
 	public function new(_global:GlobalData, _batcher:Batcher)
 	{
@@ -30,217 +31,263 @@ class PathEditView extends State
 
 		global = _global;
 		batcher = _batcher;
-
-		vertices = new Array<Vertex>();
 	}
 
 	function display(idx:Int)
 	{
-		var r = global.sheet.atlas[idx];
+		tiledata = global.sheet.atlas[idx];
+
+		var r = tiledata.rect;
 
 		tile = new Sprite({
 			name: 'path_sprite',
 			texture: global.sheet.image,
 			batcher: batcher,
 			depth: 10,
-			scale: new Vector(2, 2),
 			uv: r,
+			centered: false,
 			size: new Vector(r.w, r.h),
 			pos: new Vector(Luxe.screen.w / 2 - r.w / 2, Luxe.screen.h / 2 - r.h / 2)
 			});
+
+		graph = tiledata.graph;
+
+		if (graph != null)
+		{
+			graph.display(batcher);
+		}
+		else
+		{
+			graph = tiledata.graph = new Graph(batcher, tile.depth + 1);
+		}
+
+		batcher.view.zoom = 2.0;
+	}
+
+	function hide()
+	{
+		if (graph != null)
+		{
+			graph.display(null);
+			if (graph.is_empty())
+			{
+				graph = tiledata.graph = null;
+			}
+		}
+
+		if (tile != null)
+		{
+			tile.destroy();
+		}
 	}
 
 	/*
-	constraint points to tile size box
-	leftclick on empty / no existing
-		- start new segment
-	leftclick on intersection -advanced
-		- create and merge?
-	leftclick on existing
-		- get path id
-		- drag
-	rightclick when in path edit
-		- stop editing
-	rightclick on existing
-		- delete and merge
-	doubleclick in middle - advanced
-		- add new node
-	mousewheel
-		- resize connector point
+		- leftclick to place node
+		- leftclick on node to create edge
+			- leftclick to connect
+		- right click on node to delete (implicitly deletes connected edges)
+		- right click on edge deletes edge
 
-	check chain
+		- mousewheel to adjust size of node (for connection)
+
+		- ctrl-p create standard nodes (deletes old nodes)
+		- ctrl-a and q raise and lower depth of node under cursor..
+		- ctrl-z for undo?
 
 	*/
-
-	var cur:Vertex = null;
-	var SIZE:Float = 5;
-
-	function new_segment(mp:Vector) : Vertex
-	{
-		/*
-		var line = null;
-
-		if (create_line)
-		{
-		    line = Luxe.draw.line({
-				p0: mp.clone(),
-				p1: mp.clone(),
-				depth: tile.depth + 0.1,
-				batcher: batcher,
-				});
-		}
-		*/
-
-	    var size = SIZE;
-	    var rect = new Rectangle(mp.x - size / 2, mp.y - size / 2, size, size);
-
- 		var geom = Luxe.draw.rectangle({
- 			x: rect.x,
- 			y: rect.y,
- 			w: rect.w,
- 			h: rect.h,
- 			depth: tile.depth + 0.1,
- 			batcher: batcher,
-		});
-
- 		return { g: geom, rect: rect, size: size };
-	}
-
-	function get_vertex(mp:Vector) : Vertex
-	{
-		for (s in vertices)
-		{
-			if (s.rect.point_inside(mp))
-			{
-				return s;
-			}	
-		}
-
-		return null;
-	}
-
-    override function onmouseup(e:luxe.MouseEvent)
+    function cancel_edge(edge:GraphEdge)
     {
-    	var mp = e.pos;
-
-    	if (drag != null)
+    	if (edge == null)
     	{
-    		drag = null;
     		return;
     	}
 
+    	//delete_edge(edge);
+    	graph.delete_node(edge.p1);
+
+    	cur = null;
+    }
+
+    function decide_node_action(pos:Vector)
+    {
+    	var n = graph.get_node(pos);
+
+    	// check to see if we are touching another
+    	if (n != null && cur != null && n != cur.p1)
+    	{
+    		var del = cur.p1;
+    		cur.p1 = n;
+    		graph.delete_node(del);
+    		cur = null;
+    		return;
+    	}
+
+    	// TODO: check if we need to split a line segment
+
+    	if (n != null)
+    	{
+    		cur = graph.new_edge(n, SIZE);
+    		return;
+    	}
+
+    	if (cur == null)
+    	{
+    		var node = graph.new_node(pos, SIZE);
+    		cur = graph.new_edge(node, SIZE);
+    		return;
+    	}
+
+    	cur = graph.new_edge(cur.p1, SIZE);
+    }
+
+    function decide_move_action(pos:Vector)
+    {
+    	if (drag != null)
+    	{
+    		graph.refresh_node(drag, pos);
+    		return;
+    	}
+
+    	if (cur == null)
+    	{
+    		return;
+    	}
+
+    	graph.refresh_node(cur.p1, pos); 
+    }
+
+    function drag_end_action(pos:Vector)
+    {
+    	drag = null;
+    }
+
+    function decide_node_size_action(pos:Vector, size:Float)
+    {
+    	var n : GraphNode = null;
+
+    	if (cur != null)
+    	{
+    		n = cur.p1;
+    	}
+    	else
+    	{
+    		n = graph.get_node(pos);
+
+    		if (n == null)
+    		{
+    			return;
+    		}
+    	}
+
+    	n.size += size;
+
+    	if (n.size < MINSIZE) n.size = MINSIZE;
+    	if (n.size > MAXSIZE) n.size = MAXSIZE;
+
+    	SIZE = n.size;
+
+    	graph.refresh_node(n, pos);
+    }
+
+    function decide_delete_action(pos:Vector)
+    {
+    	if (cur != null)
+    	{
+    		cancel_edge(cur);
+    		cur = null;
+    		return;
+    	}
+
+    	var n = graph.get_node(pos);
+
+    	if (n != null)
+    	{
+	    	graph.delete_node(n);
+    		return;
+    	}
+    }
+
+    function decide_drag_start_action(pos:Vector)
+    {
+    	var n = graph.get_node(pos);
+
+    	if (n != null)
+    	{
+    		drag = n;
+    	}
+    }
+
+    override function onmouseup(e:luxe.MouseEvent)
+    {
+    	var mp = batcher.view.screen_point_to_world(e.pos);
+
+   		drag_end_action(mp);
+
     	if (e.button == MouseButton.left)
     	{
-	    	if (cur == null)
-	    	{
-	    		cur = new_segment(mp);
-	    		vertices.push(cur);
-	    		cur = new_segment(mp );
-	    	}
-	    	else
-	    	{
-	    		vertices.push(cur);
-	    		cur = new_segment(mp);
-	    	}
+    		decide_node_action(mp);
     	}
     	else if (e.button == MouseButton.right)
-    	{
-    		if (cur != null)
-    		{
-    			delete_vertex(cur);
-    			cur = null;
-    		}
-    		else
-    		{
-    			var v = get_vertex(mp);
-
-    			if (v != null)
-    			{
-    				delete_vertex(v, true);
-    			} 
-    		}
-    	}
-
-    }
-
-    inline function delete_vertex(v:Vertex, ?from_array:Bool = false)
-    {
-    	v.g.drop(true);
-
-    	if (from_array)
-    	{
-    		vertices.remove(v);
+    	{	
+    		decide_delete_action(mp);
     	}
     }
-
-    var drag : Vertex = null;
 
     override function onmousedown(e:luxe.MouseEvent)
     {
-    	var mp = e.pos;
+    	var mp = batcher.view.screen_point_to_world(e.pos);
 
-    	if (e.button == MouseButton.left)
+    	if (e.button == MouseButton.middle)
     	{
-	    	var v = get_vertex(mp);
-	    	if (v != null)
-			{
-				drag = v;
-			}
-		}
+    		decide_drag_start_action(mp);
+    	}
     }
 
     override function onmousewheel(e:luxe.MouseEvent)
     {
-    	var mp = e.pos;
-    	var v = null;
-
-    	if (drag != null)
+    	if (zoom_mod)
     	{
-    		v = drag;
-    	}
-    	else if (cur != null)
-    	{
-    		v = cur;
-    	}
-    	else
-    	{
-    		v = get_vertex(mp);
+    		batcher.view.zoom += 0.15 * -MyUtils.sgn(e.y);
+    		return;
     	}
 
-    	if (v != null)
-    	{
-    	    v.size += MyUtils.sgn(e.yrel);
-    		SIZE = v.size;
-    		refresh_vertex(v, mp);
-    	}
+    	var mp = batcher.view.screen_point_to_world(e.pos);
+
+    	decide_node_size_action(mp, MyUtils.sgn(e.yrel));
     }
 
     override function onmousemove(e:luxe.MouseEvent)
     {
-    	var mp = e.pos;
+    	var mp = batcher.view.screen_point_to_world(e.pos);
 
-    	if (drag != null)
-    	{
-	    	refresh_vertex(drag, mp);
-    	}
-    	else
-    	{
-	    	refresh_vertex(cur, mp);
-    	}
-
+    	decide_move_action(mp);
     }
 
-    function refresh_vertex(v:Vertex, mp:Vector)
+    var zoom_mod = false;
+
+    override function onkeydown(e:luxe.KeyEvent)
     {
-    	if (v != null)
+    	if (e.keycode == Key.lctrl || e.keycode == Key.rctrl)
     	{
-    		v.rect.x = mp.x - v.size / 2;
-    		v.rect.y = mp.y - v.size / 2;
-    		v.rect.w = v.size;
-    		v.rect.h = v.size;
-    		v.g.set({ x: v.rect.x, y: v.rect.y, w: v.rect.w, h: v.rect.h });
+    		zoom_mod = true;
     	}
     }
+
+	override function onkeyup(e:luxe.KeyEvent)
+	{
+		zoom_mod = false;
+
+		if (e.keycode == Key.space || e.keycode == Key.escape)
+		{
+			disable();
+			Luxe.timer.schedule(0.1, return_prev);
+		}
+	}
+
+	function return_prev()
+	{
+		global.views.enable('SelectorView');
+	}
 
     override function onenabled<T>(tile:T)
     {
@@ -250,6 +297,7 @@ class PathEditView extends State
 
     override function ondisabled<T>(ignored:T)
     {
+    	hide();
     	trace('disable path edit');
     } //ondisabled  
 }

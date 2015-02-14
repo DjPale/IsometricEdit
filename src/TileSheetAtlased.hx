@@ -3,10 +3,15 @@ import luxe.Rectangle;
 
 import phoenix.Texture;
 
+typedef TileData = {
+    rect: Rectangle,
+    graph: Graph
+};
+
 class TileSheetAtlased
 {
 	public var image : Texture;
-    public var atlas : Array<Rectangle>;
+    public var atlas : Array<TileData>;
 
     var groups : Map<String,Array<Int>>;
     var group_path : String;
@@ -17,13 +22,19 @@ class TileSheetAtlased
 
     public function new()
     {
-    	atlas = new Array<Rectangle>();
+    	atlas = new Array<TileData>();
         groups = new Map<String,Array<Int>>();
     }
 
     public inline function get_current_path() : String
     {
         return group_path;
+    }
+
+    public function to_json() : String
+    {
+        var out= haxe.Json.stringify({ groups: groups });
+        return haxe.Json.parse(out);
     }
 
     public function add_idx_to_group(grp:String, idx:Int, ?toggle:Bool = false) : Bool
@@ -165,7 +176,7 @@ class TileSheetAtlased
 
         for (i in 0...atlas.length)
         {
-            var rect = atlas[i];
+            var rect = atlas[i].rect;
 
             if (scale != null)
             {
@@ -191,7 +202,7 @@ class TileSheetAtlased
     {
         for (i in 0...atlas.length)
         {
-            if (atlas[i].equal(rect))
+            if (atlas[i].rect.equal(rect))
             {
                 return i;
             }
@@ -234,7 +245,7 @@ class TileSheetAtlased
     {
     	if (atlas_pos >= 0 && atlas_pos < atlas.length)
     	{
-    		return atlas[atlas_pos];
+    		return atlas[atlas_pos].rect;
     	}
 
     	return null;

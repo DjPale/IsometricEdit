@@ -11,6 +11,8 @@ import phoenix.Texture;
 import phoenix.Batcher;
 import phoenix.BitmapFont;
 
+import TileSheetAtlased;
+
 typedef GlobalData = {
     sheet: TileSheetAtlased,
     views : States,
@@ -23,6 +25,7 @@ typedef SelectEvent = {
     index: Int,
     group: String
 }
+
 
 class Main extends luxe.Game 
 {
@@ -53,7 +56,7 @@ class Main extends luxe.Game
     {
         global_data.sheet.image = Luxe.loadTexture('assets/tiles.png');
         //global_data.sheet.image.filter = FilterType.nearest;
-        global_data.sheet.atlas = new Array<Rectangle>();
+        global_data.sheet.atlas = new Array<TileData>();
 
         global_data.font = Luxe.resources.find_font('ubuntu-mono');
         trace(global_data.font);
@@ -63,8 +66,12 @@ class Main extends luxe.Game
 
         for (st in fast.nodes.SubTexture)
         {
-            global_data.sheet.atlas.push(new Rectangle(Std.parseFloat(st.att.x), Std.parseFloat(st.att.y), 
-                            Std.parseFloat(st.att.width), Std.parseFloat(st.att.height)));
+            global_data.sheet.atlas.push({
+                graph: null, 
+                rect: 
+                    new Rectangle(Std.parseFloat(st.att.x), Std.parseFloat(st.att.y), 
+                    Std.parseFloat(st.att.width), Std.parseFloat(st.att.height)) 
+                    });
         }
    
         setup();
@@ -79,9 +86,14 @@ class Main extends luxe.Game
             layer: 1
             });
 
+        var detail = Luxe.renderer.create_batcher({
+            name: 'detail',
+            layer: 2
+            });
+
         var ui = Luxe.renderer.create_batcher({ 
             name: 'ui',
-            layer: 2
+            layer: 3
             });
 
         global_data.ui = ui;
@@ -103,10 +115,9 @@ class Main extends luxe.Game
 
         views.add(new EditView(global_data, Luxe.renderer.batcher));
         views.add(new SelectorView(global_data, b));
-        views.add(new PathEditView(global_data, ui));
+        views.add(new PathEditView(global_data, detail));
 
-        //views.set('EditView');
-        views.enable('PathEditView', 96);
+        views.set('EditView');
     }
 
     override function update(dt:Float) 

@@ -5,7 +5,7 @@
 	"shaders" : [
 	],
 	"fonts" : [
-		{ "id" : "ubuntu-mono.fnt", "path" : "assets/fonts/" }
+		{ "id" : "assets/fonts/ubuntu-mono.fnt" }
 	],
 	"sounds" : [
 	],
