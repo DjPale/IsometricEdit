@@ -5,6 +5,8 @@ import phoenix.Batcher;
 import phoenix.geometry.LineGeometry;
 import phoenix.geometry.RectangleGeometry;
 
+using RectangleUtils;
+
 typedef GraphNode = {
 	g: RectangleGeometry,
 	rect: Rectangle,
@@ -17,6 +19,20 @@ typedef GraphEdge = {
 	p1: GraphNode 
 	};
 
+typedef GraphSerialize = {
+	nodes: Array<GraphNodeSerialize>,
+	edges: Array<GraphEdgeSerialize>
+};
+
+typedef GraphNodeSerialize = {
+	rect: Array<Float>
+	};
+
+typedef GraphEdgeSerialize = {
+	p0: Int,
+	p1: Int
+	};
+
 class Graph
 {
 	var nodes : Array<GraphNode>;
@@ -24,17 +40,6 @@ class Graph
 
 	var batcher : Batcher = null;
 	var depth : Float = 0;
-
-
-	inline function new_Rect(pos:Vector, size:Float)
-	{
-		return new Rectangle(pos.x - size / 2, pos.y - size / 2, size, size);
-	}
-
-	inline function Rect_mid(r:Rectangle) : Vector
-	{
-		return new Vector(r.x + r.w / 2, r.y + r.h / 2);
-	}
 
 	public function new(?_batcher:Batcher = null, ?_depth:Float = null)
 	{
@@ -48,6 +53,49 @@ class Graph
 	public inline function is_empty() : Bool
 	{
 		return (nodes.length == 0 && edges.length == 0);
+	}
+
+	public function to_json_data() : GraphSerialize
+	{
+		var t_nodes = new Array<GraphNodeSerialize>();
+
+		for (n in nodes)
+		{
+			t_nodes.push({ rect: n.rect.to_array() });
+		}
+
+		var t_edges = new Array<GraphEdgeSerialize>();
+
+		for (e in edges)
+		{
+			t_edges.push({ p0: nodes.indexOf(e.p0), p1: nodes.indexOf(e.p1) });
+		}
+
+		return { nodes: t_nodes, edges: t_edges };
+	}
+
+	public function offset(x:Float, y:Float)
+	{
+		for (n in nodes)
+		{
+			n.rect.x += x;
+			n.rect.y += y;
+
+			if (n.g != null)
+			{
+				n.g.set({ rect: n.rect });
+			}
+		}
+
+		for (e in edges)
+		{
+			if (e.l != null)
+			{
+				var v = new Vector(x, y);
+				e.l.p0.add(v);
+				e.l.p1.add(v);
+			}
+		}
 	}
 
 	public function display(_batcher:Batcher)
@@ -73,8 +121,8 @@ class Graph
 				if (e.l == null)
 				{
 					e.l = Luxe.draw.line({
-						p0: Rect_mid(e.p0.rect),
-						p1: Rect_mid(e.p1.rect),
+						p0: e.p0.rect.mid(),
+						p1: e.p1.rect.mid(),
 						depth: depth,
 						batcher: batcher,
 						});				
@@ -113,7 +161,7 @@ class Graph
 	public function new_node(pos:Vector, _size:Float) : GraphNode
 	{
 	    var size = _size;
-	    var rect = new_Rect(pos, size);
+	    var rect = RectangleUtils.create_mid_square(pos, size);
 
  		var geom = null;
 
@@ -135,7 +183,7 @@ class Graph
 
 	public function new_edge(node:GraphNode, _size:Float) : GraphEdge
 	{
-		var pos = Rect_mid(node.rect);
+		var pos = node.rect.mid();
 
 		var line = null;
 
@@ -206,7 +254,7 @@ class Graph
     		v.rect.w = v.size;
     		v.rect.h = v.size;
 
-    		if (v.g != null) v.g.set({ x: v.rect.x, y: v.rect.y, w: v.rect.w, h: v.rect.h });
+    		if (v.g != null) v.g.set({ rect: v.rect });
 
     		for (e in edges)
     		{

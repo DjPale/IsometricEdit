@@ -3,6 +3,36 @@ import luxe.Vector;
 
 import phoenix.geometry.Geometry;
 
+import TileSheetAtlased;
+
+using RectangleUtils;
+
+typedef VectorSerialize = {
+    x: Float,
+    y: Float
+};
+
+typedef MapTileSerialize = {
+    pos: VectorSerialize,
+    size: VectorSerialize,
+    origin: VectorSerialize,
+    uv: Array<Float>,
+    depth: Float,
+};
+
+typedef MapEntrySerialize = {
+    pos: String, 
+    tile: MapTileSerialize
+};
+
+typedef IsometricMapSerialize = {
+    width: Float,
+    height: Float,
+    snap: Int,
+    sheet: TileSheetAtlasedSerialize,
+    map: Array<MapEntrySerialize>
+};
+
 class IsometricMap
 {
 	var grid : Map<String,Sprite> = new Map<String,Sprite>();
@@ -25,6 +55,38 @@ class IsometricMap
     	base_height = _base_height;
 
 		set_snap(_grid_snap);
+    }
+
+    inline function vector_to_pair(v:Vector) : VectorSerialize
+    {
+        return { x: v.x, y: v.y };
+    }
+    
+    inline function tile_to_json_data(s:Sprite) : MapTileSerialize
+    {
+        if (s == null) return null;
+
+        return {
+            pos: vector_to_pair(s.pos),
+            size: vector_to_pair(s.size),
+            origin: vector_to_pair(s.origin),
+            uv: s.uv.to_array(),
+            depth: s.depth
+        };
+    }
+
+    public function to_json_data() : IsometricMapSerialize
+    {
+        var t_grid = new Array<MapEntrySerialize>();
+
+        for (k in grid.keys())
+        {
+            var s = grid.get(k);
+
+            t_grid.push({ pos: k, tile: tile_to_json_data(s) });
+        }
+
+        return { width: base_width, height: base_height, snap: grid_snap, sheet: null, map: t_grid };
     }
 
     public function set_snap(snap:Int)

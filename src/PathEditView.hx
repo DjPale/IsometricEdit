@@ -21,6 +21,10 @@ class PathEditView extends State
 	var cur:GraphEdge = null;
     var drag : GraphNode = null;
 
+    var zoom_mod = false;
+
+    var offset : Vector;
+
 	var MINSIZE:Float = 10;
 	var SIZE:Float = 20;
 	var MAXSIZE:Float = 30;
@@ -39,6 +43,8 @@ class PathEditView extends State
 
 		var r = tiledata.rect;
 
+		offset = new Vector(Luxe.screen.w / 2 - r.w / 2, Luxe.screen.h / 2 - r.h / 2);
+
 		tile = new Sprite({
 			name: 'path_sprite',
 			texture: global.sheet.image,
@@ -47,13 +53,14 @@ class PathEditView extends State
 			uv: r,
 			centered: false,
 			size: new Vector(r.w, r.h),
-			pos: new Vector(Luxe.screen.w / 2 - r.w / 2, Luxe.screen.h / 2 - r.h / 2)
+			pos: offset.clone()
 			});
 
 		graph = tiledata.graph;
 
 		if (graph != null)
 		{
+			graph.offset(offset.x, offset.y);
 			graph.display(batcher);
 		}
 		else
@@ -62,6 +69,8 @@ class PathEditView extends State
 		}
 
 		batcher.view.zoom = 2.0;
+
+		global.status.set_tile(idx);
 	}
 
 	function hide()
@@ -69,6 +78,7 @@ class PathEditView extends State
 		if (graph != null)
 		{
 			graph.display(null);
+			graph.offset(-offset.x, -offset.y);
 			if (graph.is_empty())
 			{
 				graph = tiledata.graph = null;
@@ -260,10 +270,13 @@ class PathEditView extends State
     {
     	var mp = batcher.view.screen_point_to_world(e.pos);
 
+    	var tilePos = mp.clone();
+    	tilePos.subtract(offset);
+
+    	global.status.set_postxt('World:(${Math.fround(mp.x)},${Math.fround(mp.y)}) - Tile:(${Math.fround(tilePos.x)},${Math.fround(tilePos.y)})');
+
     	decide_move_action(mp);
     }
-
-    var zoom_mod = false;
 
     override function onkeydown(e:luxe.KeyEvent)
     {

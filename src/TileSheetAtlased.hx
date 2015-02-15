@@ -3,9 +3,27 @@ import luxe.Rectangle;
 
 import phoenix.Texture;
 
+using RectangleUtils;
+
 typedef TileData = {
     rect: Rectangle,
     graph: Graph
+};
+
+typedef TileSheetAtlasedSerialize = {
+    image: String,
+    atlas: Array<TileDataSerialize>,
+    groups: Array<GroupSerialize>
+};
+
+typedef GroupSerialize = { 
+    k: String, 
+    v: Array<Int> 
+};
+
+typedef TileDataSerialize = {
+    graph: Dynamic,
+    rect: Array<Float>
 };
 
 class TileSheetAtlased
@@ -31,10 +49,34 @@ class TileSheetAtlased
         return group_path;
     }
 
-    public function to_json() : String
+    public function to_json_data() : TileSheetAtlasedSerialize
     {
-        var out= haxe.Json.stringify({ groups: groups });
-        return haxe.Json.parse(out);
+        var t_atlas = new Array<TileDataSerialize>();
+
+        for (a in atlas)
+        {
+            var t_g = null;
+
+            if (a.graph != null)
+            {
+                t_g = a.graph.to_json_data(); 
+            }
+
+            t_atlas.push({ rect: a.rect.to_array(), graph: t_g });
+        }
+
+        var t_groups = new Array<GroupSerialize>();
+        for (k in groups.keys())
+        {
+            t_groups.push({ k: k, v: groups[k] }); 
+        }
+
+        return { image: image.asset.id, atlas: t_atlas, groups: t_groups };
+    }
+
+    public static function from_json() : TileSheetAtlased
+    {
+        return null;
     }
 
     public function add_idx_to_group(grp:String, idx:Int, ?toggle:Bool = false) : Bool

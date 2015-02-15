@@ -284,7 +284,42 @@ class EditView extends State
 
     function save_map()
     {
-        trace(global.sheet.to_json());
+        trace('Try to save map...');
+
+        #if luxe_web
+        trace('Cannot save maps for web targets :(');
+        js.Lib.alert('Sorry, cannot save maps on web target!\nMaybe add a text field or something later...');
+        return;
+        #end
+
+        #if desktop
+
+        var ff = { extension: 'json', desc: 'JSON file' };
+        var path = Luxe.core.app.io.platform.dialog_save('Save map as...', ff);
+
+        if (path == null || path.length == 0)
+        {
+            trace('Could not save file - dialog_save failed or canceled');
+            return;
+        }
+
+        var sheet = global.sheet.to_json_data();
+        var map = map.to_json_data();
+        map.sheet = sheet;    
+
+        try 
+        {
+            sys.io.File.saveContent(path, haxe.Json.stringify(map, null, "\t"));
+        } 
+        catch(e:Dynamic)
+        {
+            trace('Failed to save file "$path", I think because "$e"');
+            return;
+        }
+        #else
+        trace('Cannot save maps for non-desktop targets :(');
+        return;
+        #end
     }
 
     function update_tooltip(?_pos:Vector = null)

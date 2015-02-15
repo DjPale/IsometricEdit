@@ -2,11 +2,20 @@
 (Very) Simple graphical editor for placing Iso spritesheets. Made especially for the wonderful Kenney.nl Isometric assets!
 It uses a grid as guide, but the tiles stores its own positions. There are no max limits to maps (other than theoretical). Note that the tile sizes are read directly from the atlas and thus they are not limited to a fixed tile size.
 
+NB! The formats are highly non-optimized and a bit stupid (too much info per map tile instead of more information on the tile). In all reality, only the index number should be stored...
+
 ## Disclaimer
 It's most likely not bug-free so usage is solely your own responsibility obviously.
 
 ## License
 The source code is licensed under the MIT license
+
+## Not supported
+The following main features are currently not supported yet - which is probably a breaking point for most people :P
+- No save / load of tile sheets (will be implemented)
+- No global map grid (will be implemented)
+- No layers (will maybe be implemented)
+- No use of standard Luxe map (may be implemented, but needs some extensions to support arbitrary tile sizes)
 
 ## Quick Guide
 
@@ -27,7 +36,9 @@ The source code is licensed under the MIT license
 
 ### Path basics
 - Left click to start a new path, add more nodes with left click.
-- Right click finishes a path or deletes an existing node
+- Right click cancels node insertion for the current path or deletes an existing node
+- Middle click and hold to drag node positons after they have mid placed
+- Zoom by holding down `Ctrl` and use scroll wheel
 
 ### Shortcut Keys
 
@@ -45,8 +56,8 @@ The base grid size is currently `64x32` which allows for fine placement.
 - `Ctrl-t` toggle visibility of status text + tile tooltip
 - `Ctrl-q` raise tile depth of tile under tile cursor by 1
 - `Ctrl-a` lower tile depth of tile under tile cursor by 1
-- `Ctrl-s` save tilesheet as JSON (only when compiled to native targets)
-- `Ctrl-o` open tilesheet from JSON (only when compiled to native targets)
+- `Ctrl-s` save map as JSON (only when compiled to native targets)
+- `Ctrl-o` open map from JSON (only when compiled to native targets)
 - `0..9` and `a..z` selects the group. Use mouse wheel to scroll through all tiles
 
 #### Tile selector / Group editor
@@ -56,4 +67,4 @@ The base grid size is currently `64x32` which allows for fine placement.
 
 #### Path editor
 
-- `Ctrl-z` undo last change
+- `Space` or `Esc` exits
