@@ -27,4 +27,10 @@ class MyUtils
         return ((keycode >= Key.key_0 && keycode <= Key.key_9) || 
             (keycode >= Key.key_a && keycode <= Key.key_z));
     }
+
+    public static function ShowMessage(msg:String, ?title:String = null)
+    {
+        trace(msg);
+        Luxe.core.app.window.simple_message(msg, title);
+    }
 }

@@ -21,7 +21,8 @@ typedef GraphEdge = {
 
 typedef GraphSerialize = {
 	nodes: Array<GraphNodeSerialize>,
-	edges: Array<GraphEdgeSerialize>
+	edges: Array<GraphEdgeSerialize>,
+	depth: Float
 };
 
 typedef GraphNodeSerialize = {
@@ -41,13 +42,30 @@ class Graph
 	var batcher : Batcher = null;
 	var depth : Float = 0;
 
-	public function new(?_batcher:Batcher = null, ?_depth:Float = null)
+	public function new(?_batcher:Batcher = null, ?_depth:Float = 0)
 	{
 		batcher = _batcher;
 		depth = _depth;
 
 		nodes = new Array<GraphNode>();
 		edges = new Array<GraphEdge>();
+	}
+
+	public function destroy()
+	{
+		while (edges.length > 0)
+		{
+			delete_edge(edges.pop());
+		}
+
+		while (nodes.length > 0)
+		{
+			delete_node(nodes.pop());
+		}
+
+		batcher = null;
+		edges = null;
+		nodes = null;
 	}
 
 	public inline function is_empty() : Bool
@@ -71,7 +89,37 @@ class Graph
 			t_edges.push({ p0: nodes.indexOf(e.p0), p1: nodes.indexOf(e.p1) });
 		}
 
-		return { nodes: t_nodes, edges: t_edges };
+		return { nodes: t_nodes, edges: t_edges, depth: depth };
+	}
+
+	public static function from_json_data(data:GraphSerialize) : Graph
+	{
+		if (data == null) return null;
+
+		var g = new Graph();
+
+		g.depth = data.depth;
+
+		// WARNING! No error checking and lazy coding follows - don't do this at home!
+		for (n in data.nodes)
+		{
+			g.nodes.push({
+				rect: RectangleUtils.from_array(n.rect),
+				size: n.rect[3],
+				g: null
+				});
+		}
+
+		for (e in data.edges)
+		{
+			g.edges.push({
+				p0: g.nodes[e.p0],
+				p1: g.nodes[e.p1],
+				l: null
+				});
+		}
+
+		return g;
 	}
 
 	public function offset(x:Float, y:Float)

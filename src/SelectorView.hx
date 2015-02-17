@@ -162,9 +162,13 @@ class SelectorView extends State
 		else if (MyUtils.valid_group_key(e.keycode))
 		{
 			var grp = snow.input.Keycodes.Keycodes.name(e.keycode);
-			global.sheet.select_group(grp);
+			var exists = global.sheet.select_group(grp);
 			selector_comp.hide_indicators();
-			selector_comp.show_indicators(global.sheet.get_group(grp));
+
+			if (exists)
+			{
+				selector_comp.show_indicators(global.sheet.get_group(grp));
+			}
 		}
 	}
 

@@ -8,6 +8,8 @@ import luxe.Entity;
 import luxe.Vector;
 
 import Main;
+import TileSheetAtlased;
+import IsometricMap;
 
 typedef TileDef =
 {
@@ -282,20 +284,101 @@ class EditView extends State
         }
     }
 
+
+
+    function open_map()
+    {
+        trace('Try to open map...');
+
+        #if luxe_web
+        MyUtils.ShowMessage('Sorry, cannot open maps on web target!\nMaybe add a text field or something later...');
+        return;
+        #end    
+
+        #if desktop
+        // pending https://github.com/underscorediscovery/snow/issues/65
+        // var ff = [{ extension: 'json', desc: 'JSON file' }];
+        var path = Luxe.core.app.io.platform.dialog_open('Open map...');
+
+        if (path == null || path.length == 0)
+        {
+            trace('Could not open file - dialog_open failed or canceled');
+            return;
+        } 
+
+        var content = null;
+
+        try 
+        {
+            content = sys.io.File.getContent(path);
+        } 
+        catch(e:Dynamic)
+        {
+            MyUtils.ShowMessage('Failed to open file "$path", I think because "$e"', 'open_map');
+            return;
+        }
+
+        var data : Dynamic = null;
+
+        try
+        {
+            data = haxe.Json.parse(content);
+        }
+        catch(e:Dynamic)
+        {
+            MyUtils.ShowMessage('Failed to parse JSON file, invalid format ($e)', 'open_map');
+            return;
+        }
+
+        var s_sheet = TileSheetAtlased.from_json_data(data.sheet);
+
+        if (s_sheet == null)
+        {
+            MyUtils.ShowMessage('Something went wrong while trying to open the tile sheet, sorry! :(', 'open_map');
+            return;
+        }
+
+        trace('Loaded sheet');
+
+        var s_map = IsometricMap.from_json_data(data, s_sheet.image, batcher);
+
+        if (s_map != null)
+        {
+            trace('Ready to replace...');
+
+            global.sheet.destroy();
+            global.sheet = s_sheet;
+
+            map.destroy();
+            map = s_map;
+        }
+        else
+        {
+            MyUtils.ShowMessage('Something went wrong while trying to open map, sorry! :(', 'open_map');
+            return;
+        }
+
+        trace('Map opened! :D');
+
+        #else
+        MyUtils.ShowMessage('Cannot save maps for non-desktop targets :(', 'open_map');
+        return;
+        #end
+    }
+
     function save_map()
     {
         trace('Try to save map...');
 
         #if luxe_web
-        trace('Cannot save maps for web targets :(');
-        js.Lib.alert('Sorry, cannot save maps on web target!\nMaybe add a text field or something later...');
+        MyUtils.ShowMessage('Sorry, cannot save maps on web target!\nMaybe add a text field or something later...');
         return;
         #end
 
         #if desktop
-
-        var ff = { extension: 'json', desc: 'JSON file' };
-        var path = Luxe.core.app.io.platform.dialog_save('Save map as...', ff);
+        // pending https://github.com/underscorediscovery/snow/issues/65
+        // var ff = { extension: 'json', desc: 'JSON file' };
+        var path = Luxe.core.app.io.platform.dialog_save('Save map as...');
 
         if (path == null || path.length == 0)
         {
@@ -303,21 +386,24 @@ class EditView extends State
             return;
         }
 
-        var sheet = global.sheet.to_json_data();
-        var map = map.to_json_data();
-        map.sheet = sheet;    
+        var s_sheet = global.sheet.to_json_data();
+        var s_map = map.to_json_data();
+        s_map.sheet = s_sheet;    
 
         try 
         {
-            sys.io.File.saveContent(path, haxe.Json.stringify(map, null, "\t"));
+            sys.io.File.saveContent(path, haxe.Json.stringify(s_map, null, "\t"));
         } 
         catch(e:Dynamic)
         {
-            trace('Failed to save file "$path", I think because "$e"');
+            MyUtils.ShowMessage('Failed to save file "$path", I think because "$e"', 'save_map');
             return;
         }
+
+        trace('Map saved! :D');
+
         #else
-        trace('Cannot save maps for non-desktop targets :(');
+        MyUtils.ShowMessage('Cannot save maps for non-desktop targets :(', 'save_map');
         return;
         #end
     }
@@ -453,7 +539,11 @@ class EditView extends State
             {
                 toggle_ui();
             }
-            else if (e.keycode == Key.key_v)
+            else if (e.keycode == Key.key_o)
+            {
+                open_map();
+            }
+            else if (e.keycode == Key.key_s)
             {
                 save_map();
             }

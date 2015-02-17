@@ -26,8 +26,8 @@ typedef MapEntrySerialize = {
 };
 
 typedef IsometricMapSerialize = {
-    width: Float,
-    height: Float,
+    width: Int,
+    height: Int,
     snap: Int,
     sheet: TileSheetAtlasedSerialize,
     map: Array<MapEntrySerialize>
@@ -57,9 +57,24 @@ class IsometricMap
 		set_snap(_grid_snap);
     }
 
+    public function destroy()
+    {
+        for (v in grid)
+        {
+            v.destroy();
+        }
+
+        grid = null;
+    }
+
     inline function vector_to_pair(v:Vector) : VectorSerialize
     {
         return { x: v.x, y: v.y };
+    }
+
+    inline function pair_to_vector(p:VectorSerialize)
+    {
+        return new Vector(p.x, p.y);
     }
     
     inline function tile_to_json_data(s:Sprite) : MapTileSerialize
@@ -87,6 +102,20 @@ class IsometricMap
         }
 
         return { width: base_width, height: base_height, snap: grid_snap, sheet: null, map: t_grid };
+    }
+
+    public static function from_json_data(data:IsometricMapSerialize, sheet:phoenix.Texture, batcher:phoenix.Batcher) : IsometricMap
+    {
+        if (data == null || sheet == null || batcher == null) return null;
+
+        var m = new IsometricMap(data.width, data.height, data.snap);
+
+        for (t in data.map)
+        {
+            m.create_tile(sheet, t, batcher);
+        }
+
+        return m;
     }
 
     public function set_snap(snap:Int)
@@ -162,6 +191,23 @@ class IsometricMap
         grid.set(_key(pos), tile);
 
         trace('Place tile at ' + _key(pos) + ' depth = ' + tile.depth);
+    }
+
+    //TODO: messy
+    public function create_tile(img:phoenix.Texture, data:MapEntrySerialize, batcher:phoenix.Batcher)
+    {
+        var s = new Sprite({
+            texture: img,
+            centered: false,
+            origin: pair_to_vector(data.tile.origin),
+            pos: pair_to_vector(data.tile.pos),
+            size: pair_to_vector(data.tile.size),
+            uv: RectangleUtils.from_array(data.tile.uv),
+            depth: data.tile.depth,
+            batcher: batcher
+            });
+
+        grid.set(data.pos, s);
     }
 
     public function remove_tile(pos:Vector, ?_destroy:Bool = true) : Bool

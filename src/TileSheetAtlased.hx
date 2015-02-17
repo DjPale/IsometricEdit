@@ -3,6 +3,8 @@ import luxe.Rectangle;
 
 import phoenix.Texture;
 
+import Graph;
+
 using RectangleUtils;
 
 typedef TileData = {
@@ -22,7 +24,7 @@ typedef GroupSerialize = {
 };
 
 typedef TileDataSerialize = {
-    graph: Dynamic,
+    graph: GraphSerialize,
     rect: Array<Float>
 };
 
@@ -42,6 +44,19 @@ class TileSheetAtlased
     {
     	atlas = new Array<TileData>();
         groups = new Map<String,Array<Int>>();
+    }
+
+    public function destroy()
+    {
+        while (atlas.length > 0)
+        {
+            var a = atlas.pop();
+            if (a.graph != null) a.graph.destroy();
+        }
+
+        image = null;
+        atlas = null;
+        groups = null;
     }
 
     public inline function get_current_path() : String
@@ -74,14 +89,40 @@ class TileSheetAtlased
         return { image: image.asset.id, atlas: t_atlas, groups: t_groups };
     }
 
-    public static function from_json() : TileSheetAtlased
+    public static function from_json_data(data:TileSheetAtlasedSerialize) : TileSheetAtlased
     {
-        return null;
+        if (data == null) return null;
+
+        var sheet = new TileSheetAtlased();
+
+        sheet.image = Luxe.resources.find_texture(data.image);
+
+        if (sheet.image == null) return null;
+
+        for (a in data.atlas)
+        {
+            sheet.atlas.push({
+                graph: Graph.from_json_data(a.graph),
+                rect: RectangleUtils.from_array(a.rect)
+                });
+        }
+
+        for (g in data.groups)
+        {
+            sheet.set_idxs_to_group(g.k, g.v);
+        }
+
+        return sheet;
+    }
+
+    public function set_idxs_to_group(grp:String, idxs:Array<Int>)
+    {
+        groups.set(grp, idxs);
     }
 
     public function add_idx_to_group(grp:String, idx:Int, ?toggle:Bool = false) : Bool
     {
-        if (idx < 0 || idx >= atlas.length)
+        if (grp == null || idx < 0 || idx >= atlas.length)
         {
             return false;
         }
@@ -149,6 +190,8 @@ class TileSheetAtlased
 
     public function get_group(grp:String) : Array<Int>
     {
+        if (grp == null) return null;
+
         return groups.get(grp);
     }
 
@@ -187,12 +230,12 @@ class TileSheetAtlased
         return atlas_pos;
     }
 
-    public function select_group(grp:String)
+    public function select_group(grp:String) : Bool
     {
         if (grp == null || !groups.exists(grp))
         {
             no_group();
-            return;
+            return false;
         }
 
         group_path = grp;
@@ -203,6 +246,8 @@ class TileSheetAtlased
         set_group_index_ofs(0);
 
         Luxe.events.queue('TileSheetAtlased.GroupId', get_current_path());
+
+        return true;
     }
 
     public function no_group()

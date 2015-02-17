@@ -24,7 +24,6 @@ class TileSelectorBehavior extends Component
 		batcher = _batcher;
 	}
 
-
 	override public function init()
 	{
 		sprite = cast entity;
