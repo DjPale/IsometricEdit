@@ -19,13 +19,19 @@ typedef TileDef =
 	origin: Vector,
 	centered : Bool,
 	uv : Rectangle
-}
+};
+
+typedef TileCursor = 
+{
+    spr: Sprite,
+    graph: Graph
+};
 
 class EditView extends State
 {
 	var global : GlobalData;
 
-    var spr : Sprite;
+    var tile : TileCursor;
     var map : IsometricMap;
     var tooltip : TileTooltipBehavior;
 
@@ -43,6 +49,7 @@ class EditView extends State
     var prev_pos : Vector;
 
     var ui_on : Bool = true;
+    var graph_on : Bool = false;
 
 	public function new(_global:GlobalData, _batcher:phoenix.Batcher)
 	{
@@ -68,9 +75,12 @@ class EditView extends State
 		var spr_opt : SpriteOptions = {};
         spr_opt.name = "template";
         spr_opt.texture = global.sheet.image;
-        spr = new Sprite(spr_opt);
+
+        var spr = new Sprite(spr_opt);
         spr.centered = false;
         spr.depth = 1000;
+
+        tile = { spr: spr, graph: null };
 
         update_sprite();
 
@@ -95,8 +105,12 @@ class EditView extends State
             );
 	}
 
-    function place_tile(template:Sprite)
+    function place_tile()
     {
+        if (tile == null) return;
+
+        var template = tile.spr;
+
     	if (template == null) return;
 
     	var mpos = map.screen_to_iso(template.pos);
@@ -111,7 +125,7 @@ class EditView extends State
         new_tile.uv = template.uv.clone();
         new_tile.origin = template.origin.clone();
 
-        map.set_tile(new_tile, mpos);
+        map.set_tile(new_tile, mpos, tile.graph);
     }
 
     function remove_tile(pos:Vector)
@@ -166,16 +180,19 @@ class EditView extends State
 
     function update_sprite()
     {
-        var r = global.sheet.get_current();
+        var t = global.sheet.get_current();
+        var r = t.rect;
         trace(r);
 
-        spr.size.x = r.w;
-        spr.size.y = r.h;
-        spr.uv.copy_from(r);
+        tile.spr.size.x = r.w;
+        tile.spr.size.y = r.h;
+        tile.spr.uv.copy_from(r);
 
-        spr.color.a = 0.6;
+        tile.spr.color.a = 0.6;
 
-        spr.origin = new Vector(0, r.h);
+        tile.spr.origin = new Vector(0, r.h);
+
+        tile.graph = t.graph;
     }
 
     function toggle_selector()
@@ -243,11 +260,11 @@ class EditView extends State
     {
         if (e.button == luxe.MouseButton.left)
         {
-            place_tile(spr);
+            place_tile();
         }
         else if (e.button == luxe.MouseButton.right)
         {
-            remove_tile(map.screen_to_iso(spr.pos));
+            remove_tile(map.screen_to_iso(tile.spr.pos));
         }
         else if (e.button == luxe.MouseButton.middle)
         {
@@ -284,7 +301,12 @@ class EditView extends State
         }
     }
 
+    function toggle_graph()
+    {
+        graph_on = !graph_on;
 
+        map.display_graph(graph_on ? batcher : null);
+    }
 
     function open_map()
     {
@@ -359,6 +381,8 @@ class EditView extends State
         }
 
         trace('Map opened! :D');
+
+        graph_on = false;
 
         #else
         MyUtils.ShowMessage('Cannot save maps for non-desktop targets :(', 'open_map');
@@ -443,22 +467,22 @@ class EditView extends State
     		batcher.view.pos.add(new Vector(-e.xrel, -e.yrel));
     	}
 
-        if (spr == null) return;
+        if (tile == null || tile.spr == null) return;
 
         var p = mouse_coords(e.pos);
 
         var mp = map.screen_to_iso(p);
 
-        spr.pos = map.iso_to_screen(mp);
+        tile.spr.pos = map.iso_to_screen(mp);
 
-        if (spr.pos != prev_pos)
+        if (tile.spr.pos != prev_pos)
         {
-            global.status.set_postxt('World:(' + Math.round(spr.pos.x) + ',' + Math.round(spr.pos.y) + ') - Map: (' + mp.x + ',' + mp.y + ')');
+            global.status.set_postxt('World:(' + Math.round(tile.spr.pos.x) + ',' + Math.round(tile.spr.pos.y) + ') - Map: (' + mp.x + ',' + mp.y + ')');
 
             update_tooltip(mp);
         }
 
-        prev_pos = spr.pos;
+        prev_pos = tile.spr.pos;
     }
 
     override function onmousewheel(e:luxe.MouseEvent)
@@ -546,6 +570,10 @@ class EditView extends State
             else if (e.keycode == Key.key_s)
             {
                 save_map();
+            }
+            else if (e.keycode == Key.key_g)
+            {
+                toggle_graph();
             }
 
             update_tooltip();

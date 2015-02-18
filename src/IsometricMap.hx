@@ -35,7 +35,8 @@ typedef IsometricMapSerialize = {
 
 class IsometricMap
 {
-	var grid : Map<String,Sprite> = new Map<String,Sprite>();
+	var grid : Map<String,Sprite>;
+    var graph : Graph;
 
 	public var base_width(default, null) : Int;
 	public var base_height(default, null) : Int;
@@ -51,10 +52,18 @@ class IsometricMap
 
     public function new(?_base_width:Int = 64, ?_base_height:Int = 32, ?_grid_snap:Int = 1)
     {
+        grid = new Map<String,Sprite>();
+        graph = new Graph(null, 10000);
+
     	base_width = _base_width;
     	base_height = _base_height;
 
 		set_snap(_grid_snap);
+    }
+
+    public function display_graph(batcher:phoenix.Batcher)
+    {
+        graph.display(batcher); 
     }
 
     public function destroy()
@@ -64,6 +73,9 @@ class IsometricMap
             v.destroy();
         }
 
+        graph.destroy();
+
+        graph = null;
         grid = null;
     }
 
@@ -181,7 +193,7 @@ class IsometricMap
         return Math.abs(pos.y) * grid_mult + Math.abs(pos.x) * grid_mult;
     }
 
-    public function set_tile(tile:Sprite, pos:Vector)
+    public function set_tile(tile:Sprite, pos:Vector, _graph:Graph = null)
     {
         remove_tile(pos);
 
@@ -189,6 +201,8 @@ class IsometricMap
         tile.depth = depth(pos);
 
         grid.set(_key(pos), tile);
+
+        graph.merge(_graph, tile.pos.clone().subtract(tile.origin));
 
         trace('Place tile at ' + _key(pos) + ' depth = ' + tile.depth);
     }

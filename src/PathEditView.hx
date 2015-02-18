@@ -136,18 +136,18 @@ class PathEditView extends State
 
     	if (n != null)
     	{
-    		cur = graph.new_edge(n, SIZE);
+    		cur = graph.new_edge_and_node(n, SIZE);
     		return;
     	}
 
     	if (cur == null)
     	{
     		var node = graph.new_node(pos, SIZE);
-    		cur = graph.new_edge(node, SIZE);
+    		cur = graph.new_edge_and_node(node, SIZE);
     		return;
     	}
 
-    	cur = graph.new_edge(cur.p1, SIZE);
+    	cur = graph.new_edge_and_node(cur.p1, SIZE);
     }
 
     function decide_move_action(pos:Vector)

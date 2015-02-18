@@ -328,11 +328,11 @@ class TileSheetAtlased
     	}
     }
 
-    public function get_current() : Rectangle
+    public function get_current() : TileData
     {
     	if (atlas_pos >= 0 && atlas_pos < atlas.length)
     	{
-    		return atlas[atlas_pos].rect;
+    		return atlas[atlas_pos];
     	}
 
     	return null;

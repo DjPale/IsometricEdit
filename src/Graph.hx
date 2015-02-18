@@ -51,7 +51,7 @@ class Graph
 		edges = new Array<GraphEdge>();
 	}
 
-	public function destroy()
+	public function clear()
 	{
 		while (edges.length > 0)
 		{
@@ -62,6 +62,11 @@ class Graph
 		{
 			delete_node(nodes.pop());
 		}
+	}
+
+	public function destroy()
+	{
+		clear();
 
 		batcher = null;
 		edges = null;
@@ -120,6 +125,31 @@ class Graph
 		}
 
 		return g;
+	}
+
+	// TODO: add radius or other limiter to improve performance
+	// When we add tiles, we only need to search for overlaps around the new tile
+	public function merge(other:Graph, ?pos:Vector = null)
+	{
+		if (other == null || other.is_empty()) return;
+
+		var old_len = nodes.length;
+
+		var ofs = pos;
+		if (ofs == null) ofs = new Vector();
+
+		for (other_n in other.nodes)
+		{
+			new_node(other_n.rect.mid().add(ofs), other_n.size);
+		}
+
+		for (other_e in other.edges)
+		{
+			var p0_idx = other.nodes.indexOf(other_e.p0);
+			var p1_idx = other.nodes.indexOf(other_e.p1);
+
+			new_edge(nodes[old_len + p0_idx], nodes[old_len + p1_idx]);
+		}
 	}
 
 	public function offset(x:Float, y:Float)
@@ -229,24 +259,29 @@ class Graph
  		return node;
 	}
 
-	public function new_edge(node:GraphNode, _size:Float) : GraphEdge
+	public function new_edge_and_node(node:GraphNode, _size:Float) : GraphEdge
 	{
 		var pos = node.rect.mid();
+		var n_node = new_node(pos, _size);
 
+		return new_edge(node, n_node);
+	}
+
+	public function new_edge(p0:GraphNode, p1:GraphNode) : GraphEdge
+	{
 		var line = null;
 
 		if (batcher != null)
 		{
 			line = Luxe.draw.line({
-				p0: pos.clone(),
-				p1: pos.clone(),
+				p0: p0.rect.mid(),
+				p1: p1.rect.mid(),
 				depth: depth,
 				batcher: batcher,
 				});
 		}
 
-		var n_node = new_node(pos, _size);
-		var edge = { l: line, p0: node, p1: n_node };
+		var edge = { l: line, p0: p0, p1: p1 };
 
 		edges.push(edge);
 
