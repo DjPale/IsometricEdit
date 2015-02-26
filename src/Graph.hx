@@ -129,6 +129,18 @@ class Graph
 
 	// TODO: add radius or other limiter to improve performance
 	// When we add tiles, we only need to search for overlaps around the new tile
+	/*
+		-> Proposed algorithm
+		- Params: Global graph G + local graph L
+		- Add everything from L to G
+	 	- Check for overlap between vertices for G and L
+	 	- Create list of overlapping nodes in G (Go)
+	 	- For each overlap in Go
+	 		- If no intersection between Go.p0 to Lo.p1
+	 			- Change edge endpoints
+	 			- Add
+		- Check
+	*/
 	public function merge(other:Graph, ?pos:Vector = null)
 	{
 		if (other == null || other.is_empty()) return;
