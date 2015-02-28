@@ -9,6 +9,9 @@
 	],
 	"sounds" : [
 	],
+	"json" : [
+		{ "id" : "assets/tests/test1.json" }
+	],
 	"text" : [
 		{ "id" : "assets/tiles.xml" }
 	]

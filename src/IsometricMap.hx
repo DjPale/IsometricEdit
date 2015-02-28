@@ -116,7 +116,7 @@ class IsometricMap
         return { width: base_width, height: base_height, snap: grid_snap, sheet: null, map: t_grid };
     }
 
-    public static function from_json_data(data:IsometricMapSerialize, sheet:phoenix.Texture, batcher:phoenix.Batcher) : IsometricMap
+    public static function from_json_data(data:IsometricMapSerialize, sheet:TileSheetAtlased, batcher:phoenix.Batcher) : IsometricMap
     {
         if (data == null || sheet == null || batcher == null) return null;
 
@@ -203,15 +203,14 @@ class IsometricMap
         grid.set(_key(pos), tile);
 
         graph.merge(_graph, tile.pos.clone().subtract(tile.origin));
-
-        trace('Place tile at ' + _key(pos) + ' depth = ' + tile.depth);
     }
 
     //TODO: messy
-    public function create_tile(img:phoenix.Texture, data:MapEntrySerialize, batcher:phoenix.Batcher)
+    public function create_tile(sheet:TileSheetAtlased, data:MapEntrySerialize, batcher:phoenix.Batcher)
     {
         var s = new Sprite({
-            texture: img,
+            name_unique: true,
+            texture: sheet.image,
             centered: false,
             origin: pair_to_vector(data.tile.origin),
             pos: pair_to_vector(data.tile.pos),
@@ -221,7 +220,13 @@ class IsometricMap
             batcher: batcher
             });
 
+        //TODO: omg!
+        var idx = sheet.get_tile_from_rect(s.uv);
+        var td = sheet.atlas[idx];
+
         grid.set(data.pos, s);
+
+        graph.merge(td.graph, s.pos.clone().subtract(s.origin));
     }
 
     public function remove_tile(pos:Vector, ?_destroy:Bool = true) : Bool

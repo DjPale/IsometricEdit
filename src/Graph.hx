@@ -136,10 +136,12 @@ class Graph
 	 	- Check for overlap between vertices for G and L
 	 	- Create list of overlapping nodes in G (Go)
 	 	- For each overlap in Go
-	 		- If no intersection between Go.p0 to Lo.p1
+	 		- If intersection between Go.p0 to Lo.p1 in overlap
 	 			- Change edge endpoints
-	 			- Add
-		- Check
+	 		- Else add to node remove list
+		- Add each node with no edges to remove list
+		- For each node in remove list
+			- Remove node
 	*/
 	public function merge(other:Graph, ?pos:Vector = null)
 	{
@@ -161,6 +163,54 @@ class Graph
 			var p1_idx = other.nodes.indexOf(other_e.p1);
 
 			new_edge(nodes[old_len + p0_idx], nodes[old_len + p1_idx]);
+		}
+
+		var remove : Array<GraphNode> = [];
+
+		for (i in 0...old_len)
+		{
+			for (n in old_len...nodes.length)
+			{
+				var node_g = nodes[i];
+				var node_l = nodes[n];
+
+				if (node_g.rect.overlaps(node_l.rect))
+				{
+					remove.push(node_l);
+
+					var e_g_list = get_edges_for_node(node_g);
+					var e_l_list = get_edges_for_node(node_l);
+
+					if (e_g_list == null || e_l_list == null)
+					{
+						trace('NB! one of the edge lists was null - should not happen! .. or maybe if you have dangling nodes :P');
+						break;
+					}
+
+					for (edge_g in e_g_list)
+					{
+						var p0 = edge_g.p0;
+						if (edge_g.p0 == node_g) p0 = edge_g.p1;
+
+						for (edge_l in e_l_list)
+						{
+							var p1 = edge_l.p0;
+							if (edge_l.p0 == node_l) p1 = edge_l.p1;
+
+							if (node_g.rect.intersects_line(p0.rect.mid(), p1.rect.mid()))
+							{
+								new_edge(p0, p1);
+								remove.push(node_g);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		for (r in remove)
+		{
+			delete_node(r);
 		}
 	}
 
@@ -246,6 +296,23 @@ class Graph
 		}
 
 		return null;
+	}
+
+	public function get_edges_for_node(n:GraphNode) : Array<GraphEdge>
+	{
+		var ret = null;
+
+		for (e in edges)
+		{
+			if (e.p0 == n || e.p1 == n)
+			{
+				if (ret == null) ret = new Array<GraphEdge>();
+
+				ret.push(e);
+			}
+		}
+
+		return ret;
 	}
 
 	public function new_node(pos:Vector, _size:Float) : GraphNode

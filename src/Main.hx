@@ -58,7 +58,7 @@ class Main extends luxe.Game
         //global_data.sheet.image.filter = FilterType.nearest;
         global_data.sheet.atlas = new Array<TileData>();
 
-        global_data.font = Luxe.resources.find_font('ubuntu-mono');
+        global_data.font = Luxe.resources.find_font('assets/fonts/ubuntu-mono.fnt');
         trace(global_data.font);
 
         var xml = Xml.parse(Luxe.loadText('assets/tiles.xml').text);
@@ -73,7 +73,7 @@ class Main extends luxe.Game
                     Std.parseFloat(st.att.width), Std.parseFloat(st.att.height)) 
                     });
         }
-   
+
         setup();
     }
 
@@ -117,7 +117,7 @@ class Main extends luxe.Game
         views.add(new SelectorView(global_data, b));
         views.add(new PathEditView(global_data, detail));
 
-        views.set('EditView');
+        views.set('EditView', Luxe.resources.find_json('assets/tests/test1.json').json);
     }
 
     override function update(dt:Float) 

@@ -1,5 +1,7 @@
 import luxe.Rectangle;
 import luxe.Vector;
+import luxe.collision.Collision;
+import luxe.collision.shapes.Polygon;
 
 class RectangleUtils
 {
@@ -30,5 +32,16 @@ class RectangleUtils
 	public static inline function mid(r:Rectangle) : Vector
 	{
 		return new Vector(r.x + r.w / 2, r.y + r.h / 2);
+	}
+
+	//TODO: Find a better way - non-optimal
+	public static inline function intersects_line(r:Rectangle, p0:Vector, p1:Vector)
+	{
+		var p = Polygon.rectangle(r.x, r.y, r.w, r.h, false);
+		var ret = Collision.ray(p0, p1, [p]);
+		p.destroy();
+		p = null;
+
+		return ret;
 	}
 }

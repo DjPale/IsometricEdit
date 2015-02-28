@@ -49,7 +49,7 @@ class EditView extends State
     var prev_pos : Vector;
 
     var ui_on : Bool = true;
-    var graph_on : Bool = false;
+    var graph_on : Bool = true;
 
 	public function new(_global:GlobalData, _batcher:phoenix.Batcher)
 	{
@@ -105,6 +105,38 @@ class EditView extends State
             );
 	}
 
+    override function onenter(map_data:Dynamic) 
+    {
+        if (map_data == null) return;
+
+        var c_map : IsometricMapSerialize = cast map_data;
+
+        var sheet_t = TileSheetAtlased.from_json_data(c_map.sheet);
+
+        if (sheet_t == null)
+        {
+            MyUtils.ShowMessage('Failed to load sheet from map data!', 'EditView');
+            return;
+        }
+
+        global.sheet.destroy();
+        global.sheet = sheet_t;
+
+        var t_map = IsometricMap.from_json_data(c_map, global.sheet, batcher);
+
+        if (t_map == null)
+        {
+            MyUtils.ShowMessage('Failed to load map data!', 'EditView');
+            return;
+        }
+
+        map.destroy();
+        map = t_map;       
+
+        map.display_graph(graph_on ? batcher : null); 
+    }
+
+
     function place_tile()
     {
         if (tile == null) return;
@@ -126,6 +158,8 @@ class EditView extends State
         new_tile.origin = template.origin.clone();
 
         map.set_tile(new_tile, mpos, tile.graph);
+
+        trace('Place tile at ' + mpos + ' depth = ' + new_tile.depth);
     }
 
     function remove_tile(pos:Vector)
@@ -180,7 +214,12 @@ class EditView extends State
 
     function update_sprite()
     {
+        if (global.sheet == null) return;
+
         var t = global.sheet.get_current();
+
+        if (t == null) return;
+
         var r = t.rect;
         trace(r);
 
@@ -382,7 +421,7 @@ class EditView extends State
 
         trace('Map opened! :D');
 
-        graph_on = false;
+        map.display_graph(graph_on ? batcher : null);
 
         #else
         MyUtils.ShowMessage('Cannot save maps for non-desktop targets :(', 'open_map');
