@@ -1,3 +1,5 @@
+package gamelib;
+
 import luxe.Rectangle;
 import luxe.Vector;
 import luxe.collision.Collision;

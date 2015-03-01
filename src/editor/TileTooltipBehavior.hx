@@ -1,3 +1,5 @@
+package editor;
+
 import luxe.Component;
 import luxe.Sprite;
 import luxe.Text;

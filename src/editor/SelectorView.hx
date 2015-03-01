@@ -1,3 +1,5 @@
+package editor;
+
 import luxe.States;
 import luxe.Sprite;
 import luxe.Entity;
@@ -6,6 +8,7 @@ import luxe.Camera;
 import luxe.Input;
 
 import phoenix.Batcher;
+import gamelib.MyUtils;
 
 import Main;
 

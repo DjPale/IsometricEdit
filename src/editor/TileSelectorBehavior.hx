@@ -1,9 +1,14 @@
+package editor;
+
 import luxe.Component;
 import luxe.Sprite;
 import luxe.Vector;
 import luxe.Input;
 import phoenix.Batcher;
 import phoenix.geometry.Geometry;
+
+import gamelib.TileSheetAtlased;
+import gamelib.MyUtils;
 
 import Main;
 

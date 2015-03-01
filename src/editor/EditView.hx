@@ -1,3 +1,5 @@
+package editor;
+
 import luxe.States;
 import luxe.Sprite;
 import luxe.options.SpriteOptions;
@@ -8,8 +10,10 @@ import luxe.Entity;
 import luxe.Vector;
 
 import Main;
-import TileSheetAtlased;
-import IsometricMap;
+import gamelib.TileSheetAtlased;
+import gamelib.IsometricMap;
+import gamelib.Graph;
+import gamelib.MyUtils;
 
 typedef TileDef =
 {

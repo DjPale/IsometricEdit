@@ -1,3 +1,5 @@
+package gamelib;
+
 import luxe.Vector;
 import luxe.Rectangle;
 
@@ -5,7 +7,7 @@ import phoenix.Batcher;
 import phoenix.geometry.LineGeometry;
 import phoenix.geometry.RectangleGeometry;
 
-using RectangleUtils;
+using gamelib.RectangleUtils;
 
 typedef GraphNode = {
 	g: RectangleGeometry,

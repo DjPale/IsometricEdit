@@ -1,11 +1,13 @@
+package gamelib;
+
 import luxe.Sprite;
 import luxe.Vector;
 
 import phoenix.geometry.Geometry;
 
-import TileSheetAtlased;
+import gamelib.TileSheetAtlased;
 
-using RectangleUtils;
+using gamelib.RectangleUtils;
 
 typedef VectorSerialize = {
     x: Float,

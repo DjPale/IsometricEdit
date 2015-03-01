@@ -1,3 +1,5 @@
+package editor;
+
 import luxe.States;
 import luxe.Vector;
 import luxe.Sprite;
@@ -6,8 +8,9 @@ import luxe.Input;
 import phoenix.Batcher;
 
 import Main;
-import Graph;
-import TileSheetAtlased;
+import gamelib.Graph;
+import gamelib.TileSheetAtlased;
+import gamelib.MyUtils;
 
 class PathEditView extends State
 {

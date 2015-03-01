@@ -1,3 +1,5 @@
+package gamelib;
+
 import luxe.Input;
 
 class MyUtils

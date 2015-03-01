@@ -1,11 +1,13 @@
+package gamelib;
+
 import luxe.Vector;
 import luxe.Rectangle;
 
 import phoenix.Texture;
 
-import Graph;
+import gamelib.Graph;
 
-using RectangleUtils;
+using gamelib.RectangleUtils;
 
 typedef TileData = {
     rect: Rectangle,
