@@ -61,6 +61,8 @@ The base grid size is currently `64x32` which allows for fine placement.
 - `Ctrl-a` lower tile depth of tile under tile cursor by 1
 - `Ctrl-s` save map as JSON (only when compiled to native targets)
 - `Ctrl-o` open map from JSON (only when compiled to native targets)
+- `Ctrl-g` shows and hides the path graph
+- `Ctrl-r` rebuilds the path graph based on the latest tile data
 - `0..9` and `a..z` selects the group. Use mouse wheel to scroll through all tiles
 
 #### Tile selector / Group editor

@@ -79,21 +79,26 @@ class Main extends luxe.Game
 
     function setup()
     {
+        var graph_batcher = Luxe.renderer.create_batcher({
+            name: 'graph',
+            layer: 1
+            });
+
         var c = new luxe.Camera({camera_name: 'selector_cam'});
         var b = Luxe.renderer.create_batcher({
             name: 'selector',
             camera: c.view,
-            layer: 1
+            layer: 2
             });
 
         var detail = Luxe.renderer.create_batcher({
             name: 'detail',
-            layer: 2
+            layer: 3
             });
 
         var ui = Luxe.renderer.create_batcher({ 
             name: 'ui',
-            layer: 3
+            layer: 4
             });
 
         global_data.ui = ui;
@@ -113,7 +118,7 @@ class Main extends luxe.Game
 
         global_data.status = status.add(new StatusTextBehavior());
 
-        views.add(new EditView(global_data, Luxe.renderer.batcher));
+        views.add(new EditView(global_data, Luxe.renderer.batcher, graph_batcher));
         views.add(new SelectorView(global_data, b));
         views.add(new PathEditView(global_data, detail));
 

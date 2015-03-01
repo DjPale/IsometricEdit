@@ -53,7 +53,7 @@ class IsometricMap
     public function new(?_base_width:Int = 64, ?_base_height:Int = 32, ?_grid_snap:Int = 1)
     {
         grid = new Map<String,Sprite>();
-        graph = new Graph(null, 10000);
+        graph = new Graph(null);
 
     	base_width = _base_width;
     	base_height = _base_height;
@@ -64,6 +64,22 @@ class IsometricMap
     public function display_graph(batcher:phoenix.Batcher)
     {
         graph.display(batcher); 
+    }
+
+    public function rebuild_graph(sheet:TileSheetAtlased)
+    {
+        graph.clear();
+
+        for (tile in grid)
+        {
+            var idx = sheet.get_tile_from_rect(tile.uv);
+            var g = sheet.atlas[idx].graph;
+
+            if (g != null)
+            {
+                graph.merge(g, tile.pos.clone().subtract(tile.origin));
+            }
+        }
     }
 
     public function destroy()
@@ -193,9 +209,9 @@ class IsometricMap
         return Math.abs(pos.y) * grid_mult + Math.abs(pos.x) * grid_mult;
     }
 
-    public function set_tile(tile:Sprite, pos:Vector, _graph:Graph = null)
+    public function set_tile(tile:Sprite, pos:Vector, sheet:TileSheetAtlased, _graph:Graph = null)
     {
-        remove_tile(pos);
+        remove_tile(pos, sheet);
 
         //tile.depth = Std.parseFloat(pos.y + '.' + pos.x);
         tile.depth = depth(pos);
@@ -229,14 +245,25 @@ class IsometricMap
         graph.merge(td.graph, s.pos.clone().subtract(s.origin));
     }
 
-    public function remove_tile(pos:Vector, ?_destroy:Bool = true) : Bool
+    public function remove_tile(pos:Vector, sheet:TileSheetAtlased, ?_destroy:Bool = true) : Bool
     {
         var k = _key(pos);
         var v = grid.get(k);
+        var g = null;
 
-        if (v != null && _destroy) v.destroy();
+        if (v != null)
+        {
+            var idx = sheet.get_tile_from_rect(v.uv);
+            g = sheet.atlas[idx].graph;
 
-        return grid.remove(k);
+            if (_destroy) v.destroy();
+        }
+
+        var ret = grid.remove(k);
+
+        if (g != null) rebuild_graph(sheet);
+
+        return ret;
     }
 
     inline function _key(p:Vector)

@@ -45,13 +45,13 @@ class EditView extends State
     var zoom_mod : Bool;
 
     var batcher : phoenix.Batcher;
+    var graph_batcher : phoenix.Batcher;
 
     var prev_pos : Vector;
 
     var ui_on : Bool = true;
-    var graph_on : Bool = true;
 
-	public function new(_global:GlobalData, _batcher:phoenix.Batcher)
+	public function new(_global:GlobalData, _batcher:phoenix.Batcher, _graph_batcher:phoenix.Batcher)
 	{
 		super({ name: 'EditView' });
 
@@ -62,11 +62,7 @@ class EditView extends State
 		global = _global;
 
 		batcher = _batcher;
-		/* = new Camera({
-			camera_name: 'edit',
-			viewport: new Rectangle(0, 0, Luxe.screen.w, Luxe.screen.h)
-			});
-		*/
+        graph_batcher = _graph_batcher;
 	}
 
 	override function init()
@@ -133,7 +129,7 @@ class EditView extends State
         map.destroy();
         map = t_map;       
 
-        map.display_graph(graph_on ? batcher : null); 
+        map.display_graph(graph_batcher); 
     }
 
 
@@ -157,7 +153,7 @@ class EditView extends State
         new_tile.uv = template.uv.clone();
         new_tile.origin = template.origin.clone();
 
-        map.set_tile(new_tile, mpos, tile.graph);
+        map.set_tile(new_tile, mpos, global.sheet, tile.graph);
 
         trace('Place tile at ' + mpos + ' depth = ' + new_tile.depth);
     }
@@ -184,7 +180,7 @@ class EditView extends State
     		undo_buffer.shift();
     	}
 
-    	map.remove_tile(pos);
+    	map.remove_tile(pos, global.sheet);
     }
 
     function restore_tile()
@@ -197,7 +193,7 @@ class EditView extends State
 
     	if (def.map_pos != null && def.pos == null)
     	{
-    		map.remove_tile(def.map_pos);
+    		map.remove_tile(def.map_pos, global.sheet);
     		return;
     	}
 
@@ -209,7 +205,7 @@ class EditView extends State
     	new_tile.uv = def.uv;
     	new_tile.origin = def.origin;
 
-    	map.set_tile(new_tile, def.map_pos);
+    	map.set_tile(new_tile, def.map_pos, global.sheet);
     }
 
     function update_sprite()
@@ -342,9 +338,12 @@ class EditView extends State
 
     function toggle_graph()
     {
-        graph_on = !graph_on;
+        graph_batcher.enabled = !graph_batcher.enabled;
+    }
 
-        map.display_graph(graph_on ? batcher : null);
+    function refresh_graph()
+    {
+        map.rebuild_graph(global.sheet);
     }
 
     function open_map()
@@ -401,7 +400,7 @@ class EditView extends State
 
         trace('Loaded sheet');
 
-        var s_map = IsometricMap.from_json_data(data, s_sheet.image, batcher);
+        var s_map = IsometricMap.from_json_data(data, s_sheet, batcher);
 
         if (s_map != null)
         {
@@ -421,7 +420,7 @@ class EditView extends State
 
         trace('Map opened! :D');
 
-        map.display_graph(graph_on ? batcher : null);
+        map.display_graph(graph_batcher);
 
         #else
         MyUtils.ShowMessage('Cannot save maps for non-desktop targets :(', 'open_map');
@@ -499,11 +498,23 @@ class EditView extends State
         }
     }
 
+    function move_camera(pos:Vector)
+    {
+        batcher.view.pos.add(pos);
+        graph_batcher.view.pos.add(pos);
+    }
+
+    function zoom_camera(z_offset:Float)
+    {
+        batcher.view.zoom += z_offset;
+        graph_batcher.view.zoom += z_offset;
+    }
+
     override function onmousemove(e:luxe.MouseEvent)
     {
     	if (dragging)
     	{
-    		batcher.view.pos.add(new Vector(-e.xrel, -e.yrel));
+    		move_camera(new Vector(-e.xrel, -e.yrel));
     	}
 
         if (tile == null || tile.spr == null) return;
@@ -530,8 +541,7 @@ class EditView extends State
 
     	if (zoom_mod)
     	{
-    		batcher.view.zoom += 0.15 * -dir;
-
+            zoom_camera(0.15 * -dir);
     		return;
     	}
 
@@ -613,6 +623,10 @@ class EditView extends State
             else if (e.keycode == Key.key_g)
             {
                 toggle_graph();
+            }
+            else if (e.keycode == Key.key_r)
+            {
+                refresh_graph();
             }
 
             update_tooltip();

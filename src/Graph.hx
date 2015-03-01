@@ -137,11 +137,16 @@ class Graph
 	 	- Create list of overlapping nodes in G (Go)
 	 	- For each overlap in Go
 	 		- If intersection between Go.p0 to Lo.p1 in overlap
-	 			- Change edge endpoints
+	 			- For each edge that includes Go overlap node
+	 				- For each edge that includes Lo overlap
+	 					- Add new edge
+	 					- If they intersect remove both Go and Lo nodes
+	 						- Else remove only Lo node
 	 		- Else add to node remove list
-		- Add each node with no edges to remove list
 		- For each node in remove list
 			- Remove node
+
+		NB! This is something like O(n^2*m^2) so not very optimized!
 	*/
 	public function merge(other:Graph, ?pos:Vector = null)
 	{
@@ -208,10 +213,12 @@ class Graph
 			}
 		}
 
-		for (r in remove)
+		while (remove.length > 0)
 		{
-			delete_node(r);
+			delete_node(remove.pop());
 		}
+
+		remove = null;
 	}
 
 	public function offset(x:Float, y:Float)

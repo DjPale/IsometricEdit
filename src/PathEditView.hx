@@ -25,9 +25,9 @@ class PathEditView extends State
 
     var offset : Vector;
 
-	var MINSIZE:Float = 10;
-	var SIZE:Float = 20;
-	var MAXSIZE:Float = 30;
+	var MINSIZE:Float = 5;
+	var SIZE:Float = 10;
+	var MAXSIZE:Float = 20;
 
 	public function new(_global:GlobalData, _batcher:Batcher)
 	{
