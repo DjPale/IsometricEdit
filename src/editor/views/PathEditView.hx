@@ -293,7 +293,7 @@ class PathEditView extends State
 	{
 		zoom_mod = false;
 
-		if (e.keycode == Key.space || e.keycode == Key.escape)
+		if (e.keycode == Key.tab || e.keycode == Key.escape)
 		{
 			disable();
 			Luxe.timer.schedule(0.1, return_prev);

@@ -160,7 +160,7 @@ class SelectorView extends State
 
 	override function onkeyup(e:luxe.KeyEvent)
 	{
-		if (e.keycode == Key.space || e.keycode == Key.escape)
+		if (e.keycode == Key.tab || e.keycode == Key.escape)
 		{
 			disable();
 			global.views.enable('EditView');

@@ -17,6 +17,7 @@ import editor.behaviors.StatusTextBehavior;
 import editor.views.EditView;
 import editor.views.SelectorView;
 import editor.views.PathEditView;
+import editor.views.TestView;
 
 typedef GlobalData = {
     sheet: TileSheetAtlased,
@@ -124,6 +125,7 @@ class Main extends luxe.Game
         global_data.status = status.add(new StatusTextBehavior());
 
         views.add(new EditView(global_data, Luxe.renderer.batcher, graph_batcher));
+        views.add(new TestView(global_data, graph_batcher));
         views.add(new SelectorView(global_data, b));
         views.add(new PathEditView(global_data, detail));
 

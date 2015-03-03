@@ -32,7 +32,7 @@ The following main features are currently not supported yet - which is probably 
 - See the section for Shortcut keys for additional info
 
 ### Selector basics
-- Bring up tile selector / group editor with `Space`
+- Bring up tile selector / group editor with `Tab`
 - Either select a tile for editing with left mouse button (closes selector)
 - Assign group with keys `a..z` or `0..9`
 - Bring up tile path editor with right mouse button
@@ -45,13 +45,14 @@ The following main features are currently not supported yet - which is probably 
 
 ### Shortcut Keys
 
-In general, `Ctrl` is used for most editor commands. The notable exception being `Space` which brings up the tile selector / group.
+In general, `Ctrl` is used for most editor commands. The notable exception being `Tab` which brings up the tile selector / group and `Space` which toggles test mode.
 
 #### Editor
 
 The base grid size is currently `64x32` which allows for fine placement.
 
-- `Space` brings up the tile selector / group editor
+- `Tab` brings up the tile selector / group editor
+- `Space` toggles test mode by putting small cars that drive around on the map
 - `Ctrl-c` selects the tile under the tile cursor (cancels group selection)
 - `Ctrl-z` undo last changes (has a small undo stack)
 - `Ctrl-1..3` changes the current grid snap level from 1 (default) through 3
@@ -68,8 +69,12 @@ The base grid size is currently `64x32` which allows for fine placement.
 #### Tile selector / Group editor
 
 - `a..z` and `0..9` assigns or removes a tile to the group given by the key
-- `Space` or `Esc` exits without selection
+- `Tab` or `Esc` exits without selection
 
 #### Path editor
+
+- `Tab` or `Esc` exits
+
+#### Test mode
 
 - `Space` or `Esc` exits

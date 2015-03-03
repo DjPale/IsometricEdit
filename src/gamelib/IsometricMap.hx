@@ -178,7 +178,7 @@ class IsometricMap
     {
         for (spr in grid)
         {
-            if (spr.point_inside_AABB(pos))
+            if (spr.point_inside(pos))
             {
                 return spr;
             }
@@ -206,7 +206,7 @@ class IsometricMap
         }
     } 
 
-    inline function depth(pos:Vector) : Float
+    public inline function depth(pos:Vector) : Float
     {
         return Math.abs(pos.y) * grid_mult + Math.abs(pos.x) * grid_mult;
     }

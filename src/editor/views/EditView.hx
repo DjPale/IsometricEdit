@@ -106,13 +106,15 @@ class EditView extends State
                     update_sprite();
                 }
 
-                Luxe.timer.schedule(0.1, function() { toggle_selector(); });
+                Luxe.timer.schedule(0.1, function() { toggle_view('SelectorView'); });
             }
             );
 	}
 
     override function onenter(map_data:Dynamic) 
     {
+        trace('enter edit');
+
         if (map_data == null) return;
 
         var c_map : IsometricMapSerialize = cast map_data;
@@ -140,45 +142,33 @@ class EditView extends State
         map = t_map;       
 
         map.display_graph(graph_batcher);
+    }
 
-        for (i in 0...10)
+    override function onenabled<T>(ignored:T)
+    {
+        trace('enable edit');
+        display(true);
+    } //onenabled
+
+    override function ondisabled<T>(ignored:T)
+    {
+        trace('disable edit');
+        display(false);
+    } //ondisabled
+
+    function display(show:Bool)
+    {
+        if (tile != null && tile.spr != null)
         {
-            var target = map.graph.get_random_node();
-
-            if (target != null)
-            {
-                var car = new Sprite({
-                    name: 'car',
-                    name_unique: true,
-                    batcher: graph_batcher,
-                    });
-
-                car.events.listen('PathingBehavior.Direction', 
-                    function(tgt:PathingTarget) 
-                    {
-                        var spr = tgt.sprite;
-                        spr.texture = Luxe.loadTexture('assets/tests/ambulance_${tgt.direction}.png');
-                        spr.size = new Vector(spr.texture.width, spr.texture.height);
-                    });
-
-                // car.events.listen('PathingBehavior.Move',
-                //     function(spr:Sprite)
-                //     {
-                //         var tile = map.get_tile_world(spr.pos);
-
-                //         if (tile != null)
-                //         {
-                //             spr.depth = tile.depth + 0.1;
-                //         }
-                //     });
-
-                var test_car = car.add(new PathingBehavior(map.graph));
-
-                test_car.set_speed(50 + Luxe.utils.random.float(-25, 25));
-                test_car.pos = target.rect.mid();
-                test_car.start_random_patrol(target);
-            }
+            tile.spr.visible = show;
         }
+
+        if (tooltip != null) 
+        {
+            tooltip.show(show);
+            update_tooltip();
+        }
+        //global.status.show(show);
     }
 
     function place_tile()
@@ -278,19 +268,34 @@ class EditView extends State
         tile.graph = t.graph;
     }
 
-    function toggle_selector()
+    function toggle_view(view_name:String)
     {
-    	if (global.views.enabled('SelectorView'))
+    	if (global.views.enabled(view_name))
     	{
-    		global.views.disable('SelectorView');
+    		global.views.disable(view_name);
     		enable();
     	}
     	else
     	{
     		disable();
-    		global.views.enable('SelectorView');
+    		global.views.enable(view_name);
     	}
     }
+
+    function toggle_view_param(view_name:String, param:Dynamic)
+    {
+        if (global.views.enabled(view_name))
+        {
+            global.views.disable(view_name);
+            enable();
+        }
+        else
+        {
+            disable();
+            global.views.enable(view_name, param);
+        }
+    }
+
 
     function tile_picker()
     {
@@ -684,10 +689,14 @@ class EditView extends State
         }
     	else 
         {
-            if (e.keycode == Key.space)
+            if (e.keycode == Key.tab)
         	{
-        		toggle_selector();
+        		toggle_view('SelectorView');
         	}
+            else if (e.keycode == Key.space)
+            {
+                toggle_view_param('TestView', map);
+            }
             else if (MyUtils.valid_group_key(e.keycode))
             {
                 var group_name = snow.input.Keycodes.Keycodes.name(e.keycode);
