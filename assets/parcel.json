@@ -1,6 +1,7 @@
 {
 	"textures" : [
-		{ "id" : "assets/tiles.png" }
+		{ "id" : "assets/tiles.png" },
+		{ "id" : "assets/tests/test_car.png" }
 	],
 	"shaders" : [
 	],

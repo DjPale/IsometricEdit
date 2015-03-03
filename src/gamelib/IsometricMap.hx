@@ -38,7 +38,7 @@ typedef IsometricMapSerialize = {
 class IsometricMap
 {
 	var grid : Map<String,Sprite>;
-    var graph : Graph;
+    public var graph : Graph;
 
 	public var base_width(default, null) : Int;
 	public var base_height(default, null) : Int;

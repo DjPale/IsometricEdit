@@ -1,4 +1,4 @@
-package editor;
+package editor.views;
 
 import luxe.States;
 import luxe.Sprite;
@@ -9,6 +9,9 @@ import luxe.Input;
 
 import phoenix.Batcher;
 import gamelib.MyUtils;
+
+import editor.behaviors.TileSelectorBehavior;
+import editor.behaviors.TileTooltipBehavior;
 
 import Main;
 

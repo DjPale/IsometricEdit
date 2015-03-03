@@ -1,4 +1,4 @@
-package editor;
+package editor.views;
 
 import luxe.States;
 import luxe.Vector;

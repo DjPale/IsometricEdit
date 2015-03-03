@@ -13,10 +13,10 @@ import phoenix.BitmapFont;
 
 import gamelib.TileSheetAtlased;
 
-import editor.StatusTextBehavior;
-import editor.EditView;
-import editor.SelectorView;
-import editor.PathEditView;
+import editor.behaviors.StatusTextBehavior;
+import editor.views.EditView;
+import editor.views.SelectorView;
+import editor.views.PathEditView;
 
 typedef GlobalData = {
     sheet: TileSheetAtlased,

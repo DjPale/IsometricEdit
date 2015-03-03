@@ -64,6 +64,8 @@ class Graph
 		{
 			delete_node(nodes.pop());
 		}
+
+		Luxe.events.fire('Graph.clear');
 	}
 
 	public function destroy()
@@ -73,6 +75,8 @@ class Graph
 		batcher = null;
 		edges = null;
 		nodes = null;
+
+		Luxe.events.fire('Graph.destroy');
 	}
 
 	public inline function is_empty() : Bool
@@ -223,6 +227,22 @@ class Graph
 		remove = null;
 	}
 
+	public inline function endpoint(start:GraphNode, edge:GraphEdge) : GraphNode
+	{
+		if (edge.p0 == start)
+		{
+			return edge.p1;
+		}
+		else if (edge.p1 == start)
+		{
+			return edge.p0;
+		}
+		else
+		{
+			return null;			
+		}
+	}
+
 	public function offset(x:Float, y:Float)
 	{
 		for (n in nodes)
@@ -307,9 +327,25 @@ class Graph
 		return null;
 	}
 
+	public inline function get_node_at(idx:Int) : GraphNode
+	{
+		if (idx >= 0 && idx < nodes.length) return nodes[idx];
+
+		return null;
+	}
+
+	public function get_random_node() : GraphNode
+	{
+		if (nodes.length == 0) return null;
+
+		return nodes[Luxe.utils.random.int(0, nodes.length)];
+	}
+
 	public function get_edges_for_node(n:GraphNode) : Array<GraphEdge>
 	{
 		var ret = null;
+
+		if (n == null || edges == null) return null;
 
 		for (e in edges)
 		{

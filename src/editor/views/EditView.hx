@@ -1,4 +1,4 @@
-package editor;
+package editor.views;
 
 import luxe.States;
 import luxe.Sprite;
@@ -14,6 +14,12 @@ import gamelib.TileSheetAtlased;
 import gamelib.IsometricMap;
 import gamelib.Graph;
 import gamelib.MyUtils;
+
+import editor.behaviors.TileTooltipBehavior;
+
+import gamelib.behaviors.PathingBehavior;
+
+using gamelib.RectangleUtils;
 
 typedef TileDef =
 {
@@ -133,7 +139,28 @@ class EditView extends State
         map.destroy();
         map = t_map;       
 
-        map.display_graph(graph_batcher); 
+        map.display_graph(graph_batcher);
+
+        for (i in 0...1)
+        {
+            var target = map.graph.get_random_node();
+
+            if (target != null)
+            {
+                var car = new Sprite({
+                    name: 'car',
+                    name_unique: true,
+                    batcher: graph_batcher,
+                    texture: Luxe.loadTexture('assets/tests/test_car.png')
+                    });
+
+                var test_car = car.add(new PathingBehavior(map.graph));
+
+                test_car.set_speed(50 + Luxe.utils.random.float(-25, 25));
+                test_car.pos = target.rect.mid();
+                test_car.start_random_patrol(target);
+            }
+        }
     }
 
 
@@ -274,6 +301,9 @@ class EditView extends State
     {
         batcher.view.zoom = 1.0;
         batcher.view.pos = new Vector();
+
+        graph_batcher.view.zoom = 1.0;
+        graph_batcher.view.pos = new Vector();
     }
 
     function change_depth(dir:Int)

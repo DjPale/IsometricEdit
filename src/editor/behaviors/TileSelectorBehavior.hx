@@ -1,4 +1,4 @@
-package editor;
+package editor.behaviors;
 
 import luxe.Component;
 import luxe.Sprite;
