@@ -3,15 +3,18 @@ package gamelib.behaviors;
 import luxe.Component;
 import luxe.Vector;
 import luxe.Rectangle;
+import luxe.Sprite;
 
 import gamelib.Graph;
 
 using gamelib.RectangleUtils;
 
 typedef PathingTarget = {
+	sprite: Sprite,
 	node: GraphNode,
 	pos: Vector,
-	source: GraphNode
+	source: GraphNode,
+	direction: String
 }
 
 class PathingBehavior extends Component
@@ -24,11 +27,20 @@ class PathingBehavior extends Component
 
 	var speed : Float = 10.0;
 
+	var deg_to_dir = ['S','SW','W','NW','N','NE','E','SE'];
+
+	var spr : Sprite;
+
 	public function new(_graph:Graph, ?_options:luxe.options.ComponentOptions = null)
 	{
 		super(_options);
 
 		graph = _graph;
+	}
+
+	public override function init()
+	{
+		spr = cast entity;
 	}
 
 	public function set_graph(_graph:Graph)
@@ -46,7 +58,7 @@ class PathingBehavior extends Component
 	{
 		if (sp == null) return;
 
-		target = { node: sp, pos: sp.rect.mid(), source: null };
+		target = { node: sp, pos: sp.rect.mid(), source: null, direction: '', sprite: null };
 
 		moving = true;
 
@@ -63,9 +75,10 @@ class PathingBehavior extends Component
 		moving = true;
 	}
 
-	function move_towards(tgt_pos:Vector, step:Float) : Float
+	var loop_cnt = 0;
+	function move_towards(tgt_pos:Vector, step:Float)
 	{
-		if (tgt_pos == null) return 0;
+		if (tgt_pos == null) return;
 
 		var d = tgt_pos.clone().subtract(pos);
 		d.normalize();
@@ -73,9 +86,7 @@ class PathingBehavior extends Component
 
 		pos.add(d);
 
-		var a = luxe.utils.Maths.degrees(d.angle2D) + 180;
-
-		return a;
+		if (loop_cnt++ % 60 == 0) entity.events.fire('PathingBehavior.Move', spr);
 	}
 
 	function check_dest(node:GraphNode, source:GraphNode)
@@ -85,8 +96,6 @@ class PathingBehavior extends Component
 		if (node.rect.point_inside(pos))
 		{
 			var edges = graph.get_edges_for_node(node);
-
-			//trace(edges);
 
 			if (edges != null)
 			{
@@ -114,10 +123,16 @@ class PathingBehavior extends Component
 				var idx = Luxe.utils.random.int(0, edges.length);
 				var edge = edges[idx];
 				var ep = graph.endpoint(node, edge);
-				target = { node: ep, pos: ep.rect.mid(), source: node };
 
-				trace('reached destination, new target -> ${target.pos}');
+				var d = ep.rect.mid().subtract(pos);
+				d.normalize();
+				var a = luxe.utils.Maths.degrees(d.angle2D) + 180; 
+				a = (a + 90) % 360;
+				a = Math.round(a / 45) % 8;
 
+				target = { node: ep, pos: ep.rect.mid(), source: node, direction: deg_to_dir[Std.int(a)], sprite: spr };
+
+				entity.events.fire('PathingBehavior.Direction', target);
 			}
 			else
 			{
@@ -129,8 +144,6 @@ class PathingBehavior extends Component
 		}
 	}
 
-	var loop_cnt : Int = 0;
-
 	public override function update(dt:Float)
 	{
 		if (target == null) return;
@@ -139,9 +152,6 @@ class PathingBehavior extends Component
 
 		if (!moving || target == null) return;
 
-		var a = move_towards(target.pos, dt * speed);
-
-		loop_cnt++;
-		if (loop_cnt % 120 == 0) trace('angle = ' + Math.round(loop_cnt));
+		move_towards(target.pos, dt * speed);
 	}
 }

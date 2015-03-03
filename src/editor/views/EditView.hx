@@ -141,7 +141,7 @@ class EditView extends State
 
         map.display_graph(graph_batcher);
 
-        for (i in 0...1)
+        for (i in 0...10)
         {
             var target = map.graph.get_random_node();
 
@@ -151,8 +151,26 @@ class EditView extends State
                     name: 'car',
                     name_unique: true,
                     batcher: graph_batcher,
-                    texture: Luxe.loadTexture('assets/tests/test_car.png')
                     });
+
+                car.events.listen('PathingBehavior.Direction', 
+                    function(tgt:PathingTarget) 
+                    {
+                        var spr = tgt.sprite;
+                        spr.texture = Luxe.loadTexture('assets/tests/ambulance_${tgt.direction}.png');
+                        spr.size = new Vector(spr.texture.width, spr.texture.height);
+                    });
+
+                // car.events.listen('PathingBehavior.Move',
+                //     function(spr:Sprite)
+                //     {
+                //         var tile = map.get_tile_world(spr.pos);
+
+                //         if (tile != null)
+                //         {
+                //             spr.depth = tile.depth + 0.1;
+                //         }
+                //     });
 
                 var test_car = car.add(new PathingBehavior(map.graph));
 
@@ -162,7 +180,6 @@ class EditView extends State
             }
         }
     }
-
 
     function place_tile()
     {

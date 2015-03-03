@@ -1,7 +1,14 @@
 {
 	"textures" : [
 		{ "id" : "assets/tiles.png" },
-		{ "id" : "assets/tests/test_car.png" }
+		{ "id" : "assets/tests/ambulance_N.png" },
+		{ "id" : "assets/tests/ambulance_S.png" },
+		{ "id" : "assets/tests/ambulance_W.png" },
+		{ "id" : "assets/tests/ambulance_E.png" },
+		{ "id" : "assets/tests/ambulance_NW.png" },
+		{ "id" : "assets/tests/ambulance_NE.png" },
+		{ "id" : "assets/tests/ambulance_SW.png" },
+		{ "id" : "assets/tests/ambulance_SE.png" }
 	],
 	"shaders" : [
 	],
