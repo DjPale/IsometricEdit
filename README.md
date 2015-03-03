@@ -1,5 +1,5 @@
 # IsometricEdit
-(**Very**) Simple graphical editor for placing Iso spritesheets. Made especially for the wonderful Kenney.nl Isometric assets!
+(**Very**) Simple graphical editor for placing Iso spritesheets. Made especially for the wonderful [Kenney.nl](http://kenney.nl) Isometric assets!
 It uses a grid as guide, but the tiles stores its own positions. There are no max limits to maps (other than theoretical). Note that the tile sizes are read directly from the atlas and thus they are not limited to a fixed tile size.
 
 NB! The formats are highly non-optimized and a bit stupid (too much info per map tile instead of more information on the tile). In all reality, only the index number should be stored...
@@ -14,11 +14,11 @@ The source code is licensed under the MIT license
 
 ## Not supported
 The following main features are currently not supported yet - which is probably a breaking point for most people :P
-- Loading of custom spritesheets (ye ye)
+- Loading of custom spritesheets (ye ye, will do it!)
 - No save / load of tile sheets (will be implemented)
-- No global map grid (will be implemented)
 - No layers (will maybe be implemented)
 - No use of standard Luxe map (may be implemented, but needs some extensions to support arbitrary tile sizes)
+- No object editor (hey! starting to get demanding, are we?)
 
 ## Quick Guide
 

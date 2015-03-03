@@ -10,11 +10,11 @@
 	- Moveable tile selector - OK, but not 100% happy. should probably not be modal - bleh, don't care
 	- Moveable map - OK
 
-- Group editing - Some progress
+- Group editing - OK
 	- Main group (road, grass, bridge etc.) - OK
 	- Sub group (direction / variant) - Cancelled
 	- Clear selection - No, toggle is fine
-	- Group indication
+	- Group indication - OK
 	
 - Tooltip with group info and zoomed current tile when hovering the view - OK
 	- Applicable for both views - OK
@@ -23,12 +23,12 @@
 	- Status bar - OK, but not good enough. Probably needs more labels to avoid 'jitter'
 	- Messages instead of trace - later
 
-- Tile path editor
+- Tile path editor - OK, except snap
 	- Start with simple vectors first
-		- Multiple vectors per tile
-		- Snap?
+		- Multiple vectors per tile - OK
+		- Snap? - Not yet
 
-- Save / Load <- at this point we only develop native
+- Save / Load <- at this point we only develop native - OK for maps
 	- Map data
 	- Tilesheet
 
@@ -40,5 +40,4 @@
 
 - Change grid size - later
 
-- Redo support - later
-
+- Redo support - later or never
