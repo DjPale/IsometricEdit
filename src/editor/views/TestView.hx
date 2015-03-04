@@ -5,6 +5,7 @@ import luxe.Vector;
 import luxe.Scene;
 import luxe.Sprite;
 import luxe.Input;
+import luxe.tween.Actuate;
 
 import gamelib.IsometricMap;
 import gamelib.behaviors.PathingBehavior;
@@ -89,7 +90,6 @@ class TestView extends State
                         spr.size = new Vector(spr.texture.width, spr.texture.height);
                     });
 
-
                 // car.events.listen('PathingBehavior.Move',
                 //     function(spr:Sprite)
                 //     {
@@ -105,7 +105,11 @@ class TestView extends State
 
                 var test_car = car.add(new PathingBehavior(map.graph));
 
-                test_car.set_speed(50 + Luxe.utils.random.float(-25, 25));
+                var speed = 50 + Luxe.utils.random.float(-25, 25);
+                test_car.set_speed(speed);
+
+                Actuate.tween(car.scale, 1.0 - (speed / 100), { y: 1.5 } ).repeat().reflect().ease(luxe.tween.easing.Sine.easeIn);
+
                 test_car.pos = target.rect.mid();
                 test_car.start_random_patrol(target);
             }
