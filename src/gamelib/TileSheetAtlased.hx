@@ -9,6 +9,8 @@ import gamelib.Graph;
 
 using gamelib.RectangleUtils;
 
+typedef TileSheetCollection = Map<String,TileSheetAtlased>;
+
 typedef TileData = {
     rect: Rectangle,
     graph: Graph

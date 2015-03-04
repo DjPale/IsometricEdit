@@ -37,6 +37,8 @@ typedef IsometricMapSerialize = {
 
 class IsometricMap
 {
+    var sheets : TileSheetCollection;
+
 	var grid : Map<String,Sprite>;
     public var graph : Graph;
 
@@ -54,6 +56,7 @@ class IsometricMap
 
     public function new(?_base_width:Int = 64, ?_base_height:Int = 32, ?_grid_snap:Int = 1)
     {
+        sheets = new TileSheetCollection();
         grid = new Map<String,Sprite>();
         graph = new Graph(null);
 

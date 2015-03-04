@@ -20,7 +20,6 @@ import editor.views.PathEditView;
 import editor.views.TestView;
 
 typedef GlobalData = {
-    sheet: TileSheetAtlased,
     views : States,
     status: StatusTextBehavior,
     ui : Batcher,
@@ -31,7 +30,6 @@ typedef SelectEvent = {
     index: Int,
     group: String
 }
-
 
 class Main extends luxe.Game 
 {

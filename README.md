@@ -30,12 +30,16 @@ The following main features are currently not supported yet - which is probably 
 - Pan by holding down middle mouse button and moving the mouse
 - Select groups with `a..z` and `0..9`
 - See the section for Shortcut keys for additional info
+- Open and save maps as JSON-files using `Ctrl-o` and `Ctrl-s`. Note that sprite sheet JSON data are also embedded in the map files for now (NOT the image).
 
 ### Selector basics
 - Bring up tile selector / group editor with `Tab`
 - Either select a tile for editing with left mouse button (closes selector)
 - Assign group with keys `a..z` or `0..9`
 - Bring up tile path editor with right mouse button
+- Switch tile sheets with mouse wheel
+- Zoom by holding down `Ctrl` and use scroll wheel
+- Open and save tile sheets using `Ctrl-o` and `Ctrl-s`. Note that you can open either JSON-files which contains grouping and tile path information; or you can open texture atlases in XML format. When saving, a JSON-file + the image is saved to the same folder.
 
 ### Path basics
 - Left click to start a new path, add more nodes with left click.
@@ -70,6 +74,8 @@ The base grid size is currently `64x32` which allows for fine placement.
 
 - `a..z` and `0..9` assigns or removes a tile to the group given by the key
 - `Tab` or `Esc` exits without selection
+- `Ctrl-o` opens a new tile sheet in either JSON format - or a new texture atlas. NB! If you reopen a file with a similar name
+- `Ctrl-x` resets camera position and zoom to original setting
 
 #### Path editor
 
