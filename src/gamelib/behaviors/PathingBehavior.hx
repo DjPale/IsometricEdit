@@ -81,6 +81,12 @@ class PathingBehavior extends Component
 		if (tgt_pos == null) return;
 
 		var d = tgt_pos.clone().subtract(pos);
+
+		if (d.length < 10)
+		{
+			step *= (d.length / 10);
+		}
+
 		d.normalize();
 		d.multiplyScalar(step);
 
@@ -104,7 +110,6 @@ class PathingBehavior extends Component
 				// if more than one edge, remove the one we are coming from
 				if (edges.length > 1 && source != null)
 				{
-
 					for (e in edges)
 					{
 						if (e.p0 == source || e.p1 == source)
