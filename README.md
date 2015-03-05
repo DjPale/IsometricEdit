@@ -42,10 +42,13 @@ The following main features are currently not supported yet - which is probably 
 - Open and save tile sheets using `Ctrl-o` and `Ctrl-s`. Note that you can open either JSON-files which contains grouping and tile path information; or you can open texture atlases in XML format. When saving, a JSON-file + the image is saved to the same folder.
 
 ### Path basics
-- Left click to start a new path, add more nodes with left click.
+- `Ctrl` + Left click to start a new path, add more nodes with left click.
+- Left click and hold to drag node positons after they have mid placed
 - Right click cancels node insertion for the current path or deletes an existing node
-- Middle click and hold to drag node positons after they have mid placed
 - Zoom by holding down `Ctrl` and use scroll wheel
+
+### Test basics
+- Watch the cute cars drive around
 
 ### Shortcut Keys
 
@@ -61,6 +64,7 @@ The base grid size is currently `64x32` which allows for fine placement.
 - `Ctrl-z` undo last changes (has a small undo stack)
 - `Ctrl-1..3` changes the current grid snap level from 1 (default) through 3
 - `Ctrl-x` resets camera and zoom to (0,0)
+- `Ctrl-k` kills map data and loads default tilesheet
 - `Ctrl-t` toggle visibility of status text + tile tooltip
 - `Ctrl-q` raise tile depth of tile under tile cursor by 1
 - `Ctrl-a` lower tile depth of tile under tile cursor by 1

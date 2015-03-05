@@ -11,7 +11,7 @@ import phoenix.Texture;
 import phoenix.Batcher;
 import phoenix.BitmapFont;
 
-import gamelib.TileSheetAtlased;
+import gamelib.IsometricMap;
 
 import editor.behaviors.StatusTextBehavior;
 import editor.views.EditView;
@@ -20,6 +20,7 @@ import editor.views.PathEditView;
 import editor.views.TestView;
 
 typedef GlobalData = {
+    map : IsometricMap,
     views : States,
     status: StatusTextBehavior,
     ui : Batcher,
@@ -33,7 +34,7 @@ typedef SelectEvent = {
 
 class Main extends luxe.Game 
 {
-    var global_data : GlobalData = { sheet: new TileSheetAtlased(), views: null, status: null, ui: null, font: null };
+    var global_data : GlobalData = { map: new IsometricMap(), views: null, status: null, ui: null, font: null };
     var views : States;
 
     override function ready()
@@ -58,58 +59,44 @@ class Main extends luxe.Game
 
     function stage2(_)
     {
-        global_data.sheet.image = Luxe.loadTexture('assets/tiles.png');
-        //global_data.sheet.image.filter = FilterType.nearest;
-        global_data.sheet.atlas = new Array<TileData>();
-
-        global_data.font = Luxe.resources.find_font('assets/fonts/ubuntu-mono.fnt');
-        trace(global_data.font);
-
-        var xml = Xml.parse(Luxe.loadText('assets/tiles.xml').text);
-        var fast = new haxe.xml.Fast(xml.firstElement());
-
-        for (st in fast.nodes.SubTexture)
-        {
-            global_data.sheet.atlas.push({
-                graph: null, 
-                rect: 
-                    new Rectangle(Std.parseFloat(st.att.x), Std.parseFloat(st.att.y), 
-                    Std.parseFloat(st.att.width), Std.parseFloat(st.att.height)) 
-                    });
-        }
+        // Add default sheet
+        var sheet = Luxe.loadText('assets/tiles.png');
+        global_data.map.sheets.add(TileSheetAtlased.from_xml_data(sheet, Luxe.loadText('assets/tiles.xml').text));
 
         setup();
     }
 
     function setup()
     {
+        var default_batcher = Luxe.renderer.batcher;
+
         var graph_batcher = Luxe.renderer.create_batcher({
             name: 'graph',
             layer: 1
             });
 
-        var c = new luxe.Camera({camera_name: 'selector_cam'});
-        var b = Luxe.renderer.create_batcher({
+        var selector_cam = new luxe.Camera({camera_name: 'selector_cam'});
+        var selector_batcher = Luxe.renderer.create_batcher({
             name: 'selector',
-            camera: c.view,
+            camera: selector_cam.view,
             layer: 2
             });
 
-        var detail = Luxe.renderer.create_batcher({
+        var pathedit_batcher = Luxe.renderer.create_batcher({
             name: 'detail',
             layer: 3
             });
 
-        var ui = Luxe.renderer.create_batcher({ 
+        var ui_batcher = Luxe.renderer.create_batcher({ 
             name: 'ui',
             layer: 4
             });
 
-        global_data.ui = ui;
+        global_data.ui = ui_batcher;
 
         var status = new Text({
             name: 'status',
-            batcher: ui,
+            batcher: ui_batcher,
             text: 'IsometricEdit',
             point_size: 24,
             pos: new luxe.Vector(10, 10),
@@ -122,10 +109,10 @@ class Main extends luxe.Game
 
         global_data.status = status.add(new StatusTextBehavior());
 
-        views.add(new EditView(global_data, Luxe.renderer.batcher, graph_batcher));
+        views.add(new EditView(global_data, default_batcher, graph_batcher));
         views.add(new TestView(global_data, graph_batcher));
-        views.add(new SelectorView(global_data, b));
-        views.add(new PathEditView(global_data, detail));
+        views.add(new SelectorView(global_data, selector_batcher));
+        views.add(new PathEditView(global_data, pathedit_batcher));
 
         views.set('EditView', Luxe.resources.find_json('assets/tests/test1.json').json);
     }

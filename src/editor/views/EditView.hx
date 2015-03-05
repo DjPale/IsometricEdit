@@ -40,9 +40,9 @@ typedef TileCursor =
 class EditView extends State
 {
 	var global : GlobalData;
+    var map : IsometricMap;
 
     var tile : TileCursor;
-    var map : IsometricMap;
     var tooltip : TileTooltipBehavior;
 
     var MOD_STICKY_TIME : Float = 0.2;
@@ -65,11 +65,10 @@ class EditView extends State
 	{
 		super({ name: 'EditView' });
 
-		map = new IsometricMap();
-
 		undo_buffer = new Array<TileDef>();
 
 		global = _global;
+        map = global.map;
 
 		batcher = _batcher;
         graph_batcher = _graph_batcher;
@@ -80,7 +79,7 @@ class EditView extends State
         trace('EditView init');
 		var spr_opt : SpriteOptions = {};
         spr_opt.name = "template";
-        spr_opt.texture = global.sheet.image;
+        spr_opt.texture = map.sheets.current.image;
 
         var spr = new Sprite(spr_opt);
         spr.centered = false;

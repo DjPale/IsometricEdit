@@ -20,6 +20,7 @@ typedef MapTileSerialize = {
     origin: VectorSerialize,
     uv: Array<Float>,
     depth: Float,
+    tilesheet: Int,
 };
 
 typedef MapEntrySerialize = {
@@ -31,13 +32,13 @@ typedef IsometricMapSerialize = {
     width: Int,
     height: Int,
     snap: Int,
-    sheet: TileSheetAtlasedSerialize,
+    sheets: Array<TileSheetAtlasedSerialize>,
     map: Array<MapEntrySerialize>
 };
 
 class IsometricMap
 {
-    var sheets : TileSheetCollection;
+    public var sheets : TileSheetCollection;
 
 	var grid : Map<String,Sprite>;
     public var graph : Graph;
@@ -95,7 +96,9 @@ class IsometricMap
         }
 
         graph.destroy();
+        sheets.destroy();
 
+        sheets = null;
         graph = null;
         grid = null;
     }
@@ -114,12 +117,15 @@ class IsometricMap
     {
         if (s == null) return null;
 
+        var sheet_id = sheets.sheet_id_from_texture(s.texture);
+
         return {
             pos: vector_to_pair(s.pos),
             size: vector_to_pair(s.size),
             origin: vector_to_pair(s.origin),
             uv: s.uv.to_array(),
-            depth: s.depth
+            depth: s.depth,
+            tilesheet: sheet_id
         };
     }
 
@@ -134,10 +140,10 @@ class IsometricMap
             t_grid.push({ pos: k, tile: tile_to_json_data(s) });
         }
 
-        return { width: base_width, height: base_height, snap: grid_snap, sheet: null, map: t_grid };
+        return { width: base_width, height: base_height, snap: grid_snap, sheets: sheets.to_json_data(), map: t_grid };
     }
 
-    public static function from_json_data(data:IsometricMapSerialize, sheet:TileSheetAtlased, batcher:phoenix.Batcher) : IsometricMap
+    public static function from_json_data(data:IsometricMapSerialize, batcher:phoenix.Batcher) : IsometricMap
     {
         if (data == null || sheet == null || batcher == null) return null;
 
@@ -145,7 +151,7 @@ class IsometricMap
 
         for (t in data.map)
         {
-            m.create_tile(sheet, t, batcher);
+            m.create_tile(t, batcher);
         }
 
         return m;

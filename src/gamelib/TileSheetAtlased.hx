@@ -9,8 +9,6 @@ import gamelib.Graph;
 
 using gamelib.RectangleUtils;
 
-typedef TileSheetCollection = Map<String,TileSheetAtlased>;
-
 typedef TileData = {
     rect: Rectangle,
     graph: Graph
@@ -37,6 +35,8 @@ class TileSheetAtlased
 	public var image : Texture;
     public var atlas : Array<TileData>;
 
+    var name : String;
+
     var groups : Map<String,Array<Int>>;
     var group_path : String;
     var group_cur_idx : Int = 0;
@@ -44,8 +44,9 @@ class TileSheetAtlased
 
     var atlas_pos : Int = 0;
 
-    public function new()
+    public function new(_name:String)
     {
+        name = _name;
     	atlas = new Array<TileData>();
         groups = new Map<String,Array<Int>>();
     }
@@ -97,7 +98,7 @@ class TileSheetAtlased
     {
         if (data == null) return null;
 
-        var sheet = new TileSheetAtlased();
+        var sheet = new TileSheetAtlased(data.image);
 
         sheet.image = Luxe.resources.find_texture(data.image);
 
@@ -114,6 +115,30 @@ class TileSheetAtlased
         for (g in data.groups)
         {
             sheet.set_idxs_to_group(g.k, g.v);
+        }
+
+        return sheet;
+    }
+
+    public static function from_xml_data(_image:phoenix.Texture, _xml:String) : TileSheetAtlased
+    {
+        var xml = Xml.parse(_xml);
+
+        if (xml == null) return null;
+
+        var sheet = new TileSheetAtlased(_image.id);
+        sheet.image = _image;
+
+        var fast = new haxe.xml.Fast(xml.firstElement());
+        
+        for (st in fast.nodes.SubTexture)
+        {
+           sheet.atlas.push({
+                graph: null, 
+                rect: 
+                    new Rectangle(Std.parseFloat(st.att.x), Std.parseFloat(st.att.y), 
+                    Std.parseFloat(st.att.width), Std.parseFloat(st.att.height)) 
+                    });
         }
 
         return sheet;
