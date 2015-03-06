@@ -107,7 +107,7 @@ class TileSelectorBehavior extends Component
 
 		//trace("I think I found pos " + new_tile);
 
-		var sel_event : SelectEvent = { index: new_tile, group: null };
+		var sel_event : SelectEvent = { index: new_tile, tilesheet: sheet.index, group: null };
 
 		if (e.button == MouseButton.left)
 		{
@@ -131,7 +131,7 @@ class TileSelectorBehavior extends Component
 
 		var group_name = snow.input.Keycodes.Keycodes.name(e.keycode);
 
-		var sel_event : SelectEvent = { index: new_tile, group: group_name };
+		var sel_event : SelectEvent = { index: new_tile, tilesheet: sheet.index, group: group_name };
 
 		Luxe.events.fire('assign', sel_event);
 	}		

@@ -28,7 +28,8 @@ typedef TileDef =
 	size : Vector,
 	origin: Vector,
 	centered : Bool,
-	uv : Rectangle
+	uv : Rectangle,
+    tilesheet: Int
 };
 
 typedef TileCursor = 
@@ -101,7 +102,7 @@ class EditView extends State
             {
                 if (e.index != -1)
                 {
-                    global.sheet.set_index(e.index); 
+                    map.sheets.set_index(e.tilesheet, e.index); 
                     update_sprite();
                 }
 
@@ -175,28 +176,29 @@ class EditView extends State
         new_tile.centered = template.centered;
         new_tile.pos = template.pos.clone();
         new_tile.size = template.size.clone();
-        new_tile.texture = global.sheet.image;
+        new_tile.texture = template.texture;
         new_tile.uv = template.uv.clone();
         new_tile.origin = template.origin.clone();
 
-        map.set_tile(new_tile, mpos, global.sheet, tile.graph);
+        map.set_tile(new_tile, mpos, tile.graph);
 
         trace('Place tile at ' + mpos + ' depth = ' + new_tile.depth);
     }
 
     function remove_tile(pos:Vector)
     {
-    	var old = map.get_tile(pos);
+    	var old_tile = map.get_tile(pos);
 
     	var prev_tile : TileDef = null;
 
-    	if (old != null)
+    	if (old_tile != null)
     	{
-    		prev_tile = { map_pos: pos, pos: old.pos, size: old.size, origin: old.origin, uv: old.uv, centered: old.centered };
+            var old = old_tile.s;
+    		prev_tile = { map_pos: pos, pos: old.pos, size: old.size, origin: old.origin, uv: old.uv, centered: old.centered, tilesheet: old_tile.tilesheet };
     	}
     	else
     	{
-    		prev_tile = { map_pos: pos, pos: null, size: null, origin: null, uv: null, centered: false };
+    		prev_tile = { map_pos: pos, pos: null, size: null, origin: null, uv: null, centered: false, tilesheet: null };
     	}
 
     	undo_buffer.push(prev_tile);
@@ -206,7 +208,7 @@ class EditView extends State
     		undo_buffer.shift();
     	}
 
-    	map.remove_tile(pos, global.sheet);
+    	map.remove_tile(pos);
     }
 
     function restore_tile()
@@ -219,7 +221,7 @@ class EditView extends State
 
     	if (def.map_pos != null && def.pos == null)
     	{
-    		map.remove_tile(def.map_pos, global.sheet);
+    		map.remove_tile(def.map_pos);
     		return;
     	}
 
@@ -227,11 +229,11 @@ class EditView extends State
     	new_tile.centered = def.centered;
     	new_tile.pos = def.pos;
     	new_tile.size = def.size;
-    	new_tile.texture = global.sheet.image;
+    	new_tile.texture = map.sheets.get_sheet(def.tilesheet).image;
     	new_tile.uv = def.uv;
     	new_tile.origin = def.origin;
 
-    	map.set_tile(new_tile, def.map_pos, global.sheet);
+    	map.set_tile(new_tile, def.map_pos);
     }
 
     function update_sprite()
@@ -289,16 +291,14 @@ class EditView extends State
 
         var mp = map.screen_to_iso(p);
 
-        var s = map.get_tile(mp);
+        var tile = map.get_tile(mp);
 
-        if (s != null)
+        if (tile != null)
         {
-            trace('Lookup tile with uv = ' + s.uv);
-
-            var idx = global.sheet.get_tile_from_rect(s.uv);
-            if (idx != -1)
+            var idx = map.sheets.get_index_for_sprite(tile.s);
+            if (idx != null)
             {
-                global.sheet.set_index(idx );
+                map.sheets.set_index(idx.tilesheet, idx.tile);
 
                 update_sprite();
             }
@@ -385,7 +385,7 @@ class EditView extends State
 
     function refresh_graph()
     {
-        map.rebuild_graph(global.sheet);
+        map.rebuild_graph();
     }
 
     function open_map()
@@ -531,8 +531,8 @@ class EditView extends State
 
         if (hover != null)
         {
-            var depth = map.get_depth_str(mp, hover.depth);
-            tooltip.set_tile(hover, 'map: (${mp.x},${mp.y})', 'depth: $depth');
+            var depth = map.get_depth_str(mp, hover.s.depth);
+            tooltip.set_tile(hover.s, 'map: (${mp.x},${mp.y})', 'depth: $depth');
         }
         else
         {
@@ -587,7 +587,7 @@ class EditView extends State
     		return;
     	}
 
-        global.sheet.set_group_index_ofs(dir);
+        map.sheets.current.set_group_index_ofs(dir);
 
         update_sprite();
     }
@@ -687,7 +687,7 @@ class EditView extends State
             {
                 var group_name = snow.input.Keycodes.Keycodes.name(e.keycode);
 
-                global.sheet.select_group(group_name);
+                map.sheets.current.select_group(group_name);
 
                 trace('selected group ' + group_name);
 

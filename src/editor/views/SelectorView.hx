@@ -9,6 +9,7 @@ import luxe.Input;
 
 import phoenix.Batcher;
 import gamelib.MyUtils;
+import gamelib.TileSheetAtlased;
 
 import editor.behaviors.TileSelectorBehavior;
 import editor.behaviors.TileTooltipBehavior;
@@ -28,6 +29,8 @@ class SelectorView extends State
 
 	var dragging : Bool;
 
+	var current : TileSheetAtlased;
+
 	var event_id_assign : String = '';
 	var event_id_detail : String = '';
 
@@ -42,22 +45,22 @@ class SelectorView extends State
 		batcher.view.zoom = 0.3;
 		batcher.view.pos.x = -1050;
 		batcher.view.pos.y = 720;
+
+		current = global.map.sheets.current;
 	}
 
 	function display()
 	{
-		var img = global.sheet.image;
-
 		selector = new Sprite({
 			name: 'selector',
-			texture: img,
+			texture: current.image,
 			centered: false,
 			batcher: batcher,
 			});
 
 		//selector.pos = new Vector(Luxe.screen.w - selector.size.x, Luxe.screen.h / 2 - selector.size.y / 2);
 
-		selector_comp = new TileSelectorBehavior(global.sheet, batcher);
+		selector_comp = new TileSelectorBehavior(current, batcher);
 		selector.add(selector_comp);
 
 		var tooltip_spr = new Entity({
@@ -74,11 +77,11 @@ class SelectorView extends State
 	{
 		if (e != null && e.group != null && e.index >= 0)
 		{
-			var ret = global.sheet.add_idx_to_group(e.group, e.index, true);
+			var ret = current.add_idx_to_group(e.group, e.index, true);
 			trace('add to group = $ret');
 
 			selector_comp.hide_indicators();
-			selector_comp.show_indicators(global.sheet.get_group(e.group));
+			selector_comp.show_indicators(current.get_group(e.group));
 
 			update_tooltip();
 		}
@@ -87,7 +90,7 @@ class SelectorView extends State
 	function path_edit(e:SelectEvent)
 	{
 		disable();
-		global.views.enable('PathEditView', e.index);
+		global.views.enable('PathEditView', { tilesheet: e.tilesheet, tile: e.index });
 	}
 
 	function hide()
@@ -112,11 +115,11 @@ class SelectorView extends State
 	{
 	    var mouse = Luxe.screen.cursor.pos;
 		var pos = batcher.view.screen_point_to_world(mouse);
-		var idx = global.sheet.get_tile_idx(pos);
+		var idx = current.get_tile_idx(pos);
 
 		if (idx >= 0)
 		{
-			var r = global.sheet.atlas[idx].rect;
+			var r = current.atlas[idx].rect;
 
 			var ofsX = 0.0;
 			var ofsY = 0.0;
@@ -138,10 +141,10 @@ class SelectorView extends State
 				ofsY = r.w / 4;
 			}
 
-			tooltip.set_new_tile(global.sheet.image, r);
+			tooltip.set_new_tile(current.image, r);
 			tooltip.entity.pos = new Vector(mouse.x + ofsX, mouse.y + ofsY);
 
-			var a = global.sheet.get_groups_for_idx(idx);
+			var a = current.get_groups_for_idx(idx);
 
 			if (a != null)
 			{
@@ -168,12 +171,12 @@ class SelectorView extends State
 		else if (MyUtils.valid_group_key(e.keycode))
 		{
 			var grp = snow.input.Keycodes.Keycodes.name(e.keycode);
-			var exists = global.sheet.select_group(grp);
+			var exists = current.select_group(grp);
 			selector_comp.hide_indicators();
 
 			if (exists)
 			{
-				selector_comp.show_indicators(global.sheet.get_group(grp));
+				selector_comp.show_indicators(current.get_group(grp));
 			}
 		}
 	}

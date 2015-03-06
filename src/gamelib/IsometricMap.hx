@@ -63,7 +63,7 @@ class IsometricMap
     public function new(?_base_width:Int = 64, ?_base_height:Int = 32, ?_grid_snap:Int = 1)
     {
         sheets = new TileSheetCollection();
-        grid = new Map<String,Sprite>();
+        grid = new Map<String,MapTile>();
         graph = new Graph(null);
 
     	base_width = _base_width;
@@ -77,18 +77,16 @@ class IsometricMap
         graph.display(batcher); 
     }
 
-    public function rebuild_graph(sheet:TileSheetAtlased)
+    public function rebuild_graph()
     {
         graph.clear();
 
         for (tile in grid)
         {
-            var idx = sheet.get_tile_from_rect(tile.uv);
-            var g = sheet.atlas[idx].graph;
-
-            if (g != null)
+            var t = sheets.get_tile_for_sprite(tile.s);
+            if (t != null && t.graph != null)
             {
-                graph.merge(g, tile.pos.clone().subtract(tile.origin));
+                graph.merge(t.graph, tile.s.pos.clone().subtract(tile.s.origin));
             }
         }
     }
@@ -97,7 +95,7 @@ class IsometricMap
     {
         for (v in grid)
         {
-            v.destroy();
+            v.s.destroy();
         }
 
         graph.destroy();
@@ -140,7 +138,7 @@ class IsometricMap
 
         for (k in grid.keys())
         {
-            var s = grid.get(k);
+            var s = grid.get(k).s;
 
             t_grid.push({ pos: k, tile: tile_to_json_data(s) });
         }
@@ -180,7 +178,7 @@ class IsometricMap
     	}
     }
 
-    public function get_tile(pos:Vector) : Sprite
+    public function get_tile(pos:Vector) : MapTile
     {
     	var k = _key(pos);
         var v = grid.get(k);
@@ -188,13 +186,13 @@ class IsometricMap
         return v;
     }
 
-    public function get_tile_world(pos:Vector) : Sprite
+    public function get_tile_world(pos:Vector) : MapTile
     {
-        for (spr in grid)
+        for (tile in grid)
         {
-            if (spr.point_inside(pos))
+            if (tile.s.point_inside(pos))
             {
-                return spr;
+                return tile;
             }
         }
 
@@ -225,21 +223,35 @@ class IsometricMap
         return Math.abs(pos.y) * grid_mult + Math.abs(pos.x) * grid_mult;
     }
 
-    public function set_tile(tile:Sprite, pos:Vector, sheet:TileSheetAtlased, _graph:Graph = null)
+    public function set_tile(tile:Sprite, pos:Vector, _graph:Graph = null)
     {
-        remove_tile(pos, sheet);
+        if (tile == null) return;
+
+        var sheet_id = sheets.sheet_id_from_texture(tile.texture);
+
+        remove_tile(pos);
 
         //tile.depth = Std.parseFloat(pos.y + '.' + pos.x);
         tile.depth = depth(pos);
 
-        grid.set(_key(pos), tile);
+        grid.set(_key(pos), { s: tile, tilesheet: sheet_id });
 
         graph.merge(_graph, tile.pos.clone().subtract(tile.origin));
     }
 
     //TODO: messy
-    public function create_tile(sheet:TileSheetAtlased, data:MapEntrySerialize, batcher:phoenix.Batcher)
+    public function create_tile(data:MapEntrySerialize, batcher:phoenix.Batcher)
     {
+        var sheet_id = data.tile.tilesheet;
+
+        var sheet = sheets.get_sheet(sheet_id);
+
+        if (sheet == null)
+        {
+            trace('Warning! Could not find sheet with id $sheet_id');
+            return;
+        }
+
         var s = new Sprite({
             name_unique: true,
             texture: sheet.image,
@@ -253,31 +265,26 @@ class IsometricMap
             });
 
         //TODO: omg!
-        var idx = sheet.get_tile_from_rect(s.uv);
-        var td = sheet.atlas[idx];
+        var td = sheet.get_tile_from_rect(s.uv);
 
-        grid.set(data.pos, s);
+        grid.set(data.pos, { s: s, tilesheet: sheet_id });
 
         graph.merge(td.graph, s.pos.clone().subtract(s.origin));
     }
 
-    public function remove_tile(pos:Vector, sheet:TileSheetAtlased, ?_destroy:Bool = true) : Bool
+    public function remove_tile(pos:Vector, ?_destroy:Bool = true) : Bool
     {
         var k = _key(pos);
         var v = grid.get(k);
-        var g = null;
 
-        if (v != null)
-        {
-            var idx = sheet.get_tile_from_rect(v.uv);
-            g = sheet.atlas[idx].graph;
-
-            if (_destroy) v.destroy();
-        }
+        if (v == null) return false;
 
         var ret = grid.remove(k);
 
-        if (g != null) rebuild_graph(sheet);
+        var tile = sheets.get_tile_for_sprite(v.s);    
+        if (tile != null && tile.graph != null) rebuild_graph();
+
+        if (_destroy) v.s.destroy();
 
         return ret;
     }
@@ -289,10 +296,10 @@ class IsometricMap
 
     public function change_depth_ofs(pos:Vector, depth:Int) : Bool
     {
-        var s = get_tile(pos);
-        if (s != null)
+        var tile = get_tile(pos);
+        if (tile != null)
         {
-            s.depth += depth;
+            tile.s.depth += depth;
             return true;
         }
 

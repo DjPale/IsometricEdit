@@ -10,6 +10,7 @@ import phoenix.Batcher;
 import Main;
 import gamelib.Graph;
 import gamelib.TileSheetAtlased;
+import gamelib.TileSheetCollection;
 import gamelib.MyUtils;
 
 class PathEditView extends State
@@ -40,9 +41,11 @@ class PathEditView extends State
 		batcher = _batcher;
 	}
 
-	function display(idx:Int)
+	function display(index:TileIndex)
 	{
-		tiledata = global.sheet.atlas[idx];
+        var sheet = global.map.sheets.get_sheet(index.tilesheet);
+
+		tiledata = sheet.atlas[index.tile];
 
 		var r = tiledata.rect;
 
@@ -50,7 +53,7 @@ class PathEditView extends State
 
 		tile = new Sprite({
 			name: 'path_sprite',
-			texture: global.sheet.image,
+			texture: sheet.image,
 			batcher: batcher,
 			depth: 10,
 			uv: r,
@@ -73,7 +76,7 @@ class PathEditView extends State
 
 		batcher.view.zoom = 2.0;
 
-		global.status.set_tile(idx);
+		global.status.set_tile(index);
 	}
 
 	function hide()
@@ -305,10 +308,10 @@ class PathEditView extends State
 		global.views.enable('SelectorView');
 	}
 
-    override function onenabled<T>(tile:T)
+    override function onenabled<T>(index:T)
     {
-    	trace('enable path edit with id=$tile');
-    	display(cast tile);
+    	trace('enable path edit with idx=$index');
+    	display(cast index);
     } //onenabled
 
     override function ondisabled<T>(ignored:T)

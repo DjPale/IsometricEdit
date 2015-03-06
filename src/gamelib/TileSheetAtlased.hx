@@ -37,6 +37,8 @@ class TileSheetAtlased
 
     var name : String;
 
+    public var index : Int;
+
     var groups : Map<String,Array<Int>>;
     var group_path : String;
     var group_cur_idx : Int = 0;
@@ -254,7 +256,7 @@ class TileSheetAtlased
 
         atlas_pos = a[group_cycle_idx];
 
-        Luxe.events.queue('TileSheetAtlased.TileId', atlas_pos);
+        Luxe.events.queue('TileSheetAtlased.TileId', { tilesheet: index, tile: atlas_pos });
 
         return atlas_pos;
     }
@@ -314,17 +316,30 @@ class TileSheetAtlased
         return atlas_pos;
     }
 
-    public function get_tile_from_rect(rect:Rectangle)
+    public function get_tile_from_rect(rect:Rectangle) : TileData
     {
         for (i in 0...atlas.length)
         {
             if (atlas[i].rect.equal(rect))
             {
-                return i;
+                return atlas[i];
             }
         }
 
-        return -1;
+        return null;
+    }
+
+    public function get_tile_id_from_rect(rect:Rectangle) : Int
+    {
+         for (i in 0...atlas.length)
+         {
+             if (atlas[i].rect.equal(rect))
+             {
+                 return i;
+             }
+         }
+
+         return -1;       
     }
 
     public function set_index_ofs(idx:Int)
@@ -340,7 +355,7 @@ class TileSheetAtlased
         if (atlas_pos >= len) atlas_pos = 0;
         if (atlas_pos < 0) atlas_pos = len - 1;
 
-        Luxe.events.queue('TileSheetAtlased.TileId', atlas_pos);
+        Luxe.events.queue('TileSheetAtlased.TileId', { tilesheet: index, tile: atlas_pos });
 
         return atlas_pos;
     }
@@ -353,7 +368,7 @@ class TileSheetAtlased
 
     		atlas_pos = idx;
 
-            Luxe.events.queue('TileSheetAtlased.TileId', atlas_pos);
+            Luxe.events.queue('TileSheetAtlased.TileId', { tilesheet: index, tile: atlas_pos });
     	}
     }
 

@@ -12,6 +12,7 @@ import phoenix.Batcher;
 import phoenix.BitmapFont;
 
 import gamelib.IsometricMap;
+import gamelib.TileSheetAtlased;
 
 import editor.behaviors.StatusTextBehavior;
 import editor.views.EditView;
@@ -28,13 +29,14 @@ typedef GlobalData = {
 }
 
 typedef SelectEvent = {
+    tilesheet: Int,
     index: Int,
     group: String
 }
 
 class Main extends luxe.Game 
 {
-    var global_data : GlobalData = { map: new IsometricMap(), views: null, status: null, ui: null, font: null };
+    var global_data : GlobalData = { map: null, views: null, status: null, ui: null, font: null };
     var views : States;
 
     override function ready()
@@ -59,9 +61,13 @@ class Main extends luxe.Game
 
     function stage2(_)
     {
+        global_data.map = new IsometricMap();
+        global_data.font = Luxe.resources.find_font('assets/fonts/ubuntu-mono.fnt');
+
         // Add default sheet
-        var sheet = Luxe.loadText('assets/tiles.png');
-        global_data.map.sheets.add(TileSheetAtlased.from_xml_data(sheet, Luxe.loadText('assets/tiles.xml').text));
+        var sheet_tex = Luxe.loadTexture('assets/tiles.png');
+        var sheet = TileSheetAtlased.from_xml_data(sheet_tex, Luxe.loadText('assets/tiles.xml').text);
+        global_data.map.sheets.add(sheet);
 
         setup();
     }
@@ -114,7 +120,7 @@ class Main extends luxe.Game
         views.add(new SelectorView(global_data, selector_batcher));
         views.add(new PathEditView(global_data, pathedit_batcher));
 
-        views.set('EditView', Luxe.resources.find_json('assets/tests/test1.json').json);
+        views.set('EditView');//, Luxe.resources.find_json('assets/tests/test1.json').json);
     }
 
     override function update(dt:Float) 

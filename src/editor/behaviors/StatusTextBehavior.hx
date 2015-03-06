@@ -3,12 +3,14 @@ package editor.behaviors;
 import luxe.Component;
 import luxe.Text;
 
+import gamelib.TileSheetCollection;
+
 class StatusTextBehavior extends Component
 {
 	var status : Text;
 
 	var grid : String = '?';
-	var tile: Int = -1;
+	var tile: TileIndex = { tilesheet: -1, tile: -1 };
 	var group: String = '?';
 	var postxt : String = '?';
 
@@ -17,7 +19,7 @@ class StatusTextBehavior extends Component
 		super();
 
 		Luxe.events.listen('IsometricMap.Snap', function(str:String) { set_grid(str); });
-		Luxe.events.listen('TileSheetAtlased.TileId', function(idx:Int) { set_tile(idx); });
+		Luxe.events.listen('TileSheetAtlased.TileId', function(idx:TileIndex) { set_tile(idx); });
 		Luxe.events.listen('TileSheetAtlased.GroupId', function(str:String) { set_group(str); });
 	}
 
@@ -32,7 +34,7 @@ class StatusTextBehavior extends Component
 	{
 		if (status != null)
 		{
-			status.text = 'Grid: $grid - Tile: $tile - Group: $group\n$postxt';
+			status.text = 'Grid: $grid - Tile: ${tile.tilesheet}:${tile.tile} - Group: $group\n$postxt';
 		}
 	}
 
@@ -48,7 +50,7 @@ class StatusTextBehavior extends Component
 		update_text();
 	}
 
-	public function set_tile(_tile:Int)
+	public function set_tile(_tile:TileIndex)
 	{
 		tile = _tile;
 		update_text();
