@@ -43,7 +43,7 @@ The following main features are currently not supported yet - which is probably 
 
 ### Path basics
 - `Ctrl` + Left click to start a new path, add more nodes with left click.
-- Left click and hold to drag node positons after they have mid placed
+- Left click and hold to drag node positons after they have been placed
 - Right click cancels node insertion for the current path or deletes an existing node
 - Zoom by holding down `Ctrl` and use scroll wheel
 

@@ -25,14 +25,13 @@ class PathEditView extends State
 	var cur:GraphEdge = null;
     var drag : GraphNode = null;
 
-    var zoom_mod = false;
+    var mod_key = false;
 
     var offset : Vector;
 
 	var MINSIZE:Float = 5;
 	var SIZE:Float = 10;
 	var MAXSIZE:Float = 20;
-
 	public function new(_global:GlobalData, _batcher:Batcher)
 	{
 		super({ name: 'PathEditView' });
@@ -239,6 +238,11 @@ class PathEditView extends State
 
    		drag_end_action(mp);
 
+        if (mod_key)
+        {
+            return;
+        }
+
     	if (e.button == MouseButton.left)
     	{
     		decide_node_action(mp);
@@ -251,17 +255,16 @@ class PathEditView extends State
 
     override function onmousedown(e:luxe.MouseEvent)
     {
-    	var mp = batcher.view.screen_point_to_world(e.pos);
-
-    	if (e.button == MouseButton.middle)
+    	if (mod_key && e.button == MouseButton.left)
     	{
+            var mp = batcher.view.screen_point_to_world(e.pos);
     		decide_drag_start_action(mp);
     	}
     }
 
     override function onmousewheel(e:luxe.MouseEvent)
     {
-    	if (zoom_mod)
+    	if (mod_key)
     	{
     		batcher.view.zoom += 0.15 * -MyUtils.sgn(e.y);
     		return;
@@ -288,13 +291,16 @@ class PathEditView extends State
     {
     	if (e.keycode == Key.lctrl || e.keycode == Key.rctrl)
     	{
-    		zoom_mod = true;
+    		mod_key = true;
     	}
     }
 
 	override function onkeyup(e:luxe.KeyEvent)
 	{
-		zoom_mod = false;
+        if (e.keycode == Key.lctrl || e.keycode == Key.rctrl || e.mod.rctrl || e.mod.lctrl) 
+        {
+            mod_key = false;
+        }
 
 		if (e.keycode == Key.tab || e.keycode == Key.escape)
 		{

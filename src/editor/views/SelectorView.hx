@@ -34,6 +34,11 @@ class SelectorView extends State
 	var event_id_assign : String = '';
 	var event_id_detail : String = '';
 
+	var zoom_mod : Bool = false;
+	var mod_key_timer : Float;
+
+	var MOD_STICKY_TIME : Float = 0.2;
+
 	public function new(global_data:GlobalData, _batcher:Batcher)
 	{
 		super({ name: 'SelectorView' });
@@ -163,6 +168,12 @@ class SelectorView extends State
 
 	override function onkeyup(e:luxe.KeyEvent)
 	{
+        if (e.keycode == Key.lctrl || e.keycode == Key.rctrl || e.mod.rctrl || e.mod.lctrl) 
+        {
+            mod_key_timer = e.timestamp;
+            zoom_mod = false;
+        }
+
 		if (e.keycode == Key.tab || e.keycode == Key.escape)
 		{
 			disable();
@@ -177,6 +188,18 @@ class SelectorView extends State
 			if (exists)
 			{
 				selector_comp.show_indicators(current.get_group(grp));
+			}
+		}
+		else
+		{
+			var mod_key_delta = (e.timestamp - mod_key_timer);
+
+			#if luxe_web
+			mod_key_delta /= 1000.0;
+			#end
+
+			if (mod_key_timer < MOD_STICKY_TIME)
+			{
 			}
 		}
 	}
@@ -209,9 +232,20 @@ class SelectorView extends State
     	}
     }
 
+    override function onkeydown(e:luxe.KeyEvent)
+    {
+    	if (e.keycode == Key.lctrl || e.keycode == Key.rctrl)
+    	{
+    		zoom_mod = true;
+    	}
+    }
+
     override function onmousewheel(e:luxe.MouseEvent)
     {
-		batcher.view.zoom += 0.1 * -MyUtils.sgn(e.y);  	
+    	if (zoom_mod)
+    	{
+			batcher.view.zoom += 0.1 * -MyUtils.sgn(e.y);  	
+		}
     }
 
     override function onmousemove(e:luxe.MouseEvent)

@@ -109,6 +109,8 @@ class EditView extends State
                 Luxe.timer.schedule(0.1, function() { toggle_view('SelectorView'); });
             }
             );
+
+        map.display_graph(graph_batcher);
 	}
 
     override function onenter(map_data:Dynamic) 
