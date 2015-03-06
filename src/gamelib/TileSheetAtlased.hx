@@ -357,7 +357,7 @@ class TileSheetAtlased
     	}
     }
 
-    public function get_current() : TileData
+    public function get_current_tile() : TileData
     {
     	if (atlas_pos >= 0 && atlas_pos < atlas.length)
     	{

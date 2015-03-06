@@ -23,6 +23,11 @@ typedef MapTileSerialize = {
     tilesheet: Int,
 };
 
+typedef MapTile = {
+    s: Sprite,
+    tilesheet: Int
+};
+
 typedef MapEntrySerialize = {
     pos: String, 
     tile: MapTileSerialize
@@ -40,7 +45,7 @@ class IsometricMap
 {
     public var sheets : TileSheetCollection;
 
-	var grid : Map<String,Sprite>;
+	var grid : Map<String,MapTile>;
     public var graph : Graph;
 
 	public var base_width(default, null) : Int;
@@ -145,7 +150,7 @@ class IsometricMap
 
     public static function from_json_data(data:IsometricMapSerialize, batcher:phoenix.Batcher) : IsometricMap
     {
-        if (data == null || sheet == null || batcher == null) return null;
+        if (data == null || batcher == null) return null;
 
         var m = new IsometricMap(data.width, data.height, data.snap);
 

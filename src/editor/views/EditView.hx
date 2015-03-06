@@ -118,18 +118,7 @@ class EditView extends State
 
         var c_map : IsometricMapSerialize = cast map_data;
 
-        var sheet_t = TileSheetAtlased.from_json_data(c_map.sheet);
-
-        if (sheet_t == null)
-        {
-            MyUtils.ShowMessage('Failed to load sheet from map data!', 'EditView');
-            return;
-        }
-
-        global.sheet.destroy();
-        global.sheet = sheet_t;
-
-        var t_map = IsometricMap.from_json_data(c_map, global.sheet, batcher);
+        var t_map = IsometricMap.from_json_data(c_map, batcher);
 
         if (t_map == null)
         {
@@ -247,15 +236,13 @@ class EditView extends State
 
     function update_sprite()
     {
-        if (global.sheet == null) return;
+        if (map.sheets.current == null) return;
 
-        var t = global.sheet.get_current();
+        var t = map.sheets.current.get_current_tile();
 
         if (t == null) return;
 
         var r = t.rect;
-        trace(r);
-
         tile.spr.size.x = r.w;
         tile.spr.size.y = r.h;
         tile.spr.uv.copy_from(r);
