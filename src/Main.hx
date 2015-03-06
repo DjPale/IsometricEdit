@@ -69,6 +69,10 @@ class Main extends luxe.Game
         var sheet = TileSheetAtlased.from_xml_data(sheet_tex, Luxe.loadText('assets/tiles.xml').text);
         global_data.map.sheets.add(sheet);
 
+        sheet_tex = Luxe.loadTexture('assets/tiles2.png');
+        sheet = TileSheetAtlased.from_xml_data(sheet_tex, Luxe.loadText('assets/tiles2.xml').text);
+        global_data.map.sheets.add(sheet);
+
         setup();
     }
 

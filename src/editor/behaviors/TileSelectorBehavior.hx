@@ -41,6 +41,16 @@ class TileSelectorBehavior extends Component
 		destroy_indicators();
 	}
 
+	public function set_sheet(_sheet:TileSheetAtlased)
+	{
+		destroy_indicators();
+		sheet = _sheet;
+
+		sprite.texture = sheet.image;
+		sprite.size = new Vector(sheet.image.width, sheet.image.height);
+		create_indicators();
+	}
+
 	function create_indicators()
 	{
 		for (tile in sheet.atlas)

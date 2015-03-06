@@ -82,6 +82,15 @@ class TileSheetCollection
 		current.set_index(index);
 	}
 
+	public function set_sheet_ofs(ofs:Int) : TileSheetAtlased
+	{
+		cur_idx += ofs;
+		if (cur_idx < 0) cur_idx = 0;
+		if (cur_idx >= sheets.length) cur_idx = sheets.length - 1;
+
+		return current;
+	}
+
 	public function add(sheet:TileSheetAtlased) : TileSheetAtlased
 	{
 		sheet.index = sheets.length;

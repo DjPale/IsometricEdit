@@ -47,19 +47,31 @@ class SelectorView extends State
 
 		batcher = _batcher;
 
+		reset_zoom();
+
+		current = global.map.sheets.current;
+	}
+
+	function reset_zoom()
+	{
 		batcher.view.zoom = 0.3;
 		batcher.view.pos.x = -1050;
 		batcher.view.pos.y = 720;
+	}
 
+	function refresh_selector()
+	{
 		current = global.map.sheets.current;
+		selector_comp.set_sheet(current);
+		update_tooltip();
 	}
 
 	function display()
 	{
 		selector = new Sprite({
 			name: 'selector',
-			texture: current.image,
 			centered: false,
+			texture: current.image,
 			batcher: batcher,
 			});
 
@@ -76,6 +88,24 @@ class SelectorView extends State
 
 		event_id_assign = Luxe.events.listen('assign', group_assign);
 		event_id_detail = Luxe.events.listen('detail', path_edit);
+	}
+
+	function hide()
+	{
+		if (selector != null)
+		{
+			selector.destroy();
+			selector = null;			
+		}
+
+		if (tooltip != null)
+		{
+			tooltip.entity.destroy();
+			tooltip = null;
+		}
+
+		Luxe.events.disconnect(event_id_assign);
+		Luxe.events.disconnect(event_id_detail);
 	}
 
 	function group_assign(e:SelectEvent)
@@ -96,24 +126,6 @@ class SelectorView extends State
 	{
 		disable();
 		global.views.enable('PathEditView', { tilesheet: e.tilesheet, tile: e.index });
-	}
-
-	function hide()
-	{
-		if (selector != null)
-		{
-			selector.destroy();
-			selector = null;			
-		}
-
-		if (tooltip != null)
-		{
-			tooltip.entity.destroy();
-			tooltip = null;
-		}
-
-		Luxe.events.disconnect(event_id_assign);
-		Luxe.events.disconnect(event_id_detail);
 	}
 
 	function update_tooltip()
@@ -200,6 +212,10 @@ class SelectorView extends State
 
 			if (mod_key_timer < MOD_STICKY_TIME)
 			{
+				if (e.keycode == Key.key_x)
+				{
+				    reset_zoom();
+				}
 			}
 		}
 	}
@@ -242,10 +258,17 @@ class SelectorView extends State
 
     override function onmousewheel(e:luxe.MouseEvent)
     {
+    	var dir = MyUtils.sgn(e.y);
+
     	if (zoom_mod)
     	{
-			batcher.view.zoom += 0.1 * -MyUtils.sgn(e.y);  	
+			batcher.view.zoom += 0.1 * -dir;  	
+			return;
 		}
+
+		var new_sheet = global.map.sheets.set_sheet_ofs(dir);
+
+		if (new_sheet != current) refresh_selector();
     }
 
     override function onmousemove(e:luxe.MouseEvent)

@@ -246,6 +246,8 @@ class EditView extends State
 
         if (t == null) return;
 
+        tile.spr.texture = map.sheets.current.image;
+
         var r = t.rect;
         tile.spr.size.x = r.w;
         tile.spr.size.y = r.h;
