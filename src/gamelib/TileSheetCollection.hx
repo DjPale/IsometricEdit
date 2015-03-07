@@ -61,7 +61,7 @@ class TileSheetCollection
 	{
 		var ts_id = sheet_id_from_texture(s.texture);
 
-		if (ts_id != null)
+		if (ts_id != -1)
 		{
 			return { tilesheet: ts_id, tile: sheets[ts_id].get_tile_id_from_rect(s.uv) }
 		}
@@ -85,10 +85,33 @@ class TileSheetCollection
 	public function set_sheet_ofs(ofs:Int) : TileSheetAtlased
 	{
 		cur_idx += ofs;
-		if (cur_idx < 0) cur_idx = 0;
-		if (cur_idx >= sheets.length) cur_idx = sheets.length - 1;
+		if (cur_idx < 0) cur_idx = sheets.length - 1;
+		if (cur_idx >= sheets.length) cur_idx = 0;
 
 		return current;
+	}
+
+	public function select_group(grp:String) : Bool
+	{
+		var idx = cur_idx + 1;
+
+		//NB! A bit scary - won't work if cur_idx is -1 (but I don't think it will happen. I always presume 0 so it crashes instead)
+		while (idx != cur_idx)
+		{
+			if (idx >= sheets.length) idx = 0;
+			if (idx < 0) idx = sheets.length;
+
+			if (sheets[idx].has_group(grp))
+			{
+				cur_idx = idx;
+				break;
+			}
+
+			idx++;
+		}
+
+		// default behavior is unselect at current
+		return current.select_group(grp);
 	}
 
 	public function add(sheet:TileSheetAtlased) : TileSheetAtlased

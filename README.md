@@ -25,10 +25,11 @@ The following main features are currently not supported yet - which is probably 
 ### Editor basics
 - Place tiles with left mouse button
 - Scroll through tiles with scroll wheel (depending on group selection)
+- Change tilesheets with `Ctrl` right mouse button
 - Delete tile with right mouse button
 - Zoom by holding `Ctrl` and use scroll wheel
 - Pan by holding down middle mouse button and moving the mouse
-- Select groups with `a..z` and `0..9`
+- Select groups with `a..z` and `0..9` (also cycles through different sheets if they have similar groups)
 - See the section for Shortcut keys for additional info
 - Open and save maps as JSON-files using `Ctrl-o` and `Ctrl-s`. Note that sprite sheet JSON data are also embedded in the map files for now (NOT the image).
 
@@ -46,6 +47,7 @@ The following main features are currently not supported yet - which is probably 
 - Left click and hold to drag node positons after they have been placed
 - Right click cancels node insertion for the current path or deletes an existing node
 - Zoom by holding down `Ctrl` and use scroll wheel
+- Displace offset (origin) of tile by `Ctrl` and middle mouse button
 
 ### Test basics
 - Watch the cute cars drive around
@@ -78,12 +80,14 @@ The base grid size is currently `64x32` which allows for fine placement.
 
 - `a..z` and `0..9` assigns or removes a tile to the group given by the key
 - `Tab` or `Esc` exits without selection
-- `Ctrl-o` opens a new tile sheet in either JSON format - or a new texture atlas. NB! If you reopen a file with a similar name
+- `Ctrl-o` opens a new tile sheet in either JSON format - or an XML texture atlas (only when compiled to native targets)
+- `Ctrl-s` save a tile sheet in JSON format (the image will not be saved, sorry!) (only when compiled to native targets)
 - `Ctrl-x` resets camera position and zoom to original setting
 
 #### Path editor
 
 - `Tab` or `Esc` exits
+- `Ctrl-x` resets camera zoom and origin to original setting
 
 #### Test mode
 

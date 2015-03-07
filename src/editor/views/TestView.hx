@@ -108,7 +108,7 @@ class TestView extends State
                 var speed = 50 + Luxe.utils.random.float(-25, 25);
                 test_car.set_speed(speed);
 
-                Actuate.tween(car.scale, 1.0 - (speed / 100), { y: 1.5 } ).repeat().reflect().ease(luxe.tween.easing.Sine.easeIn);
+                //Actuate.tween(car.scale, 1.0 - (speed / 100), { y: 1.5 } ).repeat().reflect().ease(luxe.tween.easing.Sine.easeIn);
 
                 test_car.pos = target.rect.mid();
                 test_car.start_random_patrol(target);

@@ -219,6 +219,11 @@ class TileSheetAtlased
         return ret;
     }
 
+    public inline function has_group(grp:String) : Bool
+    {
+        return (grp != null && groups.exists(grp));
+    }
+
     public function get_group(grp:String) : Array<Int>
     {
         if (grp == null) return null;

@@ -200,7 +200,7 @@ class EditView extends State
     	}
     	else
     	{
-    		prev_tile = { map_pos: pos, pos: null, size: null, origin: null, uv: null, centered: false, tilesheet: null };
+    		prev_tile = { map_pos: pos, pos: null, size: null, origin: null, uv: null, centered: false, tilesheet: -1 };
     	}
 
     	undo_buffer.push(prev_tile);
@@ -345,7 +345,16 @@ class EditView extends State
         }
         else if (e.button == luxe.MouseButton.right)
         {
-            remove_tile(map.screen_to_iso(tile.spr.pos));
+            if (zoom_mod)
+            {
+                map.sheets.set_sheet_ofs(1);
+                update_sprite();
+            }  
+            else
+            {
+                remove_tile(map.screen_to_iso(tile.spr.pos));
+            }
+
         }
         else if (e.button == luxe.MouseButton.middle)
         {
@@ -436,24 +445,11 @@ class EditView extends State
             return;
         }
 
-        var s_sheet = TileSheetAtlased.from_json_data(data.sheet);
-
-        if (s_sheet == null)
-        {
-            MyUtils.ShowMessage('Something went wrong while trying to open the tile sheet, sorry! :(', 'open_map');
-            return;
-        }
-
-        trace('Loaded sheet');
-
-        var s_map = IsometricMap.from_json_data(data, s_sheet, batcher);
+        var s_map = IsometricMap.from_json_data(data, batcher);
 
         if (s_map != null)
         {
             trace('Ready to replace...');
-
-            global.sheet.destroy();
-            global.sheet = s_sheet;
 
             map.destroy();
             map = s_map;
@@ -494,9 +490,7 @@ class EditView extends State
             return;
         }
 
-        var s_sheet = global.sheet.to_json_data();
         var s_map = map.to_json_data();
-        s_map.sheet = s_sheet;    
 
         try 
         {
@@ -691,7 +685,7 @@ class EditView extends State
             {
                 var group_name = snow.input.Keycodes.Keycodes.name(e.keycode);
 
-                map.sheets.current.select_group(group_name);
+                map.sheets.select_group(group_name);
 
                 trace('selected group ' + group_name);
 
