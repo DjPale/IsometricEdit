@@ -465,7 +465,7 @@ class EditView extends State
         map.display_graph(graph_batcher);
 
         #else
-        MyUtils.ShowMessage('Cannot save maps for non-desktop targets :(', 'open_map');
+        MyUtils.ShowMessage('Cannot open maps for non-desktop targets :(', 'open_map');
         return;
         #end
     }

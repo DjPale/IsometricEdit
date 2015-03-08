@@ -4,8 +4,6 @@ It uses a grid as guide, but the tiles stores its own positions. There are no ma
 
 NB! The formats are highly non-optimized and a bit stupid (too much info per map tile instead of more information on the tile). In all reality, only the index number should be stored...
 
-Oh, and currently one spritesheet is loaded from assets :P
-
 ## Disclaimer
 It's most likely not bug-free so usage is solely your own responsibility obviously.
 
@@ -40,7 +38,7 @@ The following main features are currently not supported yet - which is probably 
 - Bring up tile path editor with right mouse button
 - Switch tile sheets with mouse wheel
 - Zoom by holding down `Ctrl` and use scroll wheel
-- Open and save tile sheets using `Ctrl-o` and `Ctrl-s`. Note that you can open either JSON-files which contains grouping and tile path information; or you can open texture atlases in XML format. When saving, a JSON-file + the image is saved to the same folder.
+- Open and save tile sheets using `Ctrl-o` and `Ctrl-s`. Note that you can open either JSON-files which contains grouping and tile path information; or you can open texture atlases in XML format. Note that the texture file name is assumed to be the exact same as the base name with extension `.png`. If another tilesheet with the same image exists, it will be overwritten.
 
 ### Path basics
 - `Ctrl` + Left click to start a new path, add more nodes with left click.

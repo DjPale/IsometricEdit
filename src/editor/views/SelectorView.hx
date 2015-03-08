@@ -178,6 +178,89 @@ class SelectorView extends State
 		}
 	}
 
+	function open_tilesheet()
+	{
+		trace('Try to open sheet...');
+
+		#if luxe_web
+		MyUtils.ShowMessage('Sorry, cannot open maps on web target!\nMaybe add a text field or something later...');
+		return;
+		#end    
+
+		#if desktop
+		// pending https://github.com/underscorediscovery/snow/issues/65
+		// var ff = [{ extension: 'json', desc: 'JSON file' }];
+		var path = Luxe.core.app.io.platform.dialog_open('Open sheet...');
+
+		if (path == null || path.length == 0)
+		{
+		    trace('Could not open file - dialog_open failed or canceled');
+		    return;
+		}
+
+		var content = null;
+
+		try 
+		{
+		    content = sys.io.File.getContent(path);
+		} 
+		catch(e:Dynamic)
+		{
+		    MyUtils.ShowMessage('Failed to open file "$path", I think because "$e"', 'open_sheet');
+		    return;
+		}
+
+		try
+        {
+            data_buffer = haxe.Json.parse(content);
+        }
+        catch(e:Dynamic)
+        {
+            MyUtils.ShowMessage('Failed to parse JSON file, invalid format ($e)', 'open_sheet');
+            return;
+        }
+
+		var img_path = haxe.io.Path.withExtension(path, 'png');
+
+		var blocking = false;
+		var img = Luxe.loadTexture(img_path, image_loaded);
+
+		if (img != null) hide();
+		// var ext = haxe.io.Path.extension(path);
+
+		// if (ext.toLowerCase() == 'xml')
+		// {
+
+		// }
+		#else
+		MyUtils.ShowMessage('Cannot open sheets for non-desktop targets :(', 'open_sheet');
+		return;
+		#end
+	}
+
+	var data_buffer : Dynamic = null;
+
+	function image_loaded(texture:phoenix.Texture)
+	{
+		if (texture == null) return;
+
+		if (data_buffer != null)
+		{	
+			var sheet = TileSheetAtlased.from_json_data(data_buffer);
+
+			if (sheet != null)
+			{
+				global.map.sheets.add(sheet);
+			}
+			else
+			{
+				MyUtils.ShowMessage('Could not open data file for tilesheet :(');
+			}
+		}
+
+		display();
+	}
+
 	override function onkeyup(e:luxe.KeyEvent)
 	{
         if (e.keycode == Key.lctrl || e.keycode == Key.rctrl || e.mod.rctrl || e.mod.lctrl) 
@@ -186,35 +269,39 @@ class SelectorView extends State
             zoom_mod = false;
         }
 
-		if (e.keycode == Key.tab || e.keycode == Key.escape)
-		{
-			disable();
-			global.views.enable('EditView');
-		}
-		else if (MyUtils.valid_group_key(e.keycode))
-		{
-			var grp = snow.input.Keycodes.Keycodes.name(e.keycode);
-			var exists = current.select_group(grp);
-			selector_comp.hide_indicators();
+		var mod_key_delta = (e.timestamp - mod_key_timer);
 
-			if (exists)
+		#if luxe_web
+		mod_key_delta /= 1000.0;
+		#end
+
+		if (mod_key_timer < MOD_STICKY_TIME)
+		{
+			if (e.keycode == Key.key_x)
 			{
-				selector_comp.show_indicators(current.get_group(grp));
+			    reset_zoom();
+			}
+			else if (e.keycode == Key.key_o)
+			{
+				open_tilesheet();
 			}
 		}
-		else
+		else 
 		{
-			var mod_key_delta = (e.timestamp - mod_key_timer);
-
-			#if luxe_web
-			mod_key_delta /= 1000.0;
-			#end
-
-			if (mod_key_timer < MOD_STICKY_TIME)
+			if (e.keycode == Key.tab || e.keycode == Key.escape)
 			{
-				if (e.keycode == Key.key_x)
+				disable();
+				global.views.enable('EditView');
+			} 
+			else if (MyUtils.valid_group_key(e.keycode))
+			{
+				var grp = snow.input.Keycodes.Keycodes.name(e.keycode);
+				var exists = current.select_group(grp);
+				selector_comp.hide_indicators();
+
+				if (exists)
 				{
-				    reset_zoom();
+					selector_comp.show_indicators(current.get_group(grp));
 				}
 			}
 		}

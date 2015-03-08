@@ -7,6 +7,8 @@ import phoenix.Texture;
 
 import gamelib.Graph;
 
+import haxe.io.Path;
+
 using gamelib.RectangleUtils;
 
 typedef TileData = {
@@ -128,7 +130,7 @@ class TileSheetAtlased
 
         if (xml == null) return null;
 
-        var sheet = new TileSheetAtlased(_image.id);
+        var sheet = new TileSheetAtlased(Path.withoutDirectory(_image.id));
         sheet.image = _image;
 
         var fast = new haxe.xml.Fast(xml.firstElement());
