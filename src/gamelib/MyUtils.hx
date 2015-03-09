@@ -24,10 +24,10 @@ class MyUtils
 		return (camera.viewport.point_inside(pos));
 	}
 
-    public static inline function valid_group_key(keycode:Int) : Bool
+    public static inline function valid_group_key(e:luxe.KeyEvent) : Bool
     {
-        return ((keycode >= Key.key_0 && keycode <= Key.key_9) || 
-            (keycode >= Key.key_a && keycode <= Key.key_z));
+        return !(e.mod.lctrl || e.mod.rctrl) && ((e.keycode >= Key.key_0 && e.keycode <= Key.key_9) || 
+            (e.keycode >= Key.key_a && e.keycode <= Key.key_z));
     }
 
     public static function ShowMessage(msg:String, ?title:String = null)

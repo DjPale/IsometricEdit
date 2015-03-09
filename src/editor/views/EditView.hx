@@ -681,7 +681,7 @@ class EditView extends State
             {
                 toggle_view_param('TestView', map);
             }
-            else if (MyUtils.valid_group_key(e.keycode))
+            else if (MyUtils.valid_group_key(e))
             {
                 var group_name = snow.input.Keycodes.Keycodes.name(e.keycode);
 

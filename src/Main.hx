@@ -41,6 +41,8 @@ class Main extends luxe.Game
 
     override function ready()
     {
+        Luxe.core.app.assets.strict = false;
+        
         views = new States({ name: 'views' });
 
         global_data.views = views;

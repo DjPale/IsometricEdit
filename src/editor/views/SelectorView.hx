@@ -31,6 +31,8 @@ class SelectorView extends State
 
 	var current : TileSheetAtlased;
 
+	var data_buffer : { type: String, data: Dynamic } = null;
+
 	var event_id_assign : String = '';
 	var event_id_detail : String = '';
 
@@ -48,8 +50,6 @@ class SelectorView extends State
 		batcher = _batcher;
 
 		reset_zoom();
-
-		current = global.map.sheets.current;
 	}
 
 	function reset_zoom()
@@ -68,6 +68,8 @@ class SelectorView extends State
 
 	function display()
 	{
+		current = global.map.sheets.current;
+
 		selector = new Sprite({
 			name: 'selector',
 			centered: false,
@@ -178,12 +180,52 @@ class SelectorView extends State
 		}
 	}
 
+	function save_tilesheet()
+	{
+		trace('Try to save sheet...');
+
+		#if luxe_web
+		MyUtils.ShowMessage('Sorry, cannot save sheet on web target!\nMaybe add a text field or something later...');
+		return;
+		#end    		
+
+	    #if desktop
+	    // pending https://github.com/underscorediscovery/snow/issues/65
+	    // var ff = { extension: 'json', desc: 'JSON file' };
+	    var path = Luxe.core.app.io.platform.dialog_save('Save sheet as...');
+
+	    if (path == null || path.length == 0)
+	    {
+	        trace('Could not save file - dialog_save failed or canceled');
+	        return;
+	    }
+
+	    var s_sheet = current.to_json_data();
+
+	    try 
+	    {
+	        sys.io.File.saveContent(path, haxe.Json.stringify(s_sheet, null, "\t"));
+	    } 
+	    catch(e:Dynamic)
+	    {
+	        MyUtils.ShowMessage('Failed to save file "$path", I think because "$e"', 'save_sheet');
+	        return;
+	    }
+
+	    trace('Sheet saved! :D');
+
+	    #else
+	    MyUtils.ShowMessage('Cannot save sheets for non-desktop targets :(', 'save_sheet');
+	    return;
+	    #end
+	}
+
 	function open_tilesheet()
 	{
 		trace('Try to open sheet...');
 
 		#if luxe_web
-		MyUtils.ShowMessage('Sorry, cannot open maps on web target!\nMaybe add a text field or something later...');
+		MyUtils.ShowMessage('Sorry, cannot open sheets on web target!\nMaybe add a text field or something later...');
 		return;
 		#end    
 
@@ -210,47 +252,77 @@ class SelectorView extends State
 		    return;
 		}
 
-		try
-        {
-            data_buffer = haxe.Json.parse(content);
-        }
-        catch(e:Dynamic)
-        {
-            MyUtils.ShowMessage('Failed to parse JSON file, invalid format ($e)', 'open_sheet');
-            return;
-        }
+		var ext = haxe.io.Path.extension(path);
 
-		var img_path = haxe.io.Path.withExtension(path, 'png');
+		var img_path : String = '<unknown>';
+		data_buffer = { type: null, data: null };
 
-		var blocking = false;
-		var img = Luxe.loadTexture(img_path, image_loaded);
+		if (ext.toLowerCase() == 'xml')
+		{
+			data_buffer.type = 'xml';
+			data_buffer.data = content;
+			img_path = haxe.io.Path.withExtension(path, 'png');		
+		}
+		else
+		{
+			data_buffer.type = 'json';
 
-		if (img != null) hide();
-		// var ext = haxe.io.Path.extension(path);
+			try
+	        {
+	            data_buffer.data = haxe.Json.parse(content);
+	        }
+	        catch(e:Dynamic)
+	        {
+	            MyUtils.ShowMessage('Failed to parse JSON file, invalid format ($e)', 'open_sheet');
+	            return;
+	        }
 
-		// if (ext.toLowerCase() == 'xml')
-		// {
+	        if (data_buffer == null)
+	        {
+	        	MyUtils.ShowMessage('Failed to parse JSON file for some unknown reason', 'open_sheet');
+	        	return;
+	        }
 
-		// }
+	        img_path = cast (data_buffer.data).image;			
+		}
+
+		if (!sys.FileSystem.exists(img_path))
+		{
+			MyUtils.ShowMessage('Failed to find the image path or could not find corresponding image - $img_path');
+			return;
+		}
+
+		disable();
+
+		var img = Luxe.loadTexture(img_path, tilesheet_image_loaded);
+
 		#else
 		MyUtils.ShowMessage('Cannot open sheets for non-desktop targets :(', 'open_sheet');
 		return;
 		#end
 	}
 
-	var data_buffer : Dynamic = null;
-
-	function image_loaded(texture:phoenix.Texture)
+	function tilesheet_image_loaded(texture:phoenix.Texture)
 	{
 		if (texture == null) return;
 
-		if (data_buffer != null)
+		if (data_buffer != null && data_buffer.data != null)
 		{	
-			var sheet = TileSheetAtlased.from_json_data(data_buffer);
+			var sheet = null;
+
+			if (data_buffer.type == 'xml')
+			{
+				sheet = TileSheetAtlased.from_xml_data(texture, data_buffer.data);
+			}
+			else
+			{
+				sheet = TileSheetAtlased.from_json_data(data_buffer.data);
+			}
 
 			if (sheet != null)
 			{
-				global.map.sheets.add(sheet);
+				var sheet_r = global.map.sheets.add(sheet);
+				trace('Added new sheet "${sheet_r.name}" with index ${sheet_r.index}');
 			}
 			else
 			{
@@ -258,7 +330,7 @@ class SelectorView extends State
 			}
 		}
 
-		display();
+		enable();
 	}
 
 	override function onkeyup(e:luxe.KeyEvent)
@@ -275,7 +347,7 @@ class SelectorView extends State
 		mod_key_delta /= 1000.0;
 		#end
 
-		if (mod_key_timer < MOD_STICKY_TIME)
+		if (mod_key_delta < MOD_STICKY_TIME)
 		{
 			if (e.keycode == Key.key_x)
 			{
@@ -285,6 +357,10 @@ class SelectorView extends State
 			{
 				open_tilesheet();
 			}
+			else if (e.keycode == Key.key_s)
+			{
+				save_tilesheet();
+			}
 		}
 		else 
 		{
@@ -293,7 +369,7 @@ class SelectorView extends State
 				disable();
 				global.views.enable('EditView');
 			} 
-			else if (MyUtils.valid_group_key(e.keycode))
+			else if (MyUtils.valid_group_key(e))
 			{
 				var grp = snow.input.Keycodes.Keycodes.name(e.keycode);
 				var exists = current.select_group(grp);

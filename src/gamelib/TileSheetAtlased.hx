@@ -17,6 +17,7 @@ typedef TileData = {
 };
 
 typedef TileSheetAtlasedSerialize = {
+    name: String,
     image: String,
     atlas: Array<TileDataSerialize>,
     groups: Array<GroupSerialize>
@@ -34,12 +35,10 @@ typedef TileDataSerialize = {
 
 class TileSheetAtlased
 {
-	public var image : Texture;
-    public var atlas : Array<TileData>;
-
-    var name : String;
-
-    public var index : Int;
+	public var image(default, null) : Texture;
+    public var atlas(default, null) : Array<TileData>;
+    public var name(default, null) : String;
+    public var index(default, default) : Int;
 
     var groups : Map<String,Array<Int>>;
     var group_path : String;
@@ -95,14 +94,14 @@ class TileSheetAtlased
             t_groups.push({ k: k, v: groups[k] }); 
         }
 
-        return { image: image.asset.id, atlas: t_atlas, groups: t_groups };
+        return { name: name, image: image.asset.id, atlas: t_atlas, groups: t_groups };
     }
 
     public static function from_json_data(data:TileSheetAtlasedSerialize) : TileSheetAtlased
     {
         if (data == null) return null;
 
-        var sheet = new TileSheetAtlased(data.image);
+        var sheet = new TileSheetAtlased(data.name);
 
         sheet.image = Luxe.resources.find_texture(data.image);
 

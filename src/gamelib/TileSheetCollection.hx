@@ -93,33 +93,48 @@ class TileSheetCollection
 
 	public function select_group(grp:String) : Bool
 	{
-		var idx = cur_idx + 1;
+		if (sheets.length == 0) return false;
+
+		var idx = (cur_idx + 1) % sheets.length;
 
 		//NB! A bit scary - won't work if cur_idx is -1 (but I don't think it will happen. I always presume 0 so it crashes instead)
 		while (idx != cur_idx)
 		{
-			if (idx >= sheets.length) idx = 0;
-			if (idx < 0) idx = sheets.length;
-
 			if (sheets[idx].has_group(grp))
 			{
 				cur_idx = idx;
 				break;
 			}
 
-			idx++;
+			idx = (idx + 1) % sheets.length;
 		}
 
-		// default behavior is unselect at current
+		// default behavior is select/unselect at current
 		return current.select_group(grp);
 	}
 
 	public function add(sheet:TileSheetAtlased) : TileSheetAtlased
 	{
-		sheet.index = sheets.length;
-		sheets.push(sheet);
+		// replace sheet based on name property
+		var existing_idx = -1;
+		for (s in sheets)
+		{
+			if (s.name == sheet.name) existing_idx = s.index;
+		}
 
-		if (sheets.length == 1) cur_idx = 0;
+		if (existing_idx != -1)
+		{
+			sheets[existing_idx].destroy();
+			sheet.index = existing_idx;
+			sheets[existing_idx] = sheet;
+		}
+		else
+		{
+			sheet.index = sheets.length;
+			sheets.push(sheet);
+
+			if (sheets.length == 1) cur_idx = 0;
+		}
 
 		return sheet;
 	}

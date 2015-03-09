@@ -131,7 +131,7 @@ class TileSelectorBehavior extends Component
 
 	override function onkeyup(e:luxe.KeyEvent)
 	{
-        if (!MyUtils.valid_group_key(e.keycode))
+        if (!MyUtils.valid_group_key(e))
         {
         	return;
         }
