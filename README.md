@@ -12,11 +12,12 @@ The source code is licensed under the MIT license
 
 ## Not supported
 The following main features are currently not supported yet - which is probably a breaking point for most people :P
-- Loading of custom spritesheets (ye ye, will do it!)
-- No save / load of tile sheets (will be implemented)
 - No layers (will maybe be implemented)
 - No use of standard Luxe map (may be implemented, but needs some extensions to support arbitrary tile sizes)
-- No object editor (hey! starting to get demanding, are we?)
+- No object editor for pre-determined objects (hey! starting to get demanding, are we?)
+
+## Planned features / bugs
+The [issue tracker](https://github.com/DjPale/IsometricEdit/issues) contains list of bugs and enhancements.
 
 ## Quick Guide
 
