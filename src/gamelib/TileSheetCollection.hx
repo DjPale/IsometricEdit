@@ -136,6 +136,8 @@ class TileSheetCollection
 			if (sheets.length == 1) cur_idx = 0;
 		}
 
+		trace('add sheet ${sheet.name}');
+
 		return sheet;
 	}
 

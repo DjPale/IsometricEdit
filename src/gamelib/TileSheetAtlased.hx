@@ -6,6 +6,7 @@ import luxe.Rectangle;
 import phoenix.Texture;
 
 import gamelib.Graph;
+import gamelib.MyUtils;
 
 import haxe.io.Path;
 
@@ -13,7 +14,8 @@ using gamelib.RectangleUtils;
 
 typedef TileData = {
     rect: Rectangle,
-    graph: Graph
+    graph: Graph,
+    offset: Vector
 };
 
 typedef TileSheetAtlasedSerialize = {
@@ -30,7 +32,8 @@ typedef GroupSerialize = {
 
 typedef TileDataSerialize = {
     graph: GraphSerialize,
-    rect: Array<Float>
+    rect: Array<Float>,
+    offset: VectorSerialize
 };
 
 class TileSheetAtlased
@@ -85,7 +88,7 @@ class TileSheetAtlased
                 t_g = a.graph.to_json_data(); 
             }
 
-            t_atlas.push({ rect: a.rect.to_array(), graph: t_g });
+            t_atlas.push({ rect: a.rect.to_array(), graph: t_g, offset: MyUtils.vector_to_pair(a.offset) });
         }
 
         var t_groups = new Array<GroupSerialize>();
@@ -111,7 +114,8 @@ class TileSheetAtlased
         {
             sheet.atlas.push({
                 graph: Graph.from_json_data(a.graph),
-                rect: RectangleUtils.from_array(a.rect)
+                rect: RectangleUtils.from_array(a.rect),
+                offset: MyUtils.vector_from_pair(a.offset)
                 });
         }
 
@@ -138,6 +142,7 @@ class TileSheetAtlased
         {
            sheet.atlas.push({
                 graph: null, 
+                offset: new Vector(),
                 rect: 
                     new Rectangle(Std.parseFloat(st.att.x), Std.parseFloat(st.att.y), 
                     Std.parseFloat(st.att.width), Std.parseFloat(st.att.height)) 

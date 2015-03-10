@@ -1,6 +1,12 @@
 package gamelib;
 
 import luxe.Input;
+import luxe.Vector;
+
+typedef VectorSerialize = {
+    x: Float,
+    y: Float
+};
 
 class MyUtils
 {
@@ -34,5 +40,15 @@ class MyUtils
     {
         trace(msg);
         Luxe.core.app.window.simple_message(msg, title);
+    }
+
+    public static inline function vector_to_pair(v:Vector) : VectorSerialize
+    {
+        return { x: v.x, y: v.y };
+    }
+
+    public static inline function vector_from_pair(p:VectorSerialize) : Vector
+    {
+        return new Vector(p.x, p.y);
     }
 }

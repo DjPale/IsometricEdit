@@ -7,12 +7,9 @@ import phoenix.geometry.Geometry;
 
 import gamelib.TileSheetAtlased;
 
-using gamelib.RectangleUtils;
+import gamelib.MyUtils;
 
-typedef VectorSerialize = {
-    x: Float,
-    y: Float
-};
+using gamelib.RectangleUtils;
 
 typedef MapTileSerialize = {
     pos: VectorSerialize,
@@ -105,17 +102,7 @@ class IsometricMap
         graph = null;
         grid = null;
     }
-
-    inline function vector_to_pair(v:Vector) : VectorSerialize
-    {
-        return { x: v.x, y: v.y };
-    }
-
-    inline function pair_to_vector(p:VectorSerialize)
-    {
-        return new Vector(p.x, p.y);
-    }
-    
+   
     inline function tile_to_json_data(s:Sprite) : MapTileSerialize
     {
         if (s == null) return null;
@@ -123,9 +110,9 @@ class IsometricMap
         var sheet_id = sheets.sheet_id_from_texture(s.texture);
 
         return {
-            pos: vector_to_pair(s.pos),
-            size: vector_to_pair(s.size),
-            origin: vector_to_pair(s.origin),
+            pos: MyUtils.vector_to_pair(s.pos),
+            size: MyUtils.vector_to_pair(s.size),
+            origin: MyUtils.vector_to_pair(s.origin),
             uv: s.uv.to_array(),
             depth: s.depth,
             tilesheet: sheet_id
@@ -151,6 +138,11 @@ class IsometricMap
         if (data == null || batcher == null) return null;
 
         var m = new IsometricMap(data.width, data.height, data.snap);
+
+        for (s in data.sheets)
+        {
+            m.sheets.add(TileSheetAtlased.from_json_data(s));
+        }
 
         for (t in data.map)
         {
@@ -256,9 +248,9 @@ class IsometricMap
             name_unique: true,
             texture: sheet.image,
             centered: false,
-            origin: pair_to_vector(data.tile.origin),
-            pos: pair_to_vector(data.tile.pos),
-            size: pair_to_vector(data.tile.size),
+            origin: MyUtils.vector_from_pair(data.tile.origin),
+            pos: MyUtils.vector_from_pair(data.tile.pos),
+            size: MyUtils.vector_from_pair(data.tile.size),
             uv: RectangleUtils.from_array(data.tile.uv),
             depth: data.tile.depth,
             batcher: batcher
@@ -300,6 +292,19 @@ class IsometricMap
         if (tile != null)
         {
             tile.s.depth += depth;
+            return true;
+        }
+
+        return false;
+    }
+
+    public function adjust_origin(pos:Vector, ofs:Vector) : Bool
+    {
+        var tile = get_tile(pos);
+        if (tile != null)
+        {
+            tile.s.origin.add(ofs);
+            tile.s.pos = tile.s.pos.clone();
             return true;
         }
 

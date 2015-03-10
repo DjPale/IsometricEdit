@@ -256,6 +256,7 @@ class EditView extends State
         tile.spr.color.a = 0.6;
 
         tile.spr.origin = new Vector(0, r.h);
+        tile.spr.origin.add(t.offset);
 
         tile.graph = t.graph;
     }
@@ -324,7 +325,16 @@ class EditView extends State
 
         var mp = map.screen_to_iso(p);
 
-        trace('try to change depth on ' + mp + ' = ' + map.change_depth_ofs(mp, dir));
+        trace('try to change depth on $mp by $dir = ' + map.change_depth_ofs(mp, dir));
+    }
+
+    function adjust_origin(ofs:Vector)
+    {
+        var p = mouse_coords(Luxe.screen.cursor.pos);
+
+        var mp = map.screen_to_iso(p);
+
+        trace('try to adjust origin on $mp by (${ofs.x},${ofs.y}) = ' + map.adjust_origin(mp, ofs));        
     }
 
     override function onmousedown(e:luxe.MouseEvent)
@@ -445,25 +455,61 @@ class EditView extends State
             return;
         }
 
-        var s_map = IsometricMap.from_json_data(data, batcher);
-
-        if (s_map != null)
+        if (data == null)
         {
-            trace('Ready to replace...');
-
-            map.destroy();
-            map = s_map;
-        }
-        else
-        {
-            MyUtils.ShowMessage('Something went wrong while trying to open map, sorry! :(', 'open_map');
+            MyUtils.ShowMessage('Failed to parse JSON file, unknown error', 'open_map');
             return;
         }
 
-        trace('Map opened! :D');
+        disable();
 
-        map.display_graph(graph_batcher);
+        // HACK: prepare the asset cache before de-serializing
+        // A bit messy, but I think this is the best way of doing it
+        var sheets : Array<TileSheetAtlasedSerialize> = cast data.sheets;
+        data_buffer = { data: data, img_left: 0 };
 
+        for (s in sheets)
+        {
+            if (Luxe.resources.find_texture(s.image) != null)
+            {
+                data_buffer.img_left++;
+                trace('Texture "${s.image}" already loaded');
+            }
+            else
+            {
+                var lookup_path = s.image;
+
+                if (!sys.FileSystem.exists(lookup_path))
+                {
+                    var dir = haxe.io.Path.directory(path);
+                    var file = haxe.io.Path.withoutDirectory(lookup_path);
+                    lookup_path =  haxe.io.Path.join([dir,file]);               
+                }
+
+                if (sys.FileSystem.exists(lookup_path))
+                {
+                    data_buffer.img_left++;
+                    trace('Texture "$lookup_path" needs loading');
+                    s.image = lookup_path;
+                }
+                else
+                {
+                    trace('Failed to lookup texture with path "$lookup_path"');
+                }
+            }
+        }
+
+        if (sheets.length != data_buffer.img_left)
+        {
+            MyUtils.ShowMessage('Could not find all textures needed for this map, aborting load :(', 'open_map');
+            enable();
+            return;
+        }
+
+        for (s in sheets)
+        {
+            Luxe.loadTexture(s.image, map_image_loaded);
+        }
         #else
         MyUtils.ShowMessage('Cannot open maps for non-desktop targets :(', 'open_map');
         return;
@@ -508,6 +554,40 @@ class EditView extends State
         MyUtils.ShowMessage('Cannot save maps for non-desktop targets :(', 'save_map');
         return;
         #end
+    }
+
+    var data_buffer : { data: Dynamic, img_left: Int };
+
+    function map_image_loaded(texture:phoenix.Texture)
+    {
+        data_buffer.img_left--;
+
+        if (data_buffer.img_left > 0) return;
+
+        map_final_load_stage();
+    }
+
+    function map_final_load_stage()
+    {
+        var s_map = IsometricMap.from_json_data(data_buffer.data, batcher);
+
+        if (s_map != null)
+        {
+            trace('Ready to replace...');
+
+            map.destroy();
+            map = s_map;
+        }
+        else
+        {
+            MyUtils.ShowMessage('Something went wrong while trying to open map, sorry! :(', 'open_map');
+        }
+
+        trace('Map opened! :D');
+
+        enable();
+
+        map.display_graph(graph_batcher);
     }
 
     function update_tooltip(?_pos:Vector = null)
@@ -667,6 +747,22 @@ class EditView extends State
             else if (e.keycode == Key.key_r)
             {
                 refresh_graph();
+            }
+            else if (e.keycode == Key.up)
+            {
+                adjust_origin(new Vector(0, 1));
+            }
+            else if (e.keycode == Key.down)
+            {
+                adjust_origin(new Vector(0, -1));
+            }
+            else if (e.keycode == Key.right)
+            {
+                adjust_origin(new Vector(1, 0));
+            }
+            else if (e.keycode == Key.left)
+            {
+                adjust_origin(new Vector(-1, 0));
             }
 
             update_tooltip();
