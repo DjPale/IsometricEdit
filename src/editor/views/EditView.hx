@@ -581,9 +581,12 @@ class EditView extends State
         else
         {
             MyUtils.ShowMessage('Something went wrong while trying to open map, sorry! :(', 'open_map');
+            return;
         }
 
         trace('Map opened! :D');
+
+        global.map = map;
 
         enable();
 
