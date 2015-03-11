@@ -25,7 +25,8 @@ typedef GlobalData = {
     views : States,
     status: StatusTextBehavior,
     ui : Batcher,
-    font: BitmapFont
+    font: BitmapFont,
+    mod_sticky: Float
 }
 
 typedef SelectEvent = {
@@ -36,7 +37,7 @@ typedef SelectEvent = {
 
 class Main extends luxe.Game 
 {
-    var global_data : GlobalData = { map: null, views: null, status: null, ui: null, font: null };
+    var global_data : GlobalData = { map: null, views: null, status: null, ui: null, font: null, mod_sticky: 0.2 };
     var views : States;
 
     override function ready()

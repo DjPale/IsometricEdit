@@ -30,12 +30,14 @@ The [issue tracker](https://github.com/DjPale/IsometricEdit/issues) contains lis
 - Pan by holding down middle mouse button and moving the mouse
 - Select groups with `a..z` and `0..9` (also cycles through different sheets if they have similar groups)
 - See the section for Shortcut keys for additional info
-- Open and save maps as JSON-files using `Ctrl-o` and `Ctrl-s`. Note that sprite sheet JSON data are also embedded in the map files for now (NOT the image).
+- Open and save maps as JSON-files using `Ctrl-o` and `Ctrl-s`. Note that sprite sheet JSON data are also embedded in the map files for 
+now (NOT the image).
+- Adjust offsets of tile under cursor with `Ctrl` and arrow keys (does not affect tile in tilesheet, this can be done in the editor). NB! This will be overwritten by adjusting the offset of the tile in the tile sheet.
 
 ### Selector basics
 - Bring up tile selector / group editor with `Tab`
 - Either select a tile for editing with left mouse button (closes selector)
-- Assign group with keys `a..z` or `0..9`
+- Toggle group assignment with keys `a..z` or `0..9`
 - Bring up tile path editor with right mouse button
 - Switch tile sheets with mouse wheel
 - Zoom by holding down `Ctrl` and use scroll wheel
@@ -46,7 +48,7 @@ The [issue tracker](https://github.com/DjPale/IsometricEdit/issues) contains lis
 - Left click and hold to drag node positons after they have been placed
 - Right click cancels node insertion for the current path or deletes an existing node
 - Zoom by holding down `Ctrl` and use scroll wheel
-- Displace offset (origin) of tile by `Ctrl` and middle mouse button
+- Adjust offsets of tile under cursor with `Ctrl` and arrow keys. NB! This will overwrite any individual tile adjustements for instances of the tile in the map.
 
 ### Test basics
 - Watch the cute cars drive around
@@ -72,7 +74,9 @@ The base grid size is currently `64x32` which allows for fine placement.
 - `Ctrl-s` save map as JSON (only when compiled to native targets)
 - `Ctrl-o` open map from JSON (only when compiled to native targets)
 - `Ctrl-g` shows and hides the path graph
-- `Ctrl-r` rebuilds the path graph based on the latest tile data
+- `Ctrl-r` rebuilds the path graph based on the latest tile data and applies offsets
+- `Ctrl-d` brings up the path editor for the tag under the tile cursor
+- `Ctrl-arrows` adjust individual tile offset
 - `0..9` and `a..z` selects the group. Use mouse wheel to scroll through all tiles
 
 #### Tile selector / Group editor
@@ -85,8 +89,9 @@ The base grid size is currently `64x32` which allows for fine placement.
 
 #### Path editor
 
-- `Tab` or `Esc` exits
+- `Tab` or `Esc` or `Ctrl-d` exits
 - `Ctrl-x` resets camera zoom and origin to original setting
+- `Ctrl-arrows` adjust global tile offset
 
 #### Test mode
 

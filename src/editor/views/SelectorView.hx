@@ -39,8 +39,6 @@ class SelectorView extends State
 	var zoom_mod : Bool = false;
 	var mod_key_timer : Float;
 
-	var MOD_STICKY_TIME : Float = 0.2;
-
 	public function new(global_data:GlobalData, _batcher:Batcher)
 	{
 		super({ name: 'SelectorView' });
@@ -127,7 +125,7 @@ class SelectorView extends State
 	function path_edit(e:SelectEvent)
 	{
 		disable();
-		global.views.enable('PathEditView', { tilesheet: e.tilesheet, tile: e.index });
+		global.views.enable('PathEditView', { index: { tilesheet: e.tilesheet, tile: e.index }, previous: 'SelectorView' });
 	}
 
 	function update_tooltip()
@@ -347,7 +345,7 @@ class SelectorView extends State
 		mod_key_delta /= 1000.0;
 		#end
 
-		if (mod_key_delta < MOD_STICKY_TIME)
+		if (mod_key_delta < global.mod_sticky)
 		{
 			if (e.keycode == Key.key_x)
 			{

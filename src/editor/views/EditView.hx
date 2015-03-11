@@ -21,7 +21,7 @@ import gamelib.behaviors.PathingBehavior;
 
 using gamelib.RectangleUtils;
 
-typedef TileDef =
+typedef TileUndo =
 {
 	map_pos : Vector,
 	pos : Vector,
@@ -29,7 +29,8 @@ typedef TileDef =
 	origin: Vector,
 	centered : Bool,
 	uv : Rectangle,
-    tilesheet: Int
+    tilesheet: Int,
+    depth: Float
 };
 
 typedef TileCursor = 
@@ -46,11 +47,10 @@ class EditView extends State
     var tile : TileCursor;
     var tooltip : TileTooltipBehavior;
 
-    var MOD_STICKY_TIME : Float = 0.2;
     var mod_key_timer : Float;
 
     var UNDO_MAX : Int = 10;
-    var undo_buffer : Array<TileDef>;
+    var undo_buffer : Array<TileUndo>;
 
     var dragging : Bool;
     var zoom_mod : Bool;
@@ -66,7 +66,7 @@ class EditView extends State
 	{
 		super({ name: 'EditView' });
 
-		undo_buffer = new Array<TileDef>();
+		undo_buffer = new Array<TileUndo>();
 
 		global = _global;
         map = global.map;
@@ -152,6 +152,7 @@ class EditView extends State
         if (tile != null && tile.spr != null)
         {
             tile.spr.visible = show;
+            update_sprite();
         }
 
         if (tooltip != null) 
@@ -191,16 +192,25 @@ class EditView extends State
     {
     	var old_tile = map.get_tile(pos);
 
-    	var prev_tile : TileDef = null;
+    	var prev_tile : TileUndo = null;
 
     	if (old_tile != null)
     	{
             var old = old_tile.s;
-    		prev_tile = { map_pos: pos, pos: old.pos, size: old.size, origin: old.origin, uv: old.uv, centered: old.centered, tilesheet: old_tile.tilesheet };
+    		prev_tile = { 
+                map_pos: pos, 
+                pos: old.pos, 
+                size: old.size, 
+                origin: old.origin, 
+                uv: old.uv, 
+                centered: old.centered,
+                depth: old.depth,
+                tilesheet: old_tile.tilesheet 
+            };
     	}
     	else
     	{
-    		prev_tile = { map_pos: pos, pos: null, size: null, origin: null, uv: null, centered: false, tilesheet: -1 };
+    		prev_tile = { map_pos: pos, pos: null, size: null, origin: null, uv: null, centered: false, depth: 0, tilesheet: -1 };
     	}
 
     	undo_buffer.push(prev_tile);
@@ -236,6 +246,8 @@ class EditView extends State
     	new_tile.origin = def.origin;
 
     	map.set_tile(new_tile, def.map_pos);
+
+        new_tile.depth = def.depth;
     }
 
     function update_sprite()
@@ -287,6 +299,24 @@ class EditView extends State
             disable();
             global.views.enable(view_name, param);
         }
+    }
+
+    function toggle_detail_view()
+    {
+        var p = mouse_coords(Luxe.screen.cursor.pos);
+
+        var mp = map.screen_to_iso(p);
+
+        var tile = map.get_tile(mp);
+
+        if (tile != null)
+        {
+            var idx = map.sheets.get_index_for_sprite(tile.s);
+            if (idx != null)
+            {
+                toggle_view_param('PathEditView', { index: idx, previous: 'EditView' });
+            }   
+        }     
     }
 
 
@@ -406,7 +436,7 @@ class EditView extends State
         graph_batcher.enabled = !graph_batcher.enabled;
     }
 
-    function refresh_graph()
+    function refresh_map()
     {
         map.rebuild_graph();
     }
@@ -697,7 +727,7 @@ class EditView extends State
 
     	//trace('$mod_key_delta');
 
-        if (mod_key_delta < MOD_STICKY_TIME)
+        if (mod_key_delta < global.mod_sticky)
         {
             if (e.keycode == Key.key_1)
             {
@@ -749,7 +779,11 @@ class EditView extends State
             }
             else if (e.keycode == Key.key_r)
             {
-                refresh_graph();
+                refresh_map();
+            }
+            else if (e.keycode == Key.key_d)
+            {
+                toggle_detail_view();
             }
             else if (e.keycode == Key.up)
             {
@@ -761,11 +795,11 @@ class EditView extends State
             }
             else if (e.keycode == Key.right)
             {
-                adjust_origin(new Vector(1, 0));
+                adjust_origin(new Vector(-1, 0));
             }
             else if (e.keycode == Key.left)
             {
-                adjust_origin(new Vector(-1, 0));
+                adjust_origin(new Vector(1, 0));
             }
 
             update_tooltip();

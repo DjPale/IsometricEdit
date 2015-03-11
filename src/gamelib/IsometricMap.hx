@@ -6,6 +6,7 @@ import luxe.Vector;
 import phoenix.geometry.Geometry;
 
 import gamelib.TileSheetAtlased;
+import gamelib.TileSheetCollection;
 
 import gamelib.MyUtils;
 
@@ -84,6 +85,39 @@ class IsometricMap
             if (t != null && t.graph != null)
             {
                 graph.merge(t.graph, tile.s.pos.clone().subtract(tile.s.origin));
+            }
+        }
+    }
+
+    public function refresh_positions(?idx:TileIndex = null)
+    {
+        for (tile in grid)
+        {
+            var spr = null;
+            var data = null;
+
+            if (idx != null)
+            {
+                var sidx = sheets.get_index_for_sprite(tile.s);
+                if (sidx.tilesheet == idx.tilesheet && sidx.tile == idx.tile)
+                {
+                    data = sheets.get_tile_for_sprite(tile.s);
+                    spr = tile.s;
+                }
+            }
+            else
+            {
+                data = sheets.get_tile_for_sprite(tile.s);
+                if (data.offset.x != 0 || data.offset.y != 0)
+                {
+                    spr = tile.s;
+                }
+            }
+
+            if (spr != null)
+            {
+                spr.origin = new Vector(data.offset.x, spr.size.y + data.offset.y);
+                spr.pos = spr.pos.clone();
             }
         }
     }
@@ -223,7 +257,6 @@ class IsometricMap
 
         remove_tile(pos);
 
-        //tile.depth = Std.parseFloat(pos.y + '.' + pos.x);
         tile.depth = depth(pos);
 
         grid.set(_key(pos), { s: tile, tilesheet: sheet_id });
@@ -246,6 +279,7 @@ class IsometricMap
 
         var s = new Sprite({
             name_unique: true,
+            batcher: batcher,
             texture: sheet.image,
             centered: false,
             origin: MyUtils.vector_from_pair(data.tile.origin),
@@ -253,7 +287,6 @@ class IsometricMap
             size: MyUtils.vector_from_pair(data.tile.size),
             uv: RectangleUtils.from_array(data.tile.uv),
             depth: data.tile.depth,
-            batcher: batcher
             });
 
         //TODO: omg!

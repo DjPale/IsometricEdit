@@ -13,25 +13,37 @@ import gamelib.TileSheetAtlased;
 import gamelib.TileSheetCollection;
 import gamelib.MyUtils;
 
+typedef PathEditViewParams = {
+    index: TileIndex,
+    previous: String
+}
+
 class PathEditView extends State
 {
 	var global : GlobalData;
 	var batcher : Batcher;
 
+    var tileindex : TileIndex;
 	var tiledata : TileData;
 	var tile : Sprite;
+    var pos_rect : phoenix.geometry.Geometry;
 	var graph : Graph;
 
 	var cur:GraphEdge = null;
     var drag : GraphNode = null;
 
-    var mod_key = false;
+    var zoom_mod = false;
 
     var offset : Vector;
+
+    var previous : String = 'EditView';
+
+    var mod_key_timer : Float;
 
 	var MINSIZE:Float = 5;
 	var SIZE:Float = 10;
 	var MAXSIZE:Float = 20;
+
 	public function new(_global:GlobalData, _batcher:Batcher)
 	{
 		super({ name: 'PathEditView' });
@@ -58,8 +70,18 @@ class PathEditView extends State
 			uv: r,
 			centered: false,
 			size: new Vector(r.w, r.h),
-			pos: offset.clone()
+			pos: offset.clone(),
+            origin: tiledata.offset.clone()
 			});
+
+        pos_rect = Luxe.draw.rectangle({
+            batcher: batcher,
+            x: offset.x,
+            y: offset.y,
+            w: r.w,
+            h: r.h,
+            depth: 9
+            });
 
 		graph = tiledata.graph;
 
@@ -73,10 +95,17 @@ class PathEditView extends State
 			graph = tiledata.graph = new Graph(batcher, tile.depth + 1);
 		}
 
-		batcher.view.zoom = 2.0;
+        tileindex = index;
+
+        reset_zoom();
 
 		global.status.set_tile(index);
 	}
+
+    function reset_zoom()
+    {
+        batcher.view.zoom = 2.0;
+    }
 
 	function hide()
 	{
@@ -92,8 +121,14 @@ class PathEditView extends State
 
 		if (tile != null)
 		{
+            tiledata.offset = tile.origin.clone();
 			tile.destroy();
 		}
+
+        if (pos_rect != null)
+        {
+            pos_rect.drop(true);
+        }
 	}
 
 	/*
@@ -232,13 +267,33 @@ class PathEditView extends State
     	}
     }
 
+    function adjust_origin(pos:Vector)
+    {
+        tile.origin.add(pos);
+        tile.pos = tile.pos.clone();
+
+        tiledata.offset = tile.origin.clone();
+        global.map.refresh_positions(tileindex);
+    }
+
+    function reset_origin()
+    {
+        reset_zoom();
+
+        tile.origin = new Vector();
+        tile.pos = tile.pos.clone();
+
+        tiledata.offset = new Vector();
+        global.map.refresh_positions(tileindex);
+    }
+
     override function onmouseup(e:luxe.MouseEvent)
     {
     	var mp = batcher.view.screen_point_to_world(e.pos);
 
    		drag_end_action(mp);
 
-        if (mod_key)
+        if (zoom_mod)
         {
             return;
         }
@@ -255,7 +310,7 @@ class PathEditView extends State
 
     override function onmousedown(e:luxe.MouseEvent)
     {
-    	if (mod_key && e.button == MouseButton.left)
+    	if (zoom_mod && e.button == MouseButton.left)
     	{
             var mp = batcher.view.screen_point_to_world(e.pos);
     		decide_drag_start_action(mp);
@@ -264,7 +319,7 @@ class PathEditView extends State
 
     override function onmousewheel(e:luxe.MouseEvent)
     {
-    	if (mod_key)
+    	if (zoom_mod)
     	{
     		batcher.view.zoom += 0.15 * -MyUtils.sgn(e.y);
     		return;
@@ -291,33 +346,72 @@ class PathEditView extends State
     {
     	if (e.keycode == Key.lctrl || e.keycode == Key.rctrl)
     	{
-    		mod_key = true;
+    		zoom_mod = true;
     	}
     }
 
 	override function onkeyup(e:luxe.KeyEvent)
 	{
-        if (e.keycode == Key.lctrl || e.keycode == Key.rctrl || e.mod.rctrl || e.mod.lctrl) 
+        if (e.keycode == Key.lctrl || e.keycode == Key.rctrl || e.mod.lctrl || e.mod.rctrl)
         {
-            mod_key = false;
+            mod_key_timer = e.timestamp;
+            zoom_mod = false;
         }
 
-		if (e.keycode == Key.tab || e.keycode == Key.escape)
+        var mod_key_delta = (e.timestamp - mod_key_timer);
+
+        #if luxe_web
+        mod_key_delta /= 1000.0;
+        #end
+
+        //trace('$mod_key_delta');
+
+        if (mod_key_delta < global.mod_sticky)
+        {
+            if (e.keycode == Key.key_d)
+            {
+                return_prev();
+            }
+            else if (e.keycode == Key.key_x)
+            {
+                reset_origin();
+            }
+            else if (e.keycode == Key.up)
+            {
+                adjust_origin(new Vector(0, 1));
+            }
+            else if (e.keycode == Key.down)
+            {
+                adjust_origin(new Vector(0, -1));
+            }
+            else if (e.keycode == Key.right)
+            {
+                adjust_origin(new Vector(-1, 0));
+            }
+            else if (e.keycode == Key.left)
+            {
+                adjust_origin(new Vector(1, 0));
+            }
+        }
+        else if (e.keycode == Key.tab || e.keycode == Key.escape)
 		{
-			disable();
-			Luxe.timer.schedule(0.1, return_prev);
+            return_prev();
 		}
 	}
 
 	function return_prev()
 	{
-		global.views.enable('SelectorView');
+        disable();
+        Luxe.timer.schedule(0.1, function() { global.views.enable(previous); });
 	}
 
-    override function onenabled<T>(index:T)
+    override function onenabled<T>(params:T)
     {
-    	trace('enable path edit with idx=$index');
-    	display(cast index);
+        var p : PathEditViewParams = cast params;
+
+    	trace('enable path edit with idx=${p.index}');
+        previous = p.previous;
+    	display(p.index);
     } //onenabled
 
     override function ondisabled<T>(ignored:T)
