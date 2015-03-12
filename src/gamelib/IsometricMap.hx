@@ -36,15 +36,26 @@ typedef IsometricMapSerialize = {
     height: Int,
     snap: Int,
     sheets: Array<TileSheetAtlasedSerialize>,
-    map: Array<MapEntrySerialize>
+    map: Array<MapEntrySerialize>,
+    tags: Array<Array<TagDataSerialize>>
 };
+
+typedef TagData = {
+    pos: Vector,
+    s: Sprite
+};
+
+typedef TagDataSerialize = VectorSerialize;
 
 class IsometricMap
 {
-    public var sheets : TileSheetCollection;
-
 	var grid : Map<String,MapTile>;
-    public var graph : Graph;
+
+    var tags : haxe.ds.Vector<Array<TagData>>;
+    var tag_scene : luxe.Scene;
+
+    public var graph(default, default) : Graph;
+    public var sheets(default, null) : TileSheetCollection;
 
 	public var base_width(default, null) : Int;
 	public var base_height(default, null) : Int;
@@ -63,6 +74,8 @@ class IsometricMap
         sheets = new TileSheetCollection();
         grid = new Map<String,MapTile>();
         graph = new Graph(null);
+
+        tags = new haxe.ds.Vector<Array<TagData>>(12);
 
     	base_width = _base_width;
     	base_height = _base_height;
@@ -164,10 +177,30 @@ class IsometricMap
             t_grid.push({ pos: k, tile: tile_to_json_data(s) });
         }
 
-        return { width: base_width, height: base_height, snap: grid_snap, sheets: sheets.to_json_data(), map: t_grid };
+        var t_tags = new Array<Array<TagDataSerialize>>();
+
+        for (tidx in tags)
+        {
+            var t = new Array<TagDataSerialize>();
+            t_tags.push(t);
+
+            for (v in tidx)
+            {
+                t.push(MyUtils.vector_to_pair(v.pos));
+            }
+        }
+
+        return { 
+            width: base_width, 
+            height: base_height, 
+            snap: grid_snap, 
+            sheets: sheets.to_json_data(), 
+            map: t_grid, 
+            tags: t_tags
+        };
     }
 
-    public static function from_json_data(data:IsometricMapSerialize, batcher:phoenix.Batcher) : IsometricMap
+    public static function from_json_data(data:IsometricMapSerialize, batcher:phoenix.Batcher, graph_batcher:phoenix.Batcher) : IsometricMap
     {
         if (data == null || batcher == null) return null;
 
@@ -181,6 +214,19 @@ class IsometricMap
         for (t in data.map)
         {
             m.create_tile(t, batcher);
+        }
+
+        var i = 0;
+        for (tidx in data.tags)
+        {
+            for (p in tidx)
+            {
+                var pos = MyUtils.vector_from_pair(p);
+
+                m.toggle_tag(graph_batcher, pos, i);
+            }
+
+            i++;
         }
 
         return m;
@@ -342,6 +388,49 @@ class IsometricMap
         }
 
         return false;
+    }
+
+    public function toggle_tag(batcher:phoenix.Batcher, pos:Vector, tag:Int)
+    {
+        var a = tags[tag];
+
+        if (a == null) 
+        {
+            a = new Array<TagData>();
+            tags[tag] = a;
+        }
+
+        var found = null;
+        for (t in a)
+        {
+            if (t.pos.x == pos.x && t.pos.y == pos.y)
+            {
+                found = t;
+            }
+        }
+
+        if (found != null)
+        {
+            found.s.destroy();
+            a.remove(found);
+        }
+        else
+        {
+            var w = iso_to_screen(pos);
+
+            var c = (tag + 1) / 12;
+            var s = new Sprite({
+                name_unique: true,
+                batcher: batcher,
+                pos: new Vector(w.x + ((tag % 6) * 18), w.y + (Math.floor(tag / 6) * 18)),
+                color: new luxe.Color(c, c, c),
+                size: new Vector(16,16),
+                centered: true,
+                origin: new Vector(-8, 64)
+                });
+
+            a.push({ pos: pos, s: s });
+        }
     }
 
     public inline function screen_to_iso(p:Vector) : Vector

@@ -36,6 +36,16 @@ class MyUtils
             (e.keycode >= Key.key_a && e.keycode <= Key.key_z));
     }
 
+    public static inline function valid_tag_key(e:luxe.KeyEvent) : Bool
+    {
+        return !(e.mod.lctrl || e.mod.rctrl) && (e.keycode >= Key.f1 && e.keycode <= Key.f12);
+    }
+
+    public static inline function key_to_tag(e:luxe.KeyEvent) : Int
+    {
+        return (e.keycode - Key.f1);
+    }
+
     public static function ShowMessage(msg:String, ?title:String = null)
     {
         trace(msg);

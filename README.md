@@ -1,6 +1,10 @@
-# IsometricEdit
-(**Very**) Simple graphical editor for placing Iso spritesheets. Made especially for the wonderful [Kenney.nl](http://kenney.nl) Isometric assets!
-It uses a grid as guide, but the tiles stores its own positions. There are no max limits to maps (other than theoretical). Note that the tile sizes are read directly from the atlas and thus they are not limited to a fixed tile size.
+# IsometricEdit (**Very**) Simple graphical editor for placing Iso
+spritesheets. Made especially for the wonderful [Kenney.nl](http://kenney.nl)
+Isometric assets! It is implemented using [Haxe](http://haxe.org/) and the new
+[luxe](http://luxeengine.com/) framework. It uses a grid as guide, but the tiles stores its own
+positions. There are no max limits to maps (other than theoretical). Note that
+the tile sizes are read directly from the atlas and thus they are not limited
+to a fixed tile size.
 
 NB! The formats are highly non-optimized and a bit stupid (too much info per map tile instead of more information on the tile). In all reality, only the index number should be stored...
 
@@ -11,8 +15,9 @@ It's most likely not bug-free so usage is solely your own responsibility obvious
 The source code is licensed under the MIT license
 
 ## Not supported
-The following main features are currently not supported yet - which is probably a breaking point for most people :P
+The following main features are currently not supported yet
 - No layers (will maybe be implemented)
+- Not possible to delete tilesheets once they're loaded
 - No use of standard Luxe map (may be implemented, but needs some extensions to support arbitrary tile sizes)
 - No object editor for pre-determined objects (hey! starting to get demanding, are we?)
 
@@ -20,6 +25,12 @@ The following main features are currently not supported yet - which is probably 
 The [issue tracker](https://github.com/DjPale/IsometricEdit/issues) contains list of bugs and enhancements.
 
 ## Quick Guide
+A brief overview of the main functions for the editors. The editor includes the following tilesheets by default:
+- [Isometric Landscape](http://www.kenney.nl/assets/isometric-landscape)
+- [Isometric City](http://www.kenney.nl/assets/isometric-city)
+- [Isometric Buildings #1](http://www.kenney.nl/assets/isometric-buildings)
+
+They contain some predefined information - some groups are defined and offsets for some of the building tiles.
 
 ### Editor basics
 - Place tiles with left mouse button
@@ -77,6 +88,7 @@ The base grid size is currently `64x32` which allows for fine placement.
 - `Ctrl-r` rebuilds the path graph based on the latest tile data and applies offsets
 - `Ctrl-d` brings up the path editor for the tag under the tile cursor
 - `Ctrl-arrows` adjust individual tile offset
+- `F1..F12` tag current map location with a given number from 0 to 11
 - `0..9` and `a..z` selects the group. Use mouse wheel to scroll through all tiles
 
 #### Tile selector / Group editor

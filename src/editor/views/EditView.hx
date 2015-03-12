@@ -121,7 +121,7 @@ class EditView extends State
 
         var c_map : IsometricMapSerialize = cast map_data;
 
-        var t_map = IsometricMap.from_json_data(c_map, batcher);
+        var t_map = IsometricMap.from_json_data(c_map, batcher, graph_batcher);
 
         if (t_map == null)
         {
@@ -367,6 +367,15 @@ class EditView extends State
         trace('try to adjust origin on $mp by (${ofs.x},${ofs.y}) = ' + map.adjust_origin(mp, ofs));        
     }
 
+    function toggle_tag(num:Int)
+    {
+        var p = mouse_coords(Luxe.screen.cursor.pos);
+
+        var mp = map.screen_to_iso(p);    
+
+        map.toggle_tag(graph_batcher, mp, num);
+    }
+
     override function onmousedown(e:luxe.MouseEvent)
     {
     	if (!MyUtils.inside_me(batcher.view, e.pos)) return;
@@ -599,7 +608,7 @@ class EditView extends State
 
     function map_final_load_stage()
     {
-        var s_map = IsometricMap.from_json_data(data_buffer.data, batcher);
+        var s_map = IsometricMap.from_json_data(data_buffer.data, batcher, graph_batcher);
 
         if (s_map != null)
         {
@@ -823,6 +832,10 @@ class EditView extends State
                 trace('selected group ' + group_name);
 
                 update_sprite();
+            }
+            else if (MyUtils.valid_tag_key(e))
+            {
+                toggle_tag(MyUtils.key_to_tag(e));
             }
         }
     }
