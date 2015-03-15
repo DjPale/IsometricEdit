@@ -16,6 +16,8 @@ import editor.behaviors.TileTooltipBehavior;
 
 import Main;
 
+typedef DataBuffer =  { type: String, data: Dynamic };
+
 class SelectorView extends State
 {
 	var global : GlobalData;
@@ -31,7 +33,7 @@ class SelectorView extends State
 
 	var current : TileSheetAtlased;
 
-	var data_buffer : { type: String, data: Dynamic } = null;
+	var data_buffer : DataBuffer = null;
 
 	var event_id_assign : String = '';
 	var event_id_detail : String = '';

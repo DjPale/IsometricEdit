@@ -2,6 +2,8 @@ package gamelib;
 
 import luxe.Sprite;
 import luxe.Vector;
+import luxe.Color;
+import luxe.Text;
 
 import phoenix.geometry.Geometry;
 
@@ -49,6 +51,24 @@ typedef TagDataSerialize = VectorSerialize;
 
 class IsometricMap
 {
+    static var tag_palette = [
+        { bg: new Color(0.34, 0.34, 0.34), fg: new Color(1, 1, 1) },
+        { bg: new Color(0.68, 0.14, 0.14), fg: new Color(1, 1, 1) },
+        { bg: new Color(0.16, 0.29, 0.84), fg: new Color(1, 1, 1) },
+        { bg: new Color(0.11, 0.41, 0.08), fg: new Color(1, 1, 1) },
+        { bg: new Color(0.51, 0.29, 0.10), fg: new Color(1, 1, 1) },
+        { bg: new Color(0.51, 0.15, 0.75), fg: new Color(1, 1, 1) }, 
+        { bg: new Color(1.00, 0.80, 0.95), fg: new Color(0, 0, 0) },
+        { bg: new Color(0.63, 0.63, 0.63), fg: new Color(0, 0, 0) },
+        { bg: new Color(0.51, 0.77, 0.48), fg: new Color(0, 0, 0) },
+        { bg: new Color(0.62, 0.69, 1.00), fg: new Color(0, 0, 0) },
+        { bg: new Color(1.00, 0.57, 0.20), fg: new Color(0, 0, 0) },
+        { bg: new Color(1.00, 0.93, 0.25), fg: new Color(0, 0, 0) },
+    ];
+
+    static var MAX_TAGS = 12;
+    static var MAX_TAGS_HALF = 6;
+
 	var grid : Map<String,MapTile>;
 
     var tags : haxe.ds.Vector<Array<TagData>>;
@@ -142,12 +162,22 @@ class IsometricMap
             v.s.destroy();
         }
 
+        for (tag in tags)
+        {
+            while (tag != null && tag.length > 0)
+            {
+                var p = tag.pop();
+                if (p.s != null) p.s.destroy();
+            }
+        }
+
         graph.destroy();
         sheets.destroy();
 
         sheets = null;
         graph = null;
         grid = null;
+        tags = null;
     }
    
     inline function tile_to_json_data(s:Sprite) : MapTileSerialize
@@ -392,6 +422,8 @@ class IsometricMap
 
     public function toggle_tag(batcher:phoenix.Batcher, pos:Vector, tag:Int)
     {
+        if (tag < 0 || tag >= MAX_TAGS) return;
+
         var a = tags[tag];
 
         if (a == null) 
@@ -418,40 +450,45 @@ class IsometricMap
         {
             var w = iso_to_screen(pos);
 
-            var c = (tag + 1) / 12;
+            var p = tag_palette[tag];
+
             var s = new Sprite({
                 name_unique: true,
                 batcher: batcher,
-                pos: new Vector(w.x + ((tag % 6) * 18), w.y + (Math.floor(tag / 6) * 18)),
-                color: new luxe.Color(c, c, c),
-                size: new Vector(16,16),
+                pos: new Vector(w.x + ((tag % MAX_TAGS_HALF) * 22), w.y + (Math.floor(tag / MAX_TAGS_HALF) * 22)),
+                color: p.bg,
+                size: new Vector(20,20),
                 centered: true,
                 origin: new Vector(-8, 64)
                 });
+
+            new Text({
+                name_unique: true,
+                parent: s,
+                batcher: batcher,
+                size: s.size.clone(),
+                point_size: 14,
+                text: Std.string(tag + 1),
+                color: p.fg
+            });
 
             a.push({ pos: pos, s: s });
         }
     }
 
+    // staggered coord conversion
     public inline function screen_to_iso(p:Vector) : Vector
     {
-        /*
-        var mx = Std.int(((p.x / width_half) + (p.y / height_half)) / 2);
-        var my = Std.int(((p.y / height_half) - (p.x / width_half)) / 2);
-        */
-        var px = Std.int(p.x / width_half);
-        var py = Std.int(p.y / height_half); 
-
-        var mx = Std.int((px + py) / 2);
-        var my = Std.int((py - px) / 2);
+        var mx = Std.int(Math.floor(p.x / width));
+        var my = Std.int(Math.floor(p.y / height) * 2);
 
         return new Vector(mx, my);
     }
 
     public inline function iso_to_screen(p:Vector) : Vector
     {
-        var sx = (p.x - p.y) * width_half;
-        var sy = (p.x + p.y) * height_half;
+        var sx = Std.int(p.x) * width + Math.abs(Std.int(p.y) % 2) * width_half;
+        var sy = Std.int(p.y) * height_half;
 
         return new Vector(sx, sy);
     }

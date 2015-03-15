@@ -88,8 +88,6 @@ class EditView extends State
 
         tile = { spr: spr, graph: null };
 
-        update_sprite();
-
         var tooltip_spr = new Entity({
             name: 'edit_tt',
             pos: new Vector(96, Luxe.screen.h - 70),
@@ -111,6 +109,11 @@ class EditView extends State
             );
 
         map.display_graph(graph_batcher);
+
+
+        map.sheets.set_index(0, 0);
+
+        update_sprite();
 	}
 
     override function onenter(map_data:Dynamic) 
@@ -374,6 +377,8 @@ class EditView extends State
         var mp = map.screen_to_iso(p);    
 
         map.toggle_tag(graph_batcher, mp, num);
+
+        trace('toggle tag on $mp with #$num');
     }
 
     override function onmousedown(e:luxe.MouseEvent)

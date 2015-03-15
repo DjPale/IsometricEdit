@@ -1,18 +1,16 @@
-# IsometricEdit (**Very**) Simple graphical editor for placing Iso
-spritesheets. Made especially for the wonderful [Kenney.nl](http://kenney.nl)
-Isometric assets! It is implemented using [Haxe](http://haxe.org/) and the new
-[luxe](http://luxeengine.com/) framework. It uses a grid as guide, but the tiles stores its own
-positions. There are no max limits to maps (other than theoretical). Note that
-the tile sizes are read directly from the atlas and thus they are not limited
-to a fixed tile size.
+# IsometricEdit
+(**Very**) Simple graphical editor for placing tiles from isometric texture atlases on staggered isometric maps. Made especially for the wonderful [Kenney.nl](http://kenney.nl) isometric assets! It is implemented using [Haxe](http://haxe.org/) and the new excellent [luxe](http://luxeengine.com/) framework. It snaps to a grid as guide, but the tiles stores its own positions as sprites. There are no max limits to maps (other than theoretical). Note that the tile sizes are read directly from the atlas and thus they are not limited to a fixed tile size.
 
-NB! The formats are highly non-optimized and a bit stupid (too much info per map tile instead of more information on the tile). In all reality, only the index number should be stored...
-
-## Disclaimer
-It's most likely not bug-free so usage is solely your own responsibility obviously.
-
-## License
-The source code is licensed under the MIT license
+## Main features
+- Use the super-cool isometric tiles by Kenney.nl 'out-of-the-box' (included)
+- Supports arbitrary tile sizes (but the snap is 64x32)
+- Open and save maps in JSON format
+- Mouse / shortcut-key based for a quick workflow
+- Flexible grouping system for quick selection of tiles
+- Create local paths on tiles and they are auto-connected on the global map
+- Global offsets on tiles to easily construct complex building structures
+- Individual tile depth adjustments to tweak special cases
+- No max width / height on maps - not sure if this is a feature or confusing :)
 
 ## Not supported
 The following main features are currently not supported yet
@@ -22,7 +20,15 @@ The following main features are currently not supported yet
 - No object editor for pre-determined objects (hey! starting to get demanding, are we?)
 
 ## Planned features / bugs
-The [issue tracker](https://github.com/DjPale/IsometricEdit/issues) contains list of bugs and enhancements.
+The [issue tracker](https://github.com/DjPale/IsometricEdit/issues) contains list of bugs and enhancements. The 2 current 'serious' issues being:
+- The depth calc for negative coords is not accounted for, so always build left and downwards. The top left of the start camera is (0,0)
+- The graph merge algorithm is not 100% foolproof yet
+
+## Disclaimer
+It's most likely not bug-free so usage is solely your own responsibility obviously.
+
+## License
+The source code is licensed under the MIT license
 
 ## Quick Guide
 A brief overview of the main functions for the editors. The editor includes the following tilesheets by default:
@@ -44,6 +50,7 @@ They contain some predefined information - some groups are defined and offsets f
 - Open and save maps as JSON-files using `Ctrl-o` and `Ctrl-s`. Note that sprite sheet JSON data are also embedded in the map files for 
 now (NOT the image).
 - Adjust offsets of tile under cursor with `Ctrl` and arrow keys (does not affect tile in tilesheet, this can be done in the editor). NB! This will be overwritten by adjusting the offset of the tile in the tile sheet.
+- To tag a position, use `F1..F12`.
 
 ### Selector basics
 - Bring up tile selector / group editor with `Tab`
@@ -89,7 +96,7 @@ The base grid size is currently `64x32` which allows for fine placement.
 - `Ctrl-d` brings up the path editor for the tag under the tile cursor
 - `Ctrl-arrows` adjust individual tile offset
 - `F1..F12` tag current map location with a given number from 0 to 11
-- `0..9` and `a..z` selects the group. Use mouse wheel to scroll through all tiles
+- `0..9` and `a..z` selects the group. Use mouse wheel to scroll through all tiles in group. Invalid selection selects all tiles
 
 #### Tile selector / Group editor
 
