@@ -392,4 +392,16 @@ class TileSheetAtlased
 
     	return null;
     }
+
+    public function adjust_offset_for_group(grp:String, ofs:Vector)
+    {
+        var a = get_group(grp);
+
+        if (a == null) return;
+
+        for (i in a)
+        {
+            atlas[i].offset = ofs.clone();
+        }
+    }
 }

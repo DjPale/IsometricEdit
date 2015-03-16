@@ -40,6 +40,16 @@ class Main extends luxe.Game
     var global_data : GlobalData = { map: null, views: null, status: null, ui: null, font: null, mod_sticky: 0.2 };
     var views : States;
 
+    override function config(config:luxe.AppConfig) : luxe.AppConfig
+    {
+        config.window.title = 'Isometric Edit';
+        config.window.width = 1200;
+        config.window.height = 800;
+        config.window.resizable = false;
+
+        return config;
+    }
+
     override function ready()
     {
         Luxe.core.app.assets.strict = false;
@@ -67,13 +77,14 @@ class Main extends luxe.Game
         global_data.map = new IsometricMap();
         global_data.font = Luxe.resources.find_font('assets/fonts/ubuntu-mono.fnt');
 
-        // Add default sheet
-        var sheet_tex = Luxe.loadTexture('assets/tiles.png');
-        var sheet = TileSheetAtlased.from_xml_data(sheet_tex, Luxe.loadText('assets/tiles.xml').text);
+        // Add default sheets
+        var sheet = TileSheetAtlased.from_json_data(Luxe.loadJSON('assets/kenney/landscapeTiles_sheet.json').json);
         global_data.map.sheets.add(sheet);
 
-        sheet_tex = Luxe.loadTexture('assets/tiles2.png');
-        sheet = TileSheetAtlased.from_xml_data(sheet_tex, Luxe.loadText('assets/tiles2.xml').text);
+        sheet = TileSheetAtlased.from_json_data(Luxe.loadJSON('assets/kenney/cityTiles_sheet.json').json);
+        global_data.map.sheets.add(sheet);
+
+        sheet = TileSheetAtlased.from_json_data(Luxe.loadJSON('assets/kenney/buildingTiles_sheet.json').json);
         global_data.map.sheets.add(sheet);
 
         setup();

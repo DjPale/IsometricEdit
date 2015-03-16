@@ -1,13 +1,14 @@
 {
 
   project : {
-    name : 'Isometric Edit Test',
-    version : '0.0.1',
+    name : 'Isometric Edit',
+    version : '1.0.0',
     author : 'dj_pale',
 
     app : {
       name : 'IsometricEdit',
       package : 'com.djpale.isometricedit',
+      icon : 'icons'
     },
 
     build : {

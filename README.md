@@ -1,6 +1,8 @@
 # IsometricEdit
 (**Very**) Simple graphical editor for placing tiles from isometric texture atlases on staggered isometric maps. Made especially for the wonderful [Kenney.nl](http://kenney.nl) isometric assets! It is implemented using [Haxe](http://haxe.org/) and the new excellent [luxe](http://luxeengine.com/) framework. It snaps to a grid as guide, but the tiles stores its own positions as sprites. There are no max limits to maps (other than theoretical). Note that the tile sizes are read directly from the atlas and thus they are not limited to a fixed tile size.
 
+NB! Only tested on Windows for now! Web version also works, but it is limited with regards to save/load and shortcut keys.
+
 ## Main features
 - Use the super-cool isometric tiles by Kenney.nl 'out-of-the-box' (included)
 - Supports arbitrary tile sizes (but the snap is 64x32)

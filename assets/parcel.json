@@ -1,6 +1,9 @@
 {
 	"textures" : [
-		{ "id" : "assets/tiles.png" },
+		{ "id" : "assets/kenney/landscapeTiles_sheet.png" },
+		{ "id" : "assets/kenney/cityTiles_sheet.png" },
+		{ "id" : "assets/kenney/buildingTiles_sheet.png" },
+		
 		{ "id" : "assets/tests/ambulance_N.png" },
 		{ "id" : "assets/tests/ambulance_S.png" },
 		{ "id" : "assets/tests/ambulance_W.png" },
@@ -18,9 +21,10 @@
 	"sounds" : [
 	],
 	"json" : [
-		{ "id" : "assets/tests/test1.json" }
+		{ "id" : "assets/kenney/landscapeTiles_sheet.json" },
+		{ "id" : "assets/kenney/cityTiles_sheet.json" },
+		{ "id" : "assets/kenney/buildingTiles_sheet.json" }
 	],
 	"text" : [
-		{ "id" : "assets/tiles.xml" }
 	]
 }

@@ -214,9 +214,12 @@ class IsometricMap
             var t = new Array<TagDataSerialize>();
             t_tags.push(t);
 
-            for (v in tidx)
+            if (tidx != null)
             {
-                t.push(MyUtils.vector_to_pair(v.pos));
+                for (v in tidx)
+                {
+                    t.push(MyUtils.vector_to_pair(v.pos));
+                }
             }
         }
 

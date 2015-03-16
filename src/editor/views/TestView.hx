@@ -62,9 +62,20 @@ class TestView extends State
     	global.ui.enabled = true;
     }
 
+    // function secret_offset_function()
+    // {
+    //     var city_sheet = global.map.sheets.get_sheet(2);
+    //     city_sheet.adjust_offset_for_group("j", new Vector(-16,13));
+    //     city_sheet.adjust_offset_for_group("k", new Vector(-16,11));
+    //     city_sheet.adjust_offset_for_group("l", new Vector(-16,11));
+    //     city_sheet.adjust_offset_for_group("m", new Vector(-16,11));
+    // }
+
     function display(map:IsometricMap)
     {
     	global.ui.enabled = false;
+
+        // secret_offset_function();
 
     	for (i in 0...10)
         {
