@@ -43,8 +43,8 @@ class Main extends luxe.Game
     override function config(config:luxe.AppConfig) : luxe.AppConfig
     {
         config.window.title = 'Isometric Edit';
-        config.window.width = 1200;
-        config.window.height = 800;
+        config.window.width = 960;
+        config.window.height = 600;
         config.window.resizable = false;
 
         return config;
