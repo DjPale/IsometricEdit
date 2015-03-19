@@ -7,3 +7,4 @@ ren windows IsometricEdit-%ver%
 cd ..
 del builds\*-win.zip
 move bin\IsometricEdit-%ver%-win.zip builds\
+rmdir /S /Q bin\IsometricEdit-%ver%
