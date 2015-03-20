@@ -54,7 +54,7 @@ class SelectorView extends State
 
 	function reset_zoom()
 	{
-		batcher.view.zoom = 0.3;
+		batcher.view.zoom = 0.25;
 		batcher.view.pos.x = -1050;
 		batcher.view.pos.y = 720;
 	}
