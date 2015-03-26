@@ -177,26 +177,34 @@ class Graph
 		}
 
 		var remove : Array<GraphNode> = [];
+		var add : Array<GraphEdge> = [];
+		var new_length = nodes.length;
 
 		for (i in 0...old_len)
 		{
-			for (n in old_len...nodes.length)
+			for (n in old_len...new_length)
 			{
 				var node_g = nodes[i];
 				var node_l = nodes[n];
 
 				if (node_g.rect.overlaps(node_l.rect))
 				{
-					remove.push(node_l);
-
 					var e_g_list = get_edges_for_node(node_g);
 					var e_l_list = get_edges_for_node(node_l);
 
 					if (e_g_list == null || e_l_list == null)
 					{
-						trace('NB! one of the edge lists was null - should not happen! .. or maybe if you have dangling nodes :P');
+						trace('NB! one of the edge lists was null - do you have nodes with no edges?');
 						break;
 					}
+
+					// use existing node and connect new edges (basically an ineffective replace)
+					for (edge_l in e_l_list)
+					{
+						add.push({p0: node_g, p1: endpoint(node_l, edge_l), l: null });
+					}
+
+					remove.push(node_l);
 
 					for (edge_g in e_g_list)
 					{
@@ -224,7 +232,15 @@ class Graph
 			delete_node(remove.pop());
 		}
 
+		while (add.length > 0)
+		{
+			var e = add.pop();	
+
+			if (e.p0 != null && e.p0.rect != null && e.p1 != null && e.p1.rect != null)	new_edge(e.p0, e.p1);
+		}
+
 		remove = null;
+		add = null;
 	}
 
 	public inline function endpoint(start:GraphNode, edge:GraphEdge) : GraphNode
