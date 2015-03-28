@@ -2,3 +2,4 @@ bin/*
 ios.project/*
 README.html
 snowkit-post.txt
+assets/tests/*_bug.json
