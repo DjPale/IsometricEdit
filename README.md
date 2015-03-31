@@ -30,7 +30,7 @@ The [issue tracker](https://github.com/DjPale/IsometricEdit/issues) contains lis
 It's most likely not bug-free so usage is solely your own responsibility obviously.
 
 ## License
-The source code is licensed under the MIT license
+The source code is licensed under the [MIT license](https://github.com/DjPale/IsometricEdit/blob/master/README.md). The assets from Kenney.nl are licensed under [Creative Commons Zero, CC0](http://creativecommons.org/publicdomain/zero/1.0/). He appreciates [donations](http://kenney.itch.io/kenney-donation/purchase) which I highly recommend if you want to use his work!
 
 ## Quick Guide
 A brief overview of the main functions for the editors. The editor includes the following tilesheets by default:
