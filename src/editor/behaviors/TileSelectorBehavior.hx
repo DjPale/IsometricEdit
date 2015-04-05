@@ -7,6 +7,8 @@ import luxe.Input;
 import phoenix.Batcher;
 import phoenix.geometry.Geometry;
 
+import snow.system.input.Keycodes;
+
 import gamelib.TileSheetAtlased;
 import gamelib.MyUtils;
 
@@ -139,7 +141,7 @@ class TileSelectorBehavior extends Component
 		var wpos = batcher.view.screen_point_to_world(Luxe.screen.cursor.pos);
 		var new_tile = sheet.get_tile_idx(wpos);
 
-		var group_name = snow.input.Keycodes.Keycodes.name(e.keycode);
+		var group_name = Keycodes.name(e.keycode);
 
 		var sel_event : SelectEvent = { index: new_tile, tilesheet: sheet.index, group: group_name };
 

@@ -6,8 +6,10 @@ import luxe.Entity;
 import luxe.Vector;
 import luxe.Camera;
 import luxe.Input;
-
 import phoenix.Batcher;
+
+import snow.system.input.Keycodes;
+
 import gamelib.MyUtils;
 import gamelib.TileSheetAtlased;
 
@@ -192,7 +194,7 @@ class SelectorView extends State
 	    #if desktop
 	    // pending https://github.com/underscorediscovery/snow/issues/65
 	    // var ff = { extension: 'json', desc: 'JSON file' };
-	    var path = Luxe.core.app.io.platform.dialog_save('Save sheet as...');
+	    var path = Luxe.core.app.io.module.dialog_save('Save sheet as...');
 
 	    if (path == null || path.length == 0)
 	    {
@@ -232,7 +234,7 @@ class SelectorView extends State
 		#if desktop
 		// pending https://github.com/underscorediscovery/snow/issues/65
 		// var ff = [{ extension: 'json', desc: 'JSON file' }];
-		var path = Luxe.core.app.io.platform.dialog_open('Open sheet...');
+		var path = Luxe.core.app.io.module.dialog_open('Open sheet...');
 
 		if (path == null || path.length == 0)
 		{
@@ -371,7 +373,7 @@ class SelectorView extends State
 			} 
 			else if (MyUtils.valid_group_key(e))
 			{
-				var grp = snow.input.Keycodes.Keycodes.name(e.keycode);
+				var grp = Keycodes.name(e.keycode);
 				var exists = current.select_group(grp);
 				selector_comp.hide_indicators();
 

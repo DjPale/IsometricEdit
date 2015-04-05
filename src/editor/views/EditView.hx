@@ -9,6 +9,8 @@ import luxe.Rectangle;
 import luxe.Entity;
 import luxe.Vector;
 
+import snow.system.input.Keycodes;
+
 import Main;
 import gamelib.TileSheetAtlased;
 import gamelib.IsometricMap;
@@ -467,7 +469,7 @@ class EditView extends State
         #if desktop
         // pending https://github.com/underscorediscovery/snow/issues/65
         // var ff = [{ extension: 'json', desc: 'JSON file' }];
-        var path = Luxe.core.app.io.platform.dialog_open('Open map...');
+        var path = Luxe.core.app.io.module.dialog_open('Open map...');
 
         if (path == null || path.length == 0)
         {
@@ -572,7 +574,7 @@ class EditView extends State
         #if desktop
         // pending https://github.com/underscorediscovery/snow/issues/65
         // var ff = { extension: 'json', desc: 'JSON file' };
-        var path = Luxe.core.app.io.platform.dialog_save('Save map as...');
+        var path = Luxe.core.app.io.module.dialog_save('Save map as...');
 
         if (path == null || path.length == 0)
         {
@@ -830,7 +832,7 @@ class EditView extends State
             }
             else if (MyUtils.valid_group_key(e))
             {
-                var group_name = snow.input.Keycodes.Keycodes.name(e.keycode);
+                var group_name = Keycodes.name(e.keycode);
 
                 map.sheets.select_group(group_name);
 

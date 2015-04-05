@@ -58,18 +58,21 @@ class Main extends luxe.Game
 
         global_data.views = views;
 
-        var json_asset = Luxe.loadJSON('assets/parcel.json');
+        Luxe.loadJSON('assets/parcel.json', function(json_asset) 
+            {
+                var preload = new Parcel();
+                preload.from_json(json_asset.json);
 
-        var preload = new Parcel();
-        preload.from_json(json_asset.json);
+                new ParcelProgress({
+                    parcel: preload,
+                    background: new luxe.Color(1, 1, 1, 0.85),
+                    oncomplete: stage2
+                    });
 
-        new ParcelProgress({
-            parcel: preload,
-            background: new luxe.Color(1, 1, 1, 0.85),
-            oncomplete: stage2
-            });
+                preload.load();
+            }
+        );
 
-        preload.load();
     } //ready
 
     function stage2(_)
@@ -78,13 +81,13 @@ class Main extends luxe.Game
         global_data.font = Luxe.resources.find_font('assets/fonts/ubuntu-mono.fnt');
 
         // Add default sheets
-        var sheet = TileSheetAtlased.from_json_data(Luxe.loadJSON('assets/kenney/landscapeTiles_sheet.json').json);
+        var sheet = TileSheetAtlased.from_json_data(Luxe.resources.find_json('assets/kenney/landscapeTiles_sheet.json').json);
         global_data.map.sheets.add(sheet);
 
-        sheet = TileSheetAtlased.from_json_data(Luxe.loadJSON('assets/kenney/cityTiles_sheet.json').json);
+        sheet = TileSheetAtlased.from_json_data(Luxe.resources.find_json('assets/kenney/cityTiles_sheet.json').json);
         global_data.map.sheets.add(sheet);
 
-        sheet = TileSheetAtlased.from_json_data(Luxe.loadJSON('assets/kenney/buildingTiles_sheet.json').json);
+        sheet = TileSheetAtlased.from_json_data(Luxe.resources.find_json('assets/kenney/buildingTiles_sheet.json').json);
         global_data.map.sheets.add(sheet);
 
         setup();
