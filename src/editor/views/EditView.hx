@@ -35,7 +35,7 @@ typedef TileUndo =
     depth: Float
 };
 
-typedef TileCursor = 
+typedef TileCursor =
 {
     spr: Sprite,
     graph: Graph
@@ -97,12 +97,12 @@ class EditView extends State
 
         tooltip = tooltip_spr.add(new TileTooltipBehavior(global.ui, global.font));
 
-        Luxe.events.listen('select', 
-            function(e:SelectEvent) 
+        Luxe.events.listen('select',
+            function(e:SelectEvent)
             {
                 if (e.index != -1)
                 {
-                    map.sheets.set_index(e.tilesheet, e.index); 
+                    map.sheets.set_index(e.tilesheet, e.index);
                     update_sprite();
                 }
 
@@ -118,7 +118,7 @@ class EditView extends State
         update_sprite();
 	}
 
-    override function onenter(map_data:Dynamic) 
+    override function onenter(map_data:Dynamic)
     {
         trace('enter edit');
 
@@ -135,7 +135,7 @@ class EditView extends State
         }
 
         map.destroy();
-        map = t_map;       
+        map = t_map;
 
         map.display_graph(graph_batcher);
     }
@@ -160,7 +160,7 @@ class EditView extends State
             update_sprite();
         }
 
-        if (tooltip != null) 
+        if (tooltip != null)
         {
             tooltip.show(show);
             update_tooltip();
@@ -202,15 +202,15 @@ class EditView extends State
     	if (old_tile != null)
     	{
             var old = old_tile.s;
-    		prev_tile = { 
-                map_pos: pos, 
-                pos: old.pos, 
-                size: old.size, 
-                origin: old.origin, 
-                uv: old.uv, 
+    		prev_tile = {
+                map_pos: pos,
+                pos: old.pos,
+                size: old.size,
+                origin: old.origin,
+                uv: old.uv,
                 centered: old.centered,
                 depth: old.depth,
-                tilesheet: old_tile.tilesheet 
+                tilesheet: old_tile.tilesheet
             };
     	}
     	else
@@ -320,8 +320,8 @@ class EditView extends State
             if (idx != null)
             {
                 toggle_view_param('PathEditView', { index: idx, previous: 'EditView' });
-            }   
-        }     
+            }
+        }
     }
 
 
@@ -369,14 +369,14 @@ class EditView extends State
 
         var mp = map.screen_to_iso(p);
 
-        trace('try to adjust origin on $mp by (${ofs.x},${ofs.y}) = ' + map.adjust_origin(mp, ofs));        
+        trace('try to adjust origin on $mp by (${ofs.x},${ofs.y}) = ' + map.adjust_origin(mp, ofs));
     }
 
     function toggle_tag(num:Int)
     {
         var p = mouse_coords(Luxe.screen.cursor.pos);
 
-        var mp = map.screen_to_iso(p);    
+        var mp = map.screen_to_iso(p);
 
         map.toggle_tag(graph_batcher, mp, num);
 
@@ -405,7 +405,7 @@ class EditView extends State
             {
                 map.sheets.set_sheet_ofs(1);
                 update_sprite();
-            }  
+            }
             else
             {
                 remove_tile(map.screen_to_iso(tile.spr.pos));
@@ -464,7 +464,7 @@ class EditView extends State
         #if luxe_web
         MyUtils.ShowMessage('Sorry, cannot open maps on web target!\nMaybe add a text field or something later...');
         return;
-        #end    
+        #end
 
         #if desktop
         // pending https://github.com/underscorediscovery/snow/issues/65
@@ -475,14 +475,14 @@ class EditView extends State
         {
             trace('Could not open file - dialog_open failed or canceled');
             return;
-        } 
+        }
 
         var content = null;
 
-        try 
+        try
         {
             content = sys.io.File.getContent(path);
-        } 
+        }
         catch(e:Dynamic)
         {
             MyUtils.ShowMessage('Failed to open file "$path", I think because "$e"', 'open_map');
@@ -529,7 +529,7 @@ class EditView extends State
                 {
                     var dir = haxe.io.Path.directory(path);
                     var file = haxe.io.Path.withoutDirectory(lookup_path);
-                    lookup_path =  haxe.io.Path.join([dir,file]);               
+                    lookup_path =  haxe.io.Path.join([dir,file]);
                 }
 
                 if (sys.FileSystem.exists(lookup_path))
@@ -584,10 +584,10 @@ class EditView extends State
 
         var s_map = map.to_json_data();
 
-        try 
+        try
         {
             sys.io.File.saveContent(path, haxe.Json.stringify(s_map, null, "\t"));
-        } 
+        }
         catch(e:Dynamic)
         {
             MyUtils.ShowMessage('Failed to save file "$path", I think because "$e"', 'save_map');
@@ -721,7 +721,8 @@ class EditView extends State
 
     override function onkeydown(e:luxe.KeyEvent)
     {
-    	if (e.keycode == Key.lctrl || e.keycode == Key.rctrl)
+    	if (e.keycode == Key.lctrl || e.keycode == Key.rctrl ||
+				  e.keycode == Key.lmeta || e.keycode == Key.rmeta)
     	{
     		zoom_mod = true;
     	}
@@ -729,11 +730,14 @@ class EditView extends State
 
     override function onkeyup(e:luxe.KeyEvent)
     {
-    	if (e.keycode == Key.lctrl || e.keycode == Key.rctrl || e.mod.lctrl || e.mod.rctrl)
+    	if (e.keycode == Key.lctrl || e.keycode == Key.rctrl || e.mod.lctrl || e.mod.rctrl ||
+				  e.keycode == Key.lmeta || e.keycode == Key.rmeta || e.mod.lmeta || e.mod.rmeta)
     	{
     		mod_key_timer = e.timestamp;
     		zoom_mod = false;
     	}
+
+			trace(Key.name(e.keycode));
 
     	var mod_key_delta = (e.timestamp - mod_key_timer);
 
@@ -748,7 +752,7 @@ class EditView extends State
             if (e.keycode == Key.key_1)
             {
                 map.set_snap(1);
-            } 
+            }
             else if (e.keycode == Key.key_2)
             {
                 map.set_snap(2);
@@ -820,7 +824,7 @@ class EditView extends State
 
             update_tooltip();
         }
-    	else 
+    	else
         {
             if (e.keycode == Key.tab)
         	{
@@ -847,7 +851,7 @@ class EditView extends State
         }
     }
 
-    override function update(dt:Float) 
+    override function update(dt:Float)
     {
     } //update
 }

@@ -4,6 +4,7 @@ import luxe.Rectangle;
 import luxe.Vector;
 import luxe.collision.Collision;
 import luxe.collision.shapes.Polygon;
+import luxe.collision.shapes.Ray;
 
 class RectangleUtils
 {
@@ -40,7 +41,7 @@ class RectangleUtils
 	public static inline function intersects_line(r:Rectangle, p0:Vector, p1:Vector)
 	{
 		var p = Polygon.rectangle(r.x, r.y, r.w, r.h, false);
-		var ret = Collision.ray(p0, p1, [p]);
+		var ret = Collision.rayWithShape(new Ray(p0, p1), p)!=null;
 		p.destroy();
 		p = null;
 

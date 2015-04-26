@@ -99,7 +99,7 @@ class SelectorView extends State
 		if (selector != null)
 		{
 			selector.destroy();
-			selector = null;			
+			selector = null;
 		}
 
 		if (tooltip != null)
@@ -189,7 +189,7 @@ class SelectorView extends State
 		#if luxe_web
 		MyUtils.ShowMessage('Sorry, cannot save sheet on web target!\nMaybe add a text field or something later...');
 		return;
-		#end    		
+		#end
 
 	    #if desktop
 	    // pending https://github.com/underscorediscovery/snow/issues/65
@@ -204,10 +204,10 @@ class SelectorView extends State
 
 	    var s_sheet = current.to_json_data();
 
-	    try 
+	    try
 	    {
 	        sys.io.File.saveContent(path, haxe.Json.stringify(s_sheet, null, "\t"));
-	    } 
+	    }
 	    catch(e:Dynamic)
 	    {
 	        MyUtils.ShowMessage('Failed to save file "$path", I think because "$e"', 'save_sheet');
@@ -229,7 +229,7 @@ class SelectorView extends State
 		#if luxe_web
 		MyUtils.ShowMessage('Sorry, cannot open sheets on web target!\nMaybe add a text field or something later...');
 		return;
-		#end    
+		#end
 
 		#if desktop
 		// pending https://github.com/underscorediscovery/snow/issues/65
@@ -244,10 +244,10 @@ class SelectorView extends State
 
 		var content = null;
 
-		try 
+		try
 		{
 		    content = sys.io.File.getContent(path);
-		} 
+		}
 		catch(e:Dynamic)
 		{
 		    MyUtils.ShowMessage('Failed to open file "$path", I think because "$e"', 'open_sheet');
@@ -263,7 +263,7 @@ class SelectorView extends State
 		{
 			data_buffer.type = 'xml';
 			data_buffer.data = content;
-			img_path = haxe.io.Path.withExtension(path, 'png');		
+			img_path = haxe.io.Path.withExtension(path, 'png');
 		}
 		else
 		{
@@ -285,7 +285,7 @@ class SelectorView extends State
 	        	return;
 	        }
 
-	        img_path = cast (data_buffer.data).image;			
+	        img_path = cast (data_buffer.data).image;
 		}
 
 		if (!sys.FileSystem.exists(img_path))
@@ -309,7 +309,7 @@ class SelectorView extends State
 		if (texture == null) return;
 
 		if (data_buffer != null && data_buffer.data != null)
-		{	
+		{
 			var sheet = null;
 
 			if (data_buffer.type == 'xml')
@@ -337,11 +337,12 @@ class SelectorView extends State
 
 	override function onkeyup(e:luxe.KeyEvent)
 	{
-        if (e.keycode == Key.lctrl || e.keycode == Key.rctrl || e.mod.rctrl || e.mod.lctrl) 
-        {
-            mod_key_timer = e.timestamp;
-            zoom_mod = false;
-        }
+    if (e.keycode == Key.lctrl || e.keycode == Key.rctrl || e.mod.rctrl || e.mod.lctrl ||
+				e.keycode == Key.lmeta || e.keycode == Key.rmeta || e.mod.lmeta || e.mod.rmeta)
+    {
+        mod_key_timer = e.timestamp;
+        zoom_mod = false;
+    }
 
 		var mod_key_delta = (e.timestamp - mod_key_timer);
 
@@ -364,13 +365,13 @@ class SelectorView extends State
 				save_tilesheet();
 			}
 		}
-		else 
+		else
 		{
 			if (e.keycode == Key.tab || e.keycode == Key.escape)
 			{
 				disable();
 				global.views.enable('EditView');
-			} 
+			}
 			else if (MyUtils.valid_group_key(e))
 			{
 				var grp = Keycodes.name(e.keycode);
@@ -395,7 +396,7 @@ class SelectorView extends State
     {
     	trace('disable selector');
     	hide();
-    } //ondisabled  
+    } //ondisabled
 
     override function onmouseup(e:luxe.MouseEvent)
     {
@@ -415,7 +416,8 @@ class SelectorView extends State
 
     override function onkeydown(e:luxe.KeyEvent)
     {
-    	if (e.keycode == Key.lctrl || e.keycode == Key.rctrl)
+    	if (e.keycode == Key.lctrl || e.keycode == Key.rctrl ||
+				  e.keycode == Key.lmeta || e.keycode == Key.rmeta)
     	{
     		zoom_mod = true;
     	}
@@ -427,7 +429,7 @@ class SelectorView extends State
 
     	if (zoom_mod)
     	{
-			batcher.view.zoom += 0.1 * -dir;  	
+			batcher.view.zoom += 0.1 * -dir;
 			return;
 		}
 
