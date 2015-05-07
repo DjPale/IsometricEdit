@@ -296,7 +296,7 @@ class SelectorView extends State
 
 		disable();
 
-		var img = Luxe.loadTexture(img_path, tilesheet_image_loaded);
+		var img = Luxe.resources.load_texture(img_path).then(tilesheet_image_loaded);
 
 		#else
 		MyUtils.ShowMessage('Cannot open sheets for non-desktop targets :(', 'open_sheet');

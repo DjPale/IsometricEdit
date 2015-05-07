@@ -516,7 +516,7 @@ class EditView extends State
 
         for (s in sheets)
         {
-            if (Luxe.resources.find_texture(s.image) != null)
+            if (Luxe.resources.texture(s.image) != null)
             {
                 data_buffer.img_left++;
                 trace('Texture "${s.image}" already loaded');
@@ -554,7 +554,7 @@ class EditView extends State
 
         for (s in sheets)
         {
-            Luxe.loadTexture(s.image, map_image_loaded);
+            Luxe.resources.load_texture(s.image).then(map_image_loaded); 
         }
         #else
         MyUtils.ShowMessage('Cannot open maps for non-desktop targets :(', 'open_map');
