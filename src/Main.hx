@@ -47,47 +47,42 @@ class Main extends luxe.Game
         config.window.height = 600;
         config.window.resizable = false;
 
+        config.preload.jsons.push({id: 'assets/parcel.json'});
+
         return config;
     }
 
     override function ready()
     {
-        Luxe.core.app.assets.strict = false;
-        
         views = new States({ name: 'views' });
 
         global_data.views = views;
 
-        Luxe.loadJSON('assets/parcel.json', function(json_asset) 
-            {
-                var preload = new Parcel();
-                preload.from_json(json_asset.json);
+        var preload = new Parcel();
+        preload.from_json(Luxe.resources.json('assets/parcel.json').asset.json);
 
-                new ParcelProgress({
-                    parcel: preload,
-                    background: new luxe.Color(1, 1, 1, 0.85),
-                    oncomplete: stage2
-                    });
+        new ParcelProgress({
+            parcel: preload,
+            background: new luxe.Color(1, 1, 1, 0.85),
+            oncomplete: stage2
+            });
 
-                preload.load();
-            }
-        );
-
+        preload.load();
     } //ready
 
     function stage2(_)
     {
         global_data.map = new IsometricMap();
-        global_data.font = Luxe.resources.find_font('assets/fonts/ubuntu-mono.fnt');
+        global_data.font = Luxe.resources.font('assets/fonts/ubuntu-mono.fnt');
 
         // Add default sheets
-        var sheet = TileSheetAtlased.from_json_data(Luxe.resources.find_json('assets/kenney/landscapeTiles_sheet.json').json);
+        var sheet = TileSheetAtlased.from_json_data(cast Luxe.resources.json('assets/kenney/landscapeTiles_sheet.json').asset.json);
         global_data.map.sheets.add(sheet);
 
-        sheet = TileSheetAtlased.from_json_data(Luxe.resources.find_json('assets/kenney/cityTiles_sheet.json').json);
+        sheet = TileSheetAtlased.from_json_data(cast Luxe.resources.json('assets/kenney/cityTiles_sheet.json').asset.json);
         global_data.map.sheets.add(sheet);
 
-        sheet = TileSheetAtlased.from_json_data(Luxe.resources.find_json('assets/kenney/buildingTiles_sheet.json').json);
+        sheet = TileSheetAtlased.from_json_data(cast Luxe.resources.json('assets/kenney/buildingTiles_sheet.json').asset.json);
         global_data.map.sheets.add(sheet);
 
         setup();
@@ -131,7 +126,7 @@ class Main extends luxe.Game
             outline: 0.8,
             outline_color: new luxe.Color(0, 0, 0, 1),
             font: global_data.font,
-            shader: Luxe.renderer.shaders.bitmapfont.shader.clone(),
+            shader: Luxe.renderer.shaders.bitmapfont.shader,
             });
 
         global_data.status = status.add(new StatusTextBehavior());

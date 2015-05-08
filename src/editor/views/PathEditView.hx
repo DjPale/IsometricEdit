@@ -203,7 +203,7 @@ class PathEditView extends State
     		return;
     	}
 
-    	graph.refresh_node(cur.p1, pos); 
+    	graph.refresh_node(cur.p1, pos);
     }
 
     function drag_end_action(pos:Vector)
@@ -303,7 +303,7 @@ class PathEditView extends State
     		decide_node_action(mp);
     	}
     	else if (e.button == MouseButton.right)
-    	{	
+    	{
     		decide_delete_action(mp);
     	}
     }
@@ -344,7 +344,8 @@ class PathEditView extends State
 
     override function onkeydown(e:luxe.KeyEvent)
     {
-    	if (e.keycode == Key.lctrl || e.keycode == Key.rctrl)
+    	if (e.keycode == Key.lctrl || e.keycode == Key.rctrl ||
+				  e.keycode == Key.lmeta || e.keycode == Key.rmeta)
     	{
     		zoom_mod = true;
     	}
@@ -352,7 +353,8 @@ class PathEditView extends State
 
 	override function onkeyup(e:luxe.KeyEvent)
 	{
-        if (e.keycode == Key.lctrl || e.keycode == Key.rctrl || e.mod.lctrl || e.mod.rctrl)
+        if (e.keycode == Key.lctrl || e.keycode == Key.rctrl || e.mod.lctrl || e.mod.rctrl ||
+  				  e.keycode == Key.lmeta || e.keycode == Key.rmeta || e.mod.lmeta || e.mod.rmeta)
         {
             mod_key_timer = e.timestamp;
             zoom_mod = false;
@@ -418,5 +420,5 @@ class PathEditView extends State
     {
     	hide();
     	trace('disable path edit');
-    } //ondisabled  
+    } //ondisabled
 }

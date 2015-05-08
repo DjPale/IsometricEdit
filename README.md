@@ -40,80 +40,82 @@ A brief overview of the main functions for the editors. The editor includes the 
 
 They contain some predefined information - some groups are defined and offsets for some of the building tiles.
 
+Note that the Mac meta key <kbd>&#8984;</kbd> can be used wherever <kbd>Ctrl</kbd> key is denoted.
+
 ### Editor basics
 - Place tiles with left mouse button
 - Scroll through tiles with scroll wheel (depending on group selection)
-- Change tilesheets with `Ctrl` right mouse button
+- Change tilesheets with <kbd>Ctrl</kbd> and right mouse button
 - Delete tile with right mouse button
-- Zoom by holding `Ctrl` and use scroll wheel
+- Zoom by holding <kbd>Ctrl</kbd> and use scroll wheel
 - Pan by holding down middle mouse button and moving the mouse
-- Select groups with `a..z` and `0..9` (also cycles through different sheets if they have similar groups)
+- Select groups with <kbd>a</kbd>`..`<kbd>z</kbd> and <kbd>0</kbd>`..`<kbd>9</kbd> (also cycles through different sheets if they have similar groups)
 - See the section for Shortcut keys for additional info
-- Open and save maps as JSON-files using `Ctrl-o` and `Ctrl-s`. Note that sprite sheet JSON data are also embedded in the map files for 
+- Open and save maps as JSON-files using <kbd>Ctrl</kbd>`+`<kbd>o</kbd> and <kbd>Ctrl</kbd>`+`<kbd>s</kbd>. Note that sprite sheet JSON data are also embedded in the map files for 
 now (NOT the image).
-- Adjust offsets of tile under cursor with `Ctrl` and arrow keys (does not affect tile in tilesheet, this can be done in the editor). NB! This will be overwritten by adjusting the offset of the tile in the tile sheet.
-- To tag a position, use `F1..F12`.
+- Adjust offsets of tile under cursor with <kbd>Ctrl</kbd> and arrow keys (does not affect tile in tilesheet, this can be done in the editor). NB! This will be overwritten by adjusting the offset of the tile in the tile sheet.
+- To tag a position, use <kbd>F1</kbd>`..`<kbd>F12</kbd>.
 
 ### Selector basics
-- Bring up tile selector / group editor with `Tab`
+- Bring up tile selector / group editor with <kbd>Tab</kbd>
 - Either select a tile for editing with left mouse button (closes selector)
-- Toggle group assignment with keys `a..z` or `0..9`
+- Toggle group assignment with keys <kbd>a</kbd>`..`<kbd>z</kbd> or <kbd>0</kbd>`..`<kbd>9</kbd>
 - Bring up tile path editor with right mouse button
 - Switch tile sheets with mouse wheel
-- Zoom by holding down `Ctrl` and use scroll wheel
-- Open and save tile sheets using `Ctrl-o` and `Ctrl-s`. Note that you can open either JSON-files which contains grouping and tile path information; or you can open texture atlases in XML format. Note that the texture file name is assumed to be the exact same as the base name with extension `.png`. If another tilesheet with the same image exists, it will be overwritten.
+- Zoom by holding down <kbd>Ctrl</kbd> and use scroll wheel
+- Open and save tile sheets using <kbd>Ctrl</kbd>`+`<kbd>o</kbd> and <kbd>Ctrl</kbd>`+`<kbd>s</kbd>. Note that you can open either JSON-files which contains grouping and tile path information; or you can open texture atlases in XML format. Note that the texture file name is assumed to be the exact same as the base name with extension `.png`. If another tilesheet with the same image exists, it will be overwritten.
 
 ### Path basics
-- `Ctrl` + Left click to start a new path, add more nodes with left click.
+- <kbd>Ctrl</kbd> + Left click to start a new path, add more nodes with left click.
 - Left click and hold to drag node positons after they have been placed
 - Right click cancels node insertion for the current path or deletes an existing node
-- Zoom by holding down `Ctrl` and use scroll wheel
-- Adjust offsets of tile under cursor with `Ctrl` and arrow keys. NB! This will overwrite any individual tile adjustements for instances of the tile in the map.
+- Zoom by holding down <kbd>Ctrl</kbd> and use scroll wheel
+- Adjust offsets of tile under cursor with <kbd>Ctrl</kbd> and arrow keys. NB! This will overwrite any individual tile adjustements for instances of the tile in the map.
 
 ### Test basics
 - Watch the cute cars drive around
 
 ### Shortcut Keys
 
-In general, `Ctrl` is used for most editor commands. The notable exception being `Tab` which brings up the tile selector / group and `Space` which toggles test mode.
+In general, <kbd>Ctrl</kbd> is used for most editor commands. The notable exception being <kbd>Tab</kbd> which brings up the tile selector / group and <kbd>Space</kbd> which toggles test mode.
 
 #### Editor
 
 The base grid size is currently `64x32` which allows for fine placement.
 
-- `Tab` brings up the tile selector / group editor
-- `Space` toggles test mode by putting small cars that drive around on the map
-- `Ctrl-c` selects the tile under the tile cursor (cancels group selection)
-- `Ctrl-z` undo last changes (has a small undo stack)
-- `Ctrl-1..3` changes the current grid snap level from 1 (default) through 3
-- `Ctrl-x` resets camera and zoom to (0,0)
-- `Ctrl-k` kills map data and loads default tilesheet
-- `Ctrl-t` toggle visibility of status text + tile tooltip
-- `Ctrl-q` raise tile depth of tile under tile cursor by 1
-- `Ctrl-a` lower tile depth of tile under tile cursor by 1
-- `Ctrl-s` save map as JSON (only when compiled to native targets)
-- `Ctrl-o` open map from JSON (only when compiled to native targets)
-- `Ctrl-g` shows and hides the path graph
-- `Ctrl-r` rebuilds the path graph based on the latest tile data and applies offsets
-- `Ctrl-d` brings up the path editor for the tag under the tile cursor
-- `Ctrl-arrows` adjust individual tile offset
-- `F1..F12` tag current map location with a given number from 0 to 11
-- `0..9` and `a..z` selects the group. Use mouse wheel to scroll through all tiles in group. Invalid selection selects all tiles
+- <kbd>Tab</kbd> brings up the tile selector / group editor
+- <kbd>Space</kbd> toggles test mode by putting small cars that drive around on the map
+- <kbd>Ctrl</kbd>`+`<kbd>c</kbd> selects the tile under the tile cursor (cancels group selection)
+- <kbd>Ctrl</kbd>`+`<kbd>z</kbd> undo last changes (has a small undo stack)
+- <kbd>Ctrl</kbd>`+`<kbd>1</kbd>`..`<kbd>3</kbd> changes the current grid snap level from 1 (default) through 3
+- <kbd>Ctrl</kbd>`+`<kbd>x</kbd> resets camera and zoom to (0,0)
+- <kbd>Ctrl</kbd>`+`<kbd>k</kbd> kills map data and loads default tilesheet
+- <kbd>Ctrl</kbd>`+`<kbd>t</kbd> toggle visibility of status text + tile tooltip
+- <kbd>Ctrl</kbd>`+`<kbd>w</kbd> raise tile depth of tile under tile cursor by 1
+- <kbd>Ctrl</kbd>`+`<kbd>a</kbd> lower tile depth of tile under tile cursor by 1
+- <kbd>Ctrl</kbd>`+`<kbd>s</kbd> save map as JSON (only when compiled to native targets)
+- <kbd>Ctrl</kbd>`+`<kbd>o</kbd> open map from JSON (only when compiled to native targets)
+- <kbd>Ctrl</kbd>`+`<kbd>g</kbd> shows and hides the path graph
+- <kbd>Ctrl</kbd>`+`<kbd>r</kbd> rebuilds the path graph based on the latest tile data and applies offsets
+- <kbd>Ctrl</kbd>`+`<kbd>d</kbd> brings up the path editor for the tag under the tile cursor
+- <kbd>Ctrl</kbd>`+`<kbd>arrows</kbd> adjust individual tile offset
+- <kbd>F1</kbd>`..`<kbd>F12</kbd> tag current map location with a given number from 0 to 11
+- <kbd>0</kbd>`..`<kbd>9</kbd> and <kbd>a</kbd>`..`<kbd>z</kbd> selects the group. Use mouse wheel to scroll through all tiles in group. Invalid selection selects all tiles
 
 #### Tile selector / Group editor
 
-- `a..z` and `0..9` assigns or removes a tile to the group given by the key
-- `Tab` or `Esc` exits without selection
-- `Ctrl-o` opens a new tile sheet in either JSON format - or an XML texture atlas (only when compiled to native targets)
-- `Ctrl-s` save a tile sheet in JSON format (the image will not be saved, sorry!) (only when compiled to native targets)
-- `Ctrl-x` resets camera position and zoom to original setting
+- <kbd>a</kbd>`..`<kbd>z</kbd> and <kbd>0</kbd>`..`<kbd>9</kbd> assigns or removes a tile to the group given by the key
+- <kbd>Tab</kbd> or <kbd>Esc</kbd> exits without selection
+- <kbd>Ctrl</kbd>`+`<kbd>o</kbd> opens a new tile sheet in either JSON format - or an XML texture atlas (only when compiled to native targets)
+- <kbd>Ctrl</kbd>`+`<kbd>s</kbd> save a tile sheet in JSON format (the image will not be saved, sorry!) (only when compiled to native targets)
+- <kbd>Ctrl</kbd>`+`<kbd>x</kbd> resets camera position and zoom to original setting
 
 #### Path editor
 
-- `Tab` or `Esc` or `Ctrl-d` exits
-- `Ctrl-x` resets camera zoom and origin to original setting
-- `Ctrl-arrows` adjust global tile offset
+- <kbd>Tab</kbd> or <kbd>Esc</kbd> or <kbd>Ctrl</kbd>`+`<kbd>d</kbd> exits
+- <kbd>Ctrl</kbd>`+`<kbd>x</kbd> resets camera zoom and origin to original setting
+- <kbd>Ctrl</kbd>`+`<kbd>arrows</kbd> adjust global tile offset
 
 #### Test mode
 
-- `Space` or `Esc` exits
+- <kbd>Space</kbd> or <kbd>Esc</kbd> exits

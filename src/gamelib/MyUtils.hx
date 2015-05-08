@@ -32,13 +32,13 @@ class MyUtils
 
     public static inline function valid_group_key(e:luxe.KeyEvent) : Bool
     {
-        return !(e.mod.lctrl || e.mod.rctrl) && ((e.keycode >= Key.key_0 && e.keycode <= Key.key_9) || 
+        return !(e.mod.lctrl || e.mod.rctrl || e.mod.lmeta || e.mod.rmeta) && ((e.keycode >= Key.key_0 && e.keycode <= Key.key_9) ||
             (e.keycode >= Key.key_a && e.keycode <= Key.key_z));
     }
 
     public static inline function valid_tag_key(e:luxe.KeyEvent) : Bool
     {
-        return !(e.mod.lctrl || e.mod.rctrl) && (e.keycode >= Key.f1 && e.keycode <= Key.f12);
+        return !(e.mod.lctrl || e.mod.rctrl || e.mod.lmeta || e.mod.rmeta) && (e.keycode >= Key.f1 && e.keycode <= Key.f12);
     }
 
     public static inline function key_to_tag(e:luxe.KeyEvent) : Int

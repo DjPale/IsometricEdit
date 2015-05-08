@@ -44,7 +44,7 @@ class TileTooltipBehavior extends Component
             outline: 0.8,
             outline_color: new luxe.Color(0, 0, 0, 1),
             font: font,
-            shader: Luxe.renderer.shaders.bitmapfont.shader.clone(),
+            shader: Luxe.renderer.shaders.bitmapfont.shader,
 			visible: false,
             align: TextAlign.center,
 			});
@@ -59,7 +59,7 @@ class TileTooltipBehavior extends Component
             outline: 0.8,
             outline_color: new luxe.Color(0, 0, 0, 1),
             font: font,
-            shader: Luxe.renderer.shaders.bitmapfont.shader.clone(),
+            shader: Luxe.renderer.shaders.bitmapfont.shader,
             visible: false,
             align: TextAlign.center
 			});

@@ -97,7 +97,7 @@ class TileSheetAtlased
             t_groups.push({ k: k, v: groups[k] }); 
         }
 
-        return { name: name, image: image.asset.id, atlas: t_atlas, groups: t_groups };
+        return { name: name, image: image.id, atlas: t_atlas, groups: t_groups };
     }
 
     public static function from_json_data(data:TileSheetAtlasedSerialize) : TileSheetAtlased
@@ -106,7 +106,7 @@ class TileSheetAtlased
 
         var sheet = new TileSheetAtlased(data.name);
 
-        sheet.image = Luxe.resources.find_texture(data.image);
+        sheet.image = Luxe.resources.texture(data.image);
 
         if (sheet.image == null) return null;
 

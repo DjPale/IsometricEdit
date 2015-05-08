@@ -97,7 +97,7 @@ class TestView extends State
                     function(tgt:PathingTarget) 
                     {
                         var spr = tgt.sprite;
-                        spr.texture = Luxe.loadTexture('assets/tests/ambulance_${tgt.direction}.png');
+                        spr.texture = Luxe.resources.texture('assets/tests/ambulance_${tgt.direction}.png');
                         spr.size = new Vector(spr.texture.width, spr.texture.height);
                     });
 
