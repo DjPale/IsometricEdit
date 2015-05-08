@@ -737,7 +737,7 @@ class EditView extends State
     		zoom_mod = false;
     	}
 
-			trace(Key.name(e.keycode));
+		//trace(Key.name(e.keycode));
 
     	var mod_key_delta = (e.timestamp - mod_key_timer);
 
@@ -765,7 +765,7 @@ class EditView extends State
             {
                 restore_tile();
             }
-            else if (e.keycode == Key.key_q)
+            else if (e.keycode == Key.key_w)
             {
                 change_depth(1);
             }
