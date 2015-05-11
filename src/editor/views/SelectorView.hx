@@ -108,8 +108,8 @@ class SelectorView extends State
 			tooltip = null;
 		}
 
-		Luxe.events.disconnect(event_id_assign);
-		Luxe.events.disconnect(event_id_detail);
+		Luxe.events.unlisten(event_id_assign);
+		Luxe.events.unlisten(event_id_detail);
 	}
 
 	function group_assign(e:SelectEvent)
@@ -451,7 +451,10 @@ class SelectorView extends State
     			z *= 5.0;
     		}
 
-    		batcher.view.pos.add(new Vector(-e.xrel * z, -e.yrel * z));
+    		var x = Math.round(-e.xrel * z);
+    		var y = Math.round(-e.yrel * z);
+
+    		batcher.view.pos.add(new Vector(x, y));
     	}
     	else if (tooltip != null)
     	{

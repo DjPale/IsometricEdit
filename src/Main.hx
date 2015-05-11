@@ -13,6 +13,7 @@ import phoenix.BitmapFont;
 
 import gamelib.IsometricMap;
 import gamelib.TileSheetAtlased;
+import gamelib.MyUtils;
 
 import editor.behaviors.StatusTextBehavior;
 import editor.views.EditView;
@@ -126,7 +127,7 @@ class Main extends luxe.Game
             outline: 0.8,
             outline_color: new luxe.Color(0, 0, 0, 1),
             font: global_data.font,
-            shader: Luxe.renderer.shaders.bitmapfont.shader,
+            shader: MyUtils.font_shader()
             });
 
         global_data.status = status.add(new StatusTextBehavior());

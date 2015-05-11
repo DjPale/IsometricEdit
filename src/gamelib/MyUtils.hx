@@ -61,4 +61,9 @@ class MyUtils
     {
         return new Vector(p.x, p.y);
     }
+
+    public static inline function font_shader() : phoenix.Shader
+    {
+        return Luxe.renderer.shaders.bitmapfont.shader.clone(Luxe.renderer.shaders.bitmapfont.shader.id);
+    }
 }

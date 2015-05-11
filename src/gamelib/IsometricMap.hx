@@ -493,6 +493,6 @@ class IsometricMap
         var sx = Std.int(p.x) * width + Math.abs(Std.int(p.y) % 2) * width_half;
         var sy = Std.int(p.y) * height_half;
 
-        return new Vector(sx, sy);
+        return new Vector(Math.round(sx), Math.round(sy));
     }
 }

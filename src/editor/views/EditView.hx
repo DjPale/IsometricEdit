@@ -669,8 +669,11 @@ class EditView extends State
 
     function move_camera(pos:Vector)
     {
-        batcher.view.pos.add(pos);
-        graph_batcher.view.pos.add(pos);
+        var x:Float = Math.round(pos.x);
+        var y:Float = Math.round(pos.y);
+
+        batcher.view.pos.add_xyz(x, y);
+        graph_batcher.view.pos.add_xyz(x, y);
     }
 
     function zoom_camera(z_offset:Float)
