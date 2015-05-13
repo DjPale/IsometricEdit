@@ -25,6 +25,9 @@ The following main features are currently not supported yet
 The [issue tracker](https://github.com/DjPale/IsometricEdit/issues) contains list of bugs and enhancements. The 2 current 'serious' issues being:
 - The depth calc for negative coords is not accounted for, so always build left and downwards. The top left of the start camera is (0,0)
 - The graph merge algorithm is not 100% foolproof yet
+- [linux] GL window content always on top, which may hide the dialog boxes (and be annoying
+)
+- [linux] libgtk-3 required (because of dialog boxes)
 
 ## Disclaimer
 It's most likely not bug-free so usage is solely your own responsibility obviously.
