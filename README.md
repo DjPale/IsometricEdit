@@ -42,6 +42,10 @@ They contain some predefined information - some groups are defined and offsets f
 
 Note that the Mac meta key <kbd>&#8984;</kbd> can be used wherever <kbd>Ctrl</kbd> key is denoted.
 
+### Command line parameters
+Note that due to atlasing of tilesheets and the way GL renders textures, artifacts can occur when using (default) linear texture interpolation. There are some workarounds for this, but I have taken the easy path and changing the default texture parameters to `nearest`. I have created a command line option to change this on desktop builds:
+- `linear` will change to linear interpolation, but then artifiacts will appear at certain zoom levels.
+
 ### Editor basics
 - Place tiles with left mouse button
 - Scroll through tiles with scroll wheel (depending on group selection)

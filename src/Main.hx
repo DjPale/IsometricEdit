@@ -50,6 +50,19 @@ class Main extends luxe.Game
 
         config.preload.jsons.push({id: 'assets/parcel.json'});
 
+        Texture.default_filter = FilterType.nearest;
+
+        #if desktop
+        var args = Sys.args();
+        if (args != null && args.length > 0)
+        {
+            if (args[0].toLowerCase() == 'linear')
+            {
+                Texture.default_filter = FilterType.linear;
+            }
+        }
+        #end
+
         return config;
     }
 
